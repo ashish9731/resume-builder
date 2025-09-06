@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import { getOpenAI } from '@/lib/openai'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 export async function POST(req: Request) {
   try {
@@ -63,6 +59,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
     }
 
+    const openai = getOpenAI()
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [

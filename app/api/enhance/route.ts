@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { openai, systemGuardrails } from '@/lib/openai'
+import { getOpenAI, systemGuardrails } from '@/lib/openai'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -99,6 +99,7 @@ ${analysis ? analysis.substring(0, 1500) : 'No specific analysis provided - appl
 
 🎯 DELIVERABLE: Return a complete, professionally formatted resume that will make this candidate irresistible to top employers. Focus on impact, value, and professional excellence.`
 
+    const openai = getOpenAI()
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [

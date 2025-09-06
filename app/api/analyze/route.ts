@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { openai, systemGuardrails } from '@/lib/openai'
+import { getOpenAI, systemGuardrails } from '@/lib/openai'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -82,6 +82,7 @@ export async function POST(req: Request) {
 
 🎯 DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the resume. Focus on concrete improvements that will elevate this resume from good to exceptional. Include specific recommendations for each section that will make this candidate irresistible to top employers.`
 
+    const openai = getOpenAI()
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [

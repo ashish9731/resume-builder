@@ -1,15 +1,25 @@
 import OpenAI from 'openai'
 
-// Create OpenAI instance with proper error handling
-const getOpenAI = () => {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
+// Create OpenAI instance with lazy initialization
+let openaiInstance: OpenAI | null = null
+
+export const getOpenAI = () => {
+  if (!openaiInstance) {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
+    }
+    openaiInstance = new OpenAI({ apiKey })
   }
-  return new OpenAI({ apiKey })
+  return openaiInstance
 }
 
-export const openai = getOpenAI()
+// For backward compatibility, export a getter
+export const openai = new Proxy({} as OpenAI, {
+  get(target, prop) {
+    return getOpenAI()[prop as keyof OpenAI]
+  }
+})
 
 export const systemGuardrails = `
 You are a resume optimization assistant. Your job is to:
