@@ -1,0 +1,166 @@
+import { NextResponse } from 'next/server'
+import puppeteer from 'puppeteer'
+
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
+export async function POST(request: Request) {
+  try {
+    const { text } = await request.json()
+
+    if (!text) {
+      return NextResponse.json({ error: 'No text provided' }, { status: 400 })
+    }
+
+    // Clean the text and remove all formatting characters and branding
+    const cleanText = text
+      .replace(/\*\*/g, '') // Remove **
+      .replace(/\*/g, '') // Remove *
+      .replace(/\|/g, '') // Remove |
+      .replace(/\//g, '') // Remove /
+      .replace(/###/g, '') // Remove ###
+      .replace(/##/g, '') // Remove ##
+      .replace(/#/g, '') // Remove #
+      .replace(/---/g, '') // Remove ---
+      .replace(/--/g, '') // Remove --
+      .replace(/__/g, '') // Remove __
+      .replace(/_/g, '') // Remove _
+      .replace(/\[/g, '') // Remove [
+      .replace(/\]/g, '') // Remove ]
+      .replace(/\(/g, '') // Remove (
+      .replace(/\)/g, '') // Remove )
+      .replace(/\{/g, '') // Remove {
+      .replace(/\}/g, '') // Remove }
+      .replace(/\[/g, '') // Remove [
+      .replace(/\]/g, '') // Remove ]
+      .replace(/\+/g, '') // Remove +
+      .replace(/=/g, '') // Remove =
+      .replace(/~/g, '') // Remove ~
+      .replace(/`/g, '') // Remove `
+      .replace(/\^/g, '') // Remove ^
+      .replace(/&/g, '') // Remove &
+      .replace(/%/g, '') // Remove %
+      .replace(/\$/g, '') // Remove $
+      .replace(/@/g, '') // Remove @
+      .replace(/!/g, '') // Remove !
+      .replace(/\?/g, '') // Remove ?
+      .replace(/:/g, '') // Remove :
+      .replace(/;/g, '') // Remove ;
+      .replace(/"/g, '') // Remove "
+      .replace(/'/g, '') // Remove '
+      .replace(/</g, '') // Remove <
+      .replace(/>/g, '') // Remove >
+      .replace(/\\/g, '') // Remove \
+      .replace(/This revised resume emphasizes.*?ATS compatibility\./g, '') // Remove branding text
+      .replace(/This enhanced resume.*?professional standards\./g, '') // Remove more branding text
+      .replace(/The resume has been.*?industry standards\./g, '') // Remove additional branding text
+      .replace(/\n\n\n+/g, '\n\n') // Remove extra line breaks
+      .trim()
+
+    // Create clean, professional HTML resume with exact content
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Resume</title>
+          <style>
+            @page {
+              margin: 0.75in;
+              size: A4;
+            }
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: 'Times New Roman', serif;
+              line-height: 1.4;
+              color: #000;
+              background: white;
+              font-size: 11pt;
+            }
+            
+            .resume-container {
+              max-width: 8.5in;
+              margin: 0 auto;
+              border: 1px solid #000;
+              padding: 20px;
+            }
+            
+            .resume-content {
+              font-size: 11pt;
+              line-height: 1.4;
+              white-space: pre-wrap;
+            }
+            
+            @media print {
+              body { margin: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="resume-container">
+            <div class="resume-content">${cleanText}</div>
+          </div>
+        </body>
+      </html>
+    `
+
+    // Generate PDF using Puppeteer
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox', 
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
+    })
+    
+    const page = await browser.newPage()
+    
+    await page.setViewport({
+      width: 1200,
+      height: 800,
+      deviceScaleFactor: 1
+    })
+    
+    await page.setContent(htmlContent, { 
+      waitUntil: 'networkidle0',
+      timeout: 30000 
+    })
+    
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: {
+        top: '0.75in',
+        right: '0.75in',
+        bottom: '0.75in',
+        left: '0.75in'
+      },
+      displayHeaderFooter: false
+    })
+    
+    await browser.close()
+
+    return new NextResponse(Buffer.from(pdfBuffer), {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="resume.pdf"',
+      },
+    })
+
+  } catch (error) {
+    console.error('PDF generation error:', error)
+    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
+  }
+}
