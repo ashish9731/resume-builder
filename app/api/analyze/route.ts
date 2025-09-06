@@ -8,6 +8,7 @@ export async function POST(req: Request) {
   try {
     // Validate request
     if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key not configured')
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
         { status: 500 }
