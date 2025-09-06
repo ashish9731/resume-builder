@@ -1,6 +1,8 @@
 import OpenAI from 'openai'
 
-export const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+export const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY
+})
 
 export const systemGuardrails = `
 You are a resume optimization assistant. Your job is to:
