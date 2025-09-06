@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Upload, FileText, Download, Sparkles, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 
 export default function UploadPage() {
   const router = useRouter()
@@ -136,11 +137,10 @@ export default function UploadPage() {
     }
   }
 
-  const handleSignOut = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user')
-      router.push('/')
-    }
+  const handleSignOut = async () => {
+    const supabase = getSupabaseBrowser()
+    await supabase.auth.signOut()
+    router.push('/')
   }
 
   return (

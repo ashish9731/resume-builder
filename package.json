@@ -10,7 +10,9 @@
     },
     "dependencies": {
         "@radix-ui/react-slot": "^1.0.2",
-        "@supabase/supabase-js": "^2.45.4",
+        "@supabase/auth-helpers-nextjs": "^0.10.0",
+        "@supabase/ssr": "^0.7.0",
+        "@supabase/supabase-js": "^2.57.2",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
         "isomorphic-dompurify": "^2.26.0",

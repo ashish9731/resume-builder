@@ -6,7 +6,7 @@ import { ArrowLeft, User, Briefcase, GraduationCap, Award, Download, Sparkles, C
 import { Button } from '@/components/ui/button'
 import PersonalInfoStep from '@/components/PersonalInfoStep'
 import SummaryStep from '@/components/SummaryStep'
-// Removed Supabase import
+import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 
 const CreatePage = () => {
   const router = useRouter()
@@ -257,11 +257,10 @@ const CreatePage = () => {
     }
   }, [generateResume])
 
-  const handleSignOut = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user')
-      router.push('/')
-    }
+  const handleSignOut = useCallback(async () => {
+    const supabase = getSupabaseBrowser()
+    await supabase.auth.signOut()
+    router.push('/')
   }, [router])
 
   const handlePrevStep = useCallback(() => {

@@ -1,9 +1,10 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -14,23 +15,40 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState('')
 
+  const supabase = getSupabaseBrowser()
+
+  useEffect(() => {
+    // Check if user is already authenticated
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.push('/app')
+      }
+    }
+    checkUser()
+  }, [router, supabase.auth])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
 
     try {
-      // Simple test authentication - any email/password works
-      if (email && password) {
-        // Set a simple session in localStorage
-        localStorage.setItem('user', JSON.stringify({ email, isAuthenticated: true }))
-        setMessage('Successfully signed in! Redirecting...')
-        // Direct redirect
-        setTimeout(() => {
-          window.location.href = '/app'
-        }, 1000)
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+        if (error) throw error
+        setMessage('Check your email for the confirmation link!')
       } else {
-        setMessage('Please enter both email and password')
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+        if (error) throw error
+        setMessage('Successfully signed in! Redirecting...')
+        router.push('/app')
       }
     } catch (error: any) {
       setMessage(error.message)
