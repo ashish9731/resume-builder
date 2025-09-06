@@ -35,12 +35,27 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: undefined // Disable email confirmation
+          }
         })
         if (error) throw error
-        setMessage('Check your email for the confirmation link!')
+        
+        // If signup is successful and user is immediately confirmed
+        if (data.user && !data.user.email_confirmed_at) {
+          // For immediate login, try to sign in right after signup
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+          if (signInError) throw signInError
+        }
+        
+        setMessage('Account created successfully! Redirecting...')
+        router.push('/app')
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
