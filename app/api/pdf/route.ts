@@ -133,9 +133,10 @@ export async function POST(request: Request) {
     await browser.close()
 
     // ✅ FIX: use pdfBuffer.buffer (ArrayBuffer) so Response accepts it
-const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+// Convert pdfBuffer to Node.js Buffer explicitly
+const nodeBuffer = Buffer.from(pdfBuffer)
 
-return new Response(blob, {
+return new Response(nodeBuffer, {
   headers: {
     'Content-Type': 'application/pdf',
     'Content-Disposition': 'attachment; filename="resume.pdf"',
