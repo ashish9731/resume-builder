@@ -47,6 +47,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No HTML or text provided' }, { status: 400 })
     }
 
+    // Launch Puppeteer
     let browser
     try {
       const executablePath = await chromium.executablePath()
@@ -76,19 +77,14 @@ export async function POST(request: Request) {
 
     await browser.close()
 
-    // Convert Buffer to ArrayBuffer properly
-    const arrayBuffer = pdfBuffer.buffer.slice(
-      pdfBuffer.byteOffset,
-      pdfBuffer.byteOffset + pdfBuffer.byteLength
-    )
+    // ✅ Wrap the Node.js Buffer in Uint8Array to satisfy BodyInit type
+    const pdfArray = new Uint8Array(pdfBuffer)
 
-    // ✅ Use Response constructor that works with ArrayBuffer
-    return new Response(arrayBuffer, {
+    return new Response(pdfArray, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
-        'Content-Length': pdfBuffer.length.toString(),
       },
     })
   } catch (error) {
