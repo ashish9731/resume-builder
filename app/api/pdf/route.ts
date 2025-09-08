@@ -104,14 +104,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid PDF buffer type.' }, { status: 500 });
     }
 
-    return new NextResponse(outputBuffer, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="resume.pdf"',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-      },
-    });
+  return new NextResponse(outputBuffer, {
+  headers: {
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': 'attachment; filename="resume.pdf"',
+    // ...other headers
+  },
+});
     // --- END IMPORTANT PART ---
 
   } catch (error) {
