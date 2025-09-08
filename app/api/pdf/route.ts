@@ -8,7 +8,8 @@ export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
-    const { html, text } = await request.json() // Accept both HTML or plain text
+    // Accept JSON input
+    const { html, text } = await request.json()
 
     let content = ''
 
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
       // Use provided HTML directly
       content = html
     } else if (text) {
-      // Clean and wrap text in HTML if only text is provided
+      // Clean text and wrap in HTML template
       const cleanText = text
         .replace(/\*\*|\*|\||\/|###|##|#|---|--|__|_/g, '')
         .replace(/\[|\]|\(|\)|\{|\}|\+|=|~|`|\^|&|%|\$|@|!|\?|:|;|"|'|<|>|\\/g, '')
@@ -81,13 +82,10 @@ export async function POST(request: Request) {
 
     await browser.close()
 
-    // Convert Node.js Buffer to ArrayBuffer for Response
-    const arrayBuffer = pdfBuffer.buffer.slice(
-      pdfBuffer.byteOffset,
-      pdfBuffer.byteOffset + pdfBuffer.byteLength
-    )
+    // Wrap buffer in Uint8Array to fix TypeScript / Next.js issue
+    const uint8Array = new Uint8Array(pdfBuffer)
 
-    return new Response(arrayBuffer, {
+    return new Response(uint8Array, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
