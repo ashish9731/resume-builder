@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server'
 import chromium from '@sparticuz/chromium'
 import puppeteerCore from 'puppeteer-core'
 import localPuppeteer from 'puppeteer'
@@ -10,13 +11,10 @@ export async function POST(request: Request) {
     const { text } = await request.json()
 
     if (!text) {
-      return new Response(JSON.stringify({ error: 'No text provided' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return NextResponse.json({ error: 'No text provided' }, { status: 400 })
     }
 
-    // Clean the text and remove formatting/branding
+    // Clean the text
     const cleanText = text
       .replace(/\*\*/g, '')
       .replace(/\*/g, '')
@@ -59,7 +57,7 @@ export async function POST(request: Request) {
       .replace(/\n\n\n+/g, '\n\n')
       .trim()
 
-    // Create clean, professional HTML resume
+    // HTML for PDF
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -70,11 +68,6 @@ export async function POST(request: Request) {
             @page {
               margin: 0.75in;
               size: A4;
-            }
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
             }
             body {
               font-family: 'Times New Roman', serif;
@@ -94,9 +87,6 @@ export async function POST(request: Request) {
               line-height: 1.4;
               white-space: pre-wrap;
             }
-            @media print {
-              body { margin: 0; }
-            }
           </style>
         </head>
         <body>
@@ -107,7 +97,7 @@ export async function POST(request: Request) {
       </html>
     `
 
-    // Launch Puppeteer (Vercel-compatible)
+    // Puppeteer setup (Vercel or local)
     let browser
     const executablePath = await chromium.executablePath()
     if (executablePath && executablePath.length > 0) {
@@ -118,7 +108,6 @@ export async function POST(request: Request) {
         headless: chromium.headless,
       })
     } else {
-      // Local dev fallback
       browser = await localPuppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -139,13 +128,12 @@ export async function POST(request: Request) {
         bottom: '0.75in',
         left: '0.75in',
       },
-      displayHeaderFooter: false,
     })
 
     await browser.close()
 
-    // ✅ Return correct Response (not NextResponse)
-    return new Response(pdfBuffer, {
+    // ✅ FIX: use pdfBuffer.buffer (ArrayBuffer) so Response accepts it
+    return new Response(pdfBuffer.buffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
@@ -153,9 +141,6 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error('PDF generation error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to generate PDF' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }
 }
