@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       .replace(/\n\n\n+/g, '\n\n')
       .trim()
 
-    // HTML for PDF
+    // HTML content
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -65,28 +65,10 @@ export async function POST(request: Request) {
           <meta charset="utf-8">
           <title>Resume</title>
           <style>
-            @page {
-              margin: 0.75in;
-              size: A4;
-            }
-            body {
-              font-family: 'Times New Roman', serif;
-              line-height: 1.4;
-              color: #000;
-              background: white;
-              font-size: 11pt;
-            }
-            .resume-container {
-              max-width: 8.5in;
-              margin: 0 auto;
-              border: 1px solid #000;
-              padding: 20px;
-            }
-            .resume-content {
-              font-size: 11pt;
-              line-height: 1.4;
-              white-space: pre-wrap;
-            }
+            @page { margin: 0.75in; size: A4; }
+            body { font-family: 'Times New Roman', serif; line-height: 1.4; font-size: 11pt; }
+            .resume-container { max-width: 8.5in; margin: 0 auto; border: 1px solid #000; padding: 20px; }
+            .resume-content { white-space: pre-wrap; }
           </style>
         </head>
         <body>
@@ -97,17 +79,18 @@ export async function POST(request: Request) {
       </html>
     `
 
-    // Puppeteer setup (Vercel or local)
+    // Launch Puppeteer
     let browser
-    const executablePath = await chromium.executablePath()
-    if (executablePath && executablePath.length > 0) {
+    try {
+      const executablePath = await chromium.executablePath()
       browser = await puppeteerCore.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath,
         headless: chromium.headless,
       })
-    } else {
+    } catch {
+      // fallback for local development
       browser = await localPuppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -115,34 +98,29 @@ export async function POST(request: Request) {
     }
 
     const page = await browser.newPage()
-    await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 1 })
+    await page.setViewport({ width: 1200, height: 800 })
     await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 30000 })
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      preferCSSPageSize: true,
-      margin: {
-        top: '0.75in',
-        right: '0.75in',
-        bottom: '0.75in',
-        left: '0.75in',
-      },
+      margin: { top: '0.75in', right: '0.75in', bottom: '0.75in', left: '0.75in' },
     })
 
     await browser.close()
 
-    // ✅ FIX: use pdfBuffer.buffer (ArrayBuffer) so Response accepts it
-// Convert pdfBuffer to Node.js Buffer explicitly
-const nodeBuffer = Buffer.from(pdfBuffer)
+    // Convert Node.js Buffer to ArrayBuffer for Response
+    const arrayBuffer = pdfBuffer.buffer.slice(
+      pdfBuffer.byteOffset,
+      pdfBuffer.byteOffset + pdfBuffer.byteLength
+    )
 
-return new Response(nodeBuffer, {
-  headers: {
-    'Content-Type': 'application/pdf',
-    'Content-Disposition': 'attachment; filename="resume.pdf"',
-  },
-})
-
+    return new Response(arrayBuffer, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="resume.pdf"',
+      },
+    })
   } catch (error) {
     console.error('PDF generation error:', error)
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
