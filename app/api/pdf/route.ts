@@ -1,27 +1,32 @@
-import { NextResponse } from 'next/server';
-import chromium from '@sparticuz/chromium';
-import puppeteerCore from 'puppeteer-core';
-import localPuppeteer from 'puppeteer';
+import { NextResponse } from 'next/server'
+import chromium from '@sparticuz/chromium'
+import puppeteerCore from 'puppeteer-core'
+import localPuppeteer from 'puppeteer'
 
-export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
+// Helper: Convert Buffer/Uint8Array to ArrayBuffer for Blob constructor
+function toArrayBuffer(buf: Uint8Array | Buffer): ArrayBuffer {
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+}
 
 export async function POST(request: Request) {
   try {
-    const { text } = await request.json();
+    const { text } = await request.json()
 
     if (!text) {
-      return NextResponse.json({ error: 'No text provided' }, { status: 400 });
+      return NextResponse.json({ error: 'No text provided' }, { status: 400 })
     }
 
     // Clean the text and remove all formatting characters and branding
     const cleanText = text
       .replace(/\*\*/g, '')
-      // ... [rest of your replace calls if any]
+      // ... [your other replace calls here as needed]
       .replace(/\n\n\n+/g, '\n\n')
-      .trim();
+      .trim()
 
-    // Create clean, professional HTML
+    // Clean, professional HTML
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -43,37 +48,38 @@ export async function POST(request: Request) {
           </div>
         </body>
       </html>
-    `;
+    `
 
     // Puppeteer setup
-    let browser;
-    let pdfBuffer;
+    let browser
+    let pdfBuffer
     try {
-      const executablePath = await chromium.executablePath();
+      const executablePath = await chromium.executablePath()
       if (executablePath && executablePath.length > 0) {
         browser = await puppeteerCore.launch({
           args: chromium.args,
           defaultViewport: chromium.defaultViewport,
           executablePath,
           headless: chromium.headless,
-        });
+        })
       } else {
+        // Local fallback
         browser = await localPuppeteer.launch({
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
+        })
       }
 
-      const page = await browser.newPage();
+      const page = await browser.newPage()
       await page.setViewport({
         width: 1200,
         height: 800,
-        deviceScaleFactor: 1,
-      });
+        deviceScaleFactor: 1
+      })
       await page.setContent(htmlContent, {
         waitUntil: 'networkidle0',
-        timeout: 30000,
-      });
+        timeout: 30000
+      })
       pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
@@ -82,43 +88,34 @@ export async function POST(request: Request) {
           top: '0.75in',
           right: '0.75in',
           bottom: '0.75in',
-          left: '0.75in',
+          left: '0.75in'
         },
-        displayHeaderFooter: false,
-      });
-      await browser.close();
+        displayHeaderFooter: false
+      })
+      await browser.close()
     } catch (pdfErr) {
-      console.error('PDF generation error:', pdfErr);
-      return NextResponse.json({ error: 'PDF generation failed', details: String(pdfErr) }, { status: 500 });
+      console.error('PDF generation error:', pdfErr)
+      return NextResponse.json({ error: 'PDF generation failed', details: String(pdfErr) }, { status: 500 })
     }
 
-    // --- THIS IS THE IMPORTANT PART ---
-    // If pdfBuffer is a Buffer, use it directly.
-    // If pdfBuffer is a Uint8Array, convert it to Buffer.
-    let outputBuffer;
-    if (Buffer.isBuffer(pdfBuffer)) {
-      outputBuffer = pdfBuffer;
-    } else if (pdfBuffer instanceof Uint8Array) {
-      outputBuffer = Buffer.from(pdfBuffer);
-    } else {
-      return NextResponse.json({ error: 'Invalid PDF buffer type.' }, { status: 500 });
-    }
+    // Convert Buffer/Uint8Array to ArrayBuffer for Blob
+    const arrayBuffer = toArrayBuffer(pdfBuffer)
 
- return new NextResponse(
-  new Blob([pdfBuffer], { type: 'application/pdf' }),
-  {
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': 'attachment; filename="resume.pdf"',
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-      'Pragma': 'no-cache',
-    },
-  }
-);
-    // --- END IMPORTANT PART ---
+    // Send the PDF as a download
+    return new NextResponse(
+      new Blob([arrayBuffer], { type: 'application/pdf' }),
+      {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename="resume.pdf"',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+        },
+      }
+    )
 
   } catch (error) {
-    console.error('API error:', error);
-    return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 });
+    console.error('API error:', error)
+    return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 })
   }
 }
