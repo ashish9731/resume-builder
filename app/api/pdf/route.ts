@@ -1,32 +1,31 @@
-import { NextResponse } from 'next/server'
-import chromium from '@sparticuz/chromium'
-import puppeteerCore from 'puppeteer-core'
-import localPuppeteer from 'puppeteer'
+import { NextResponse } from 'next/server';
+import chromium from '@sparticuz/chromium';
+// Use puppeteer-core for serverless environments
+import puppeteer from 'puppeteer-core';
 
-export const runtime = 'nodejs'
-export const maxDuration = 60
+// You can remove the local 'puppeteer' import if you are only deploying to serverless
+// import localPuppeteer from 'puppeteer';
 
-// Helper: Convert Buffer/Uint8Array to ArrayBuffer for Blob constructor
-function toArrayBuffer(buf: Uint8Array | Buffer): ArrayBuffer {
-  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-}
+// These settings are important for Vercel deployment
+export const runtime = 'nodejs';
+export const maxDuration = 60; // Vercel Hobby max is 60s
 
 export async function POST(request: Request) {
   try {
-    const { text } = await request.json()
+    const { text } = await request.json();
 
     if (!text) {
-      return NextResponse.json({ error: 'No text provided' }, { status: 400 })
+      return NextResponse.json({ error: 'No text provided' }, { status: 400 });
     }
 
     // Clean the text and remove all formatting characters and branding
     const cleanText = text
       .replace(/\*\*/g, '')
-      // ... [your other replace calls here as needed]
+      // ... [rest of your replace calls if any]
       .replace(/\n\n\n+/g, '\n\n')
-      .trim()
+      .trim();
 
-    // Clean, professional HTML
+    // Create clean, professional HTML for the PDF
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -34,88 +33,97 @@ export async function POST(request: Request) {
           <meta charset="utf-8">
           <title>Resume</title>
           <style>
-            @page { margin: 0.75in; size: A4; }
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Times New Roman', serif; line-height: 1.4; color: #000; background: white; font-size: 11pt; }
-            .resume-container { max-width: 8.5in; margin: 0 auto; border: 1px solid #000; padding: 20px; }
-            .resume-content { font-size: 11pt; line-height: 1.4; white-space: pre-wrap; }
-            @media print { body { margin: 0; } }
+            @page { 
+              margin: 0.75in; 
+              size: A4; 
+            }
+            * { 
+              margin: 0; 
+              padding: 0; 
+              box-sizing: border-box; 
+            }
+            body { 
+              font-family: 'Times New Roman', Times, serif; 
+              line-height: 1.4; 
+              color: #000; 
+              background: white; 
+              font-size: 11pt; 
+            }
+            /* Use pre-wrap to preserve whitespace and newlines from the input text */
+            .resume-content { 
+              white-space: pre-wrap; 
+              word-wrap: break-word;
+            }
+            @media print { 
+              body { 
+                margin: 0; 
+              } 
+            }
           </style>
         </head>
         <body>
-          <div class="resume-container">
-            <div class="resume-content">${cleanText}</div>
-          </div>
+          <div class="resume-content">${cleanText}</div>
         </body>
       </html>
-    `
+    `;
 
-    // Puppeteer setup
-    let browser
-    let pdfBuffer
+    let browser = null;
+    let pdfBuffer: Buffer;
+
     try {
-      const executablePath = await chromium.executablePath()
-      if (executablePath && executablePath.length > 0) {
-        browser = await puppeteerCore.launch({
-          args: chromium.args,
-          defaultViewport: chromium.defaultViewport,
-          executablePath,
-          headless: chromium.headless,
-        })
-      } else {
-        // Local fallback
-        browser = await localPuppeteer.launch({
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        })
-      }
+        // Path to chromium executable for serverless environments
+        const executablePath = await chromium.executablePath();
+      
+        browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: executablePath,
+            headless: chromium.headless,
+            // You can ignore HTTP errors if you are loading external resources that might fail
+            ignoreHTTPSErrors: true,
+        });
 
-      const page = await browser.newPage()
-      await page.setViewport({
-        width: 1200,
-        height: 800,
-        deviceScaleFactor: 1
-      })
+      const page = await browser.newPage();
+      
+      // Set content and wait for it to be fully loaded
       await page.setContent(htmlContent, {
         waitUntil: 'networkidle0',
-        timeout: 30000
-      })
+      });
+      
       pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
-        preferCSSPageSize: true,
         margin: {
           top: '0.75in',
           right: '0.75in',
           bottom: '0.75in',
-          left: '0.75in'
+          left: '0.75in',
         },
-        displayHeaderFooter: false
-      })
-      await browser.close()
+      });
+
     } catch (pdfErr) {
-      console.error('PDF generation error:', pdfErr)
-      return NextResponse.json({ error: 'PDF generation failed', details: String(pdfErr) }, { status: 500 })
+      console.error('PDF generation error:', pdfErr);
+      return NextResponse.json({ error: 'PDF generation failed', details: String(pdfErr) }, { status: 500 });
+    } finally {
+        if (browser !== null) {
+            await browser.close();
+        }
     }
 
-    // Convert Buffer/Uint8Array to ArrayBuffer for Blob
-    const arrayBuffer = toArrayBuffer(pdfBuffer)
-
-    // Send the PDF as a download
-    return new NextResponse(
-      new Blob([arrayBuffer], { type: 'application/pdf' }),
-      {
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename="resume.pdf"',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-        },
-      }
-    )
+    // --- SOLUTION ---
+    // Directly return the PDF buffer in the NextResponse.
+    // No need to create a Blob, which was causing the type error.
+    // Set the correct headers to tell the browser this is a downloadable PDF file.
+    return new NextResponse(pdfBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="resume.pdf"',
+      },
+    });
 
   } catch (error) {
-    console.error('API error:', error)
-    return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 })
+    console.error('API error:', error);
+    return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 });
   }
 }
