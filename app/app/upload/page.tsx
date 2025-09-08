@@ -252,13 +252,13 @@ export default function UploadPage() {
                     if (dt?.items && dt.items.length > 0) {
                       for (let i = 0; i < dt.items.length; i++) {
                         const item = dt.items[i]
-                        if (item.kind === 'file') {
+                        if (item && item.kind === 'file') {
                           const f = item.getAsFile()
                           if (f) { droppedFile = f; break }
                         }
                       }
                     } else if (dt?.files && dt.files.length > 0) {
-                      droppedFile = dt.files[0]
+                      droppedFile = dt.files.item(0) || null
                     }
                     if (droppedFile) await processSelectedFile(droppedFile)
                   }}
