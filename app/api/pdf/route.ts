@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     return new NextResponse(pdfBlob, {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
+        'Content-Type': 'application/pdfBuffer',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
       },
     });
