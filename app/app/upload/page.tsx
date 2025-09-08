@@ -79,7 +79,16 @@ export default function UploadPage() {
         body: JSON.stringify({ text: resumeText }),
       })
 
-      const data = await response.json()
+      let data: any = null
+      try {
+        data = await response.json()
+      } catch (e) {
+        const text = await response.text()
+        if (!response.ok) {
+          throw new Error(text || 'Failed to analyze resume')
+        }
+        throw new Error('Unexpected response from server')
+      }
       if (!response.ok) {
         throw new Error(data?.error || 'Failed to analyze resume')
       }
