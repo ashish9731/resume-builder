@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     // --- SOLUTION ---
     // Create a Blob from the PDF buffer and use it as the response body.
     // This is a robust solution that is fully compatible with NextResponse.
-    const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+    const pdfBlob = new Blob([new Uint8Array(pdfBuffer)], { type: 'application/pdf' });
     
     return new NextResponse(pdfBlob, {
       status: 200,
