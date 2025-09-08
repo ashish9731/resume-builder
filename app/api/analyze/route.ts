@@ -83,8 +83,9 @@ export async function POST(req: Request) {
 🎯 DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the resume. Focus on concrete improvements that will elevate this resume from good to exceptional. Include specific recommendations for each section that will make this candidate irresistible to top employers.`
 
     const openai = getOpenAI()
+    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model,
       messages: [
         { role: 'system', content: systemGuardrails },
         { role: 'user', content: prompt + '\n\nCONTENT:\n' + text.substring(0, 8000) } // Limit input length

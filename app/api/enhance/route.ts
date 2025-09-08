@@ -100,8 +100,9 @@ ${analysis ? analysis.substring(0, 1500) : 'No specific analysis provided - appl
 🎯 DELIVERABLE: Return a complete, professionally formatted resume that will make this candidate irresistible to top employers. Focus on impact, value, and professional excellence.`
 
     const openai = getOpenAI()
+    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model,
       messages: [
         { role: 'system', content: systemGuardrails },
         { role: 'user', content: prompt + '\n\nORIGINAL CONTENT:\n' + text.substring(0, 8000) }
