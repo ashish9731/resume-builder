@@ -133,12 +133,15 @@ export async function POST(request: Request) {
     await browser.close()
 
     // ✅ FIX: use pdfBuffer.buffer (ArrayBuffer) so Response accepts it
-    return new Response(pdfBuffer.buffer, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="resume.pdf"',
-      },
-    })
+const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+
+return new Response(blob, {
+  headers: {
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': 'attachment; filename="resume.pdf"',
+  },
+})
+
   } catch (error) {
     console.error('PDF generation error:', error)
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
