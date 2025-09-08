@@ -5,7 +5,7 @@ let openaiInstance: OpenAI | null = null
 
 export const getOpenAI = () => {
   if (!openaiInstance) {
-    const apiKey = process.env.OPENAI_API_KEY
+    const apiKey = process.env.OPENAI_API_KEY || (process.env as any).OpenAPIKey
     if (!apiKey) {
       throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
     }
