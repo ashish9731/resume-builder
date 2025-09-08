@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server'
 import chromium from '@sparticuz/chromium'
 import puppeteerCore from 'puppeteer-core'
 import localPuppeteer from 'puppeteer'
@@ -11,55 +10,56 @@ export async function POST(request: Request) {
     const { text } = await request.json()
 
     if (!text) {
-      return NextResponse.json({ error: 'No text provided' }, { status: 400 })
+      return new Response(JSON.stringify({ error: 'No text provided' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
 
-    // Clean the text and remove all formatting characters and branding
+    // Clean the text and remove formatting/branding
     const cleanText = text
-      .replace(/\*\*/g, '') // Remove **
-      .replace(/\*/g, '') // Remove *
-      .replace(/\|/g, '') // Remove |
-      .replace(/\//g, '') // Remove /
-      .replace(/###/g, '') // Remove ###
-      .replace(/##/g, '') // Remove ##
-      .replace(/#/g, '') // Remove #
-      .replace(/---/g, '') // Remove ---
-      .replace(/--/g, '') // Remove --
-      .replace(/__/g, '') // Remove __
-      .replace(/_/g, '') // Remove _
-      .replace(/\[/g, '') // Remove [
-      .replace(/\]/g, '') // Remove ]
-      .replace(/\(/g, '') // Remove (
-      .replace(/\)/g, '') // Remove )
-      .replace(/\{/g, '') // Remove {
-      .replace(/\}/g, '') // Remove }
-      .replace(/\[/g, '') // Remove [
-      .replace(/\]/g, '') // Remove ]
-      .replace(/\+/g, '') // Remove +
-      .replace(/=/g, '') // Remove =
-      .replace(/~/g, '') // Remove ~
-      .replace(/`/g, '') // Remove `
-      .replace(/\^/g, '') // Remove ^
-      .replace(/&/g, '') // Remove &
-      .replace(/%/g, '') // Remove %
-      .replace(/\$/g, '') // Remove $
-      .replace(/@/g, '') // Remove @
-      .replace(/!/g, '') // Remove !
-      .replace(/\?/g, '') // Remove ?
-      .replace(/:/g, '') // Remove :
-      .replace(/;/g, '') // Remove ;
-      .replace(/"/g, '') // Remove "
-      .replace(/'/g, '') // Remove '
-      .replace(/</g, '') // Remove <
-      .replace(/>/g, '') // Remove >
-      .replace(/\\/g, '') // Remove \
-      .replace(/This revised resume emphasizes.*?ATS compatibility\./g, '') // Remove branding text
-      .replace(/This enhanced resume.*?professional standards\./g, '') // Remove more branding text
-      .replace(/The resume has been.*?industry standards\./g, '') // Remove additional branding text
-      .replace(/\n\n\n+/g, '\n\n') // Remove extra line breaks
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/\|/g, '')
+      .replace(/\//g, '')
+      .replace(/###/g, '')
+      .replace(/##/g, '')
+      .replace(/#/g, '')
+      .replace(/---/g, '')
+      .replace(/--/g, '')
+      .replace(/__/g, '')
+      .replace(/_/g, '')
+      .replace(/\[/g, '')
+      .replace(/\]/g, '')
+      .replace(/\(/g, '')
+      .replace(/\)/g, '')
+      .replace(/\{/g, '')
+      .replace(/\}/g, '')
+      .replace(/\+/g, '')
+      .replace(/=/g, '')
+      .replace(/~/g, '')
+      .replace(/`/g, '')
+      .replace(/\^/g, '')
+      .replace(/&/g, '')
+      .replace(/%/g, '')
+      .replace(/\$/g, '')
+      .replace(/@/g, '')
+      .replace(/!/g, '')
+      .replace(/\?/g, '')
+      .replace(/:/g, '')
+      .replace(/;/g, '')
+      .replace(/"/g, '')
+      .replace(/'/g, '')
+      .replace(/</g, '')
+      .replace(/>/g, '')
+      .replace(/\\/g, '')
+      .replace(/This revised resume emphasizes.*?ATS compatibility\./g, '')
+      .replace(/This enhanced resume.*?professional standards\./g, '')
+      .replace(/The resume has been.*?industry standards\./g, '')
+      .replace(/\n\n\n+/g, '\n\n')
       .trim()
 
-    // Create clean, professional HTML resume with exact content
+    // Create clean, professional HTML resume
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -71,13 +71,11 @@ export async function POST(request: Request) {
               margin: 0.75in;
               size: A4;
             }
-            
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
             }
-            
             body {
               font-family: 'Times New Roman', serif;
               line-height: 1.4;
@@ -85,20 +83,17 @@ export async function POST(request: Request) {
               background: white;
               font-size: 11pt;
             }
-            
             .resume-container {
               max-width: 8.5in;
               margin: 0 auto;
               border: 1px solid #000;
               padding: 20px;
             }
-            
             .resume-content {
               font-size: 11pt;
               line-height: 1.4;
               white-space: pre-wrap;
             }
-            
             @media print {
               body { margin: 0; }
             }
@@ -112,7 +107,7 @@ export async function POST(request: Request) {
       </html>
     `
 
-    // Generate PDF using Puppeteer (Vercel-compatible)
+    // Launch Puppeteer (Vercel-compatible)
     let browser
     const executablePath = await chromium.executablePath()
     if (executablePath && executablePath.length > 0) {
@@ -126,26 +121,14 @@ export async function POST(request: Request) {
       // Local dev fallback
       browser = await localPuppeteer.launch({
         headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-        ],
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
       })
     }
-    
+
     const page = await browser.newPage()
-    
-    await page.setViewport({
-      width: 1200,
-      height: 800,
-      deviceScaleFactor: 1
-    })
-    
-    await page.setContent(htmlContent, { 
-      waitUntil: 'networkidle0',
-      timeout: 30000 
-    })
-    
+    await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 1 })
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 30000 })
+
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -154,22 +137,25 @@ export async function POST(request: Request) {
         top: '0.75in',
         right: '0.75in',
         bottom: '0.75in',
-        left: '0.75in'
+        left: '0.75in',
       },
-      displayHeaderFooter: false
+      displayHeaderFooter: false,
     })
-    
+
     await browser.close()
 
-    return new NextResponse(Buffer.from(pdfBuffer), {
+    // ✅ Return correct Response (not NextResponse)
+    return new Response(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
       },
     })
-
   } catch (error) {
     console.error('PDF generation error:', error)
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
+    return new Response(JSON.stringify({ error: 'Failed to generate PDF' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 }
