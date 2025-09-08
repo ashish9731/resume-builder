@@ -8,16 +8,12 @@ export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
-    // Accept JSON input
     const { html, text } = await request.json()
-
     let content = ''
 
     if (html) {
-      // Use provided HTML directly
       content = html
     } else if (text) {
-      // Clean text and wrap in HTML template
       const cleanText = text
         .replace(/\*\*|\*|\||\/|###|##|#|---|--|__|_/g, '')
         .replace(/\[|\]|\(|\)|\{|\}|\+|=|~|`|\^|&|%|\$|@|!|\?|:|;|"|'|<|>|\\/g, '')
@@ -51,7 +47,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No HTML or text provided' }, { status: 400 })
     }
 
-    // Launch Puppeteer
     let browser
     try {
       const executablePath = await chromium.executablePath()
@@ -62,7 +57,6 @@ export async function POST(request: Request) {
         headless: chromium.headless,
       })
     } catch {
-      // fallback for local development
       browser = await localPuppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -82,13 +76,19 @@ export async function POST(request: Request) {
 
     await browser.close()
 
-    // Wrap buffer in Uint8Array to fix TypeScript / Next.js issue
-    const uint8Array = new Uint8Array(pdfBuffer)
+    // Convert Buffer to ArrayBuffer properly
+    const arrayBuffer = pdfBuffer.buffer.slice(
+      pdfBuffer.byteOffset,
+      pdfBuffer.byteOffset + pdfBuffer.byteLength
+    )
 
-    return new Response(uint8Array, {
+    // ✅ Use Response constructor that works with ArrayBuffer
+    return new Response(arrayBuffer, {
+      status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
+        'Content-Length': pdfBuffer.length.toString(),
       },
     })
   } catch (error) {
