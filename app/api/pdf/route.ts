@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
+import chromium from '@sparticuz/chromium'
+import puppeteerCore from 'puppeteer-core'
+import localPuppeteer from 'puppeteer'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -110,19 +112,26 @@ export async function POST(request: Request) {
       </html>
     `
 
-    // Generate PDF using Puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox', 
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ]
-    })
+    // Generate PDF using Puppeteer (Vercel-compatible)
+    let browser
+    const executablePath = await chromium.executablePath()
+    if (executablePath && executablePath.length > 0) {
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath,
+        headless: chromium.headless,
+      })
+    } else {
+      // Local dev fallback
+      browser = await localPuppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+        ],
+      })
+    }
     
     const page = await browser.newPage()
     
