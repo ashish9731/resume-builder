@@ -101,7 +101,7 @@ ${analysis ? analysis.substring(0, 1500) : 'No specific analysis provided - appl
 
     const openai = getOpenAI()
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemGuardrails },
         { role: 'user', content: prompt + '\n\nORIGINAL CONTENT:\n' + text.substring(0, 8000) }
@@ -135,12 +135,12 @@ ${analysis ? analysis.substring(0, 1500) : 'No specific analysis provided - appl
     if (error.status === 401) {
       return NextResponse.json(
         { error: 'Authentication error. Please check API configuration.' },
-        { status: 500 }
+        { status: 401 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error?.message || 'Internal server error' },
       { status: 500 }
     )
   }

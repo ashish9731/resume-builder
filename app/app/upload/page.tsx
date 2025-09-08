@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Upload, FileText, Download, Sparkles, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
@@ -18,11 +18,23 @@ export default function UploadPage() {
   const [currentStep, setCurrentStep] = useState(1) // 1: Upload, 2: Analyze, 3: Enhance, 4: Download
   const [showOriginal, setShowOriginal] = useState(true)
   const [showEnhanced, setShowEnhanced] = useState(true)
+  const [isDragging, setIsDragging] = useState(false)
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (!selectedFile) return
+  // Prevent browser from opening file when dropped outside the drop zone
+  useEffect(() => {
+    const preventDefault = (e: DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    window.addEventListener('dragover', preventDefault)
+    window.addEventListener('drop', preventDefault)
+    return () => {
+      window.removeEventListener('dragover', preventDefault)
+      window.removeEventListener('drop', preventDefault)
+    }
+  }, [])
 
+  const processSelectedFile = async (selectedFile: File) => {
     setFile(selectedFile)
     setUploading(true)
 
@@ -50,6 +62,12 @@ export default function UploadPage() {
     }
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (!selectedFile) return
+    await processSelectedFile(selectedFile)
+  }
+
   const handleAnalyze = async () => {
     if (!resumeText) return
 
@@ -61,16 +79,16 @@ export default function UploadPage() {
         body: JSON.stringify({ text: resumeText }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze resume')
-      }
-
       const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to analyze resume')
+      }
       setAnalysis(data.analysis)
       setCurrentStep(3)
     } catch (error) {
       console.error('Analysis error:', error)
-      alert('Failed to analyze resume. Please try again.')
+      const message = (error as any)?.message || 'Failed to analyze resume. Please try again.'
+      alert(message)
     } finally {
       setAnalyzing(false)
     }
@@ -198,7 +216,34 @@ export default function UploadPage() {
                   <Upload className="mr-3 w-6 h-6" />
                   Upload Your Resume
                 </h2>
-                <div className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center">
+                <div
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                    isDragging ? 'border-cyan-400 bg-white/5' : 'border-white/30'
+                  }`}
+                  onDragEnter={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setIsDragging(true)
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setIsDragging(false)
+                  }}
+                  onDrop={async (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setIsDragging(false)
+                    const droppedFile = e.dataTransfer?.files?.[0]
+                    if (droppedFile) {
+                      await processSelectedFile(droppedFile)
+                    }
+                  }}
+                >
                   <input
                     type="file"
                     accept=".pdf,.docx,.txt"

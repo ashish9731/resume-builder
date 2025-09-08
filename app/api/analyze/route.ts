@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 
     const openai = getOpenAI()
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemGuardrails },
         { role: 'user', content: prompt + '\n\nCONTENT:\n' + text.substring(0, 8000) } // Limit input length
@@ -118,12 +118,12 @@ export async function POST(req: Request) {
     if (error.status === 401) {
       return NextResponse.json(
         { error: 'Authentication error. Please check API configuration.' },
-        { status: 500 }
+        { status: 401 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error?.message || 'Internal server error' },
       { status: 500 }
     )
   }
