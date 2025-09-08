@@ -110,12 +110,13 @@ export async function POST(request: Request) {
     }
 
     // --- SOLUTION ---
-    // The Buffer type is not directly assignable to BodyInit in this context.
-    // Convert the Buffer to an ArrayBuffer using its .buffer property.
-    return new NextResponse(pdfBuffer.buffer, {
+    // Create a Blob from the PDF buffer and use it as the response body.
+    // This is a robust solution that is fully compatible with NextResponse.
+    const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+    
+    return new NextResponse(pdfBlob, {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
       },
     });
