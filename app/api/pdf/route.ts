@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     }
 
  return new NextResponse(
-  pdfBuffer instanceof Uint8Array ? pdfBuffer : new Uint8Array(pdfBuffer),
+  new Blob([pdfBuffer], { type: 'application/pdf' }),
   {
     headers: {
       'Content-Type': 'application/pdf',
