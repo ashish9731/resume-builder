@@ -26,8 +26,8 @@ export default function UploadPage() {
       e.preventDefault()
       e.stopPropagation()
     }
-    window.addEventListener('dragover', preventDefault)
-    window.addEventListener('drop', preventDefault)
+    window.addEventListener('dragover', preventDefault, { passive: false })
+    window.addEventListener('drop', preventDefault, { passive: false })
     return () => {
       window.removeEventListener('dragover', preventDefault)
       window.removeEventListener('drop', preventDefault)
@@ -247,10 +247,20 @@ export default function UploadPage() {
                     e.preventDefault()
                     e.stopPropagation()
                     setIsDragging(false)
-                    const droppedFile = e.dataTransfer?.files?.[0]
-                    if (droppedFile) {
-                      await processSelectedFile(droppedFile)
+                    let droppedFile: File | null = null
+                    const dt = e.dataTransfer
+                    if (dt?.items && dt.items.length > 0) {
+                      for (let i = 0; i < dt.items.length; i++) {
+                        const item = dt.items[i]
+                        if (item.kind === 'file') {
+                          const f = item.getAsFile()
+                          if (f) { droppedFile = f; break }
+                        }
+                      }
+                    } else if (dt?.files && dt.files.length > 0) {
+                      droppedFile = dt.files[0]
                     }
+                    if (droppedFile) await processSelectedFile(droppedFile)
                   }}
                 >
                   <input
