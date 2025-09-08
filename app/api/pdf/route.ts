@@ -21,7 +21,6 @@ export async function POST(request: Request) {
     // Clean the text and remove all formatting characters and branding
     const cleanText = text
       .replace(/\*\*/g, '')
-      // ... [rest of your replace calls if any]
       .replace(/\n\n\n+/g, '\n\n')
       .trim();
 
@@ -73,7 +72,7 @@ export async function POST(request: Request) {
     try {
         // Path to chromium executable for serverless environments
         const executablePath = await chromium.executablePath();
-      
+        
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
@@ -111,10 +110,9 @@ export async function POST(request: Request) {
     }
 
     // --- SOLUTION ---
-    // Directly return the PDF buffer in the NextResponse.
-    // No need to create a Blob, which was causing the type error.
-    // Set the correct headers to tell the browser this is a downloadable PDF file.
-    return new NextResponse(pdfBuffer, {
+    // The Buffer type is not directly assignable to BodyInit in this context.
+    // Convert the Buffer to an ArrayBuffer using its .buffer property.
+    return new NextResponse(pdfBuffer.buffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -127,4 +125,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 });
   }
 }
-
