@@ -79,8 +79,6 @@ export async function POST(request: Request) {
             defaultViewport: chromium.defaultViewport,
             executablePath: executablePath,
             headless: chromium.headless,
-            // You can ignore HTTP errors if you are loading external resources that might fail
-            ignoreHTTPSErrors: true,
         });
 
       const page = await browser.newPage();
@@ -127,3 +125,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 });
   }
 }
+
