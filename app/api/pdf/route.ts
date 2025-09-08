@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     }
 
     // Send the PDF as a download
-   return new NextResponse(pdfBuffer, {
+   return new NextResponse(Buffer.from(pdfBuffer), {
   headers: {
     'Content-Type': 'application/pdf',
     'Content-Disposition': 'attachment; filename="resume.pdf"',
