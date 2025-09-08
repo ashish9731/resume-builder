@@ -88,7 +88,8 @@ export async function POST(request: Request) {
         waitUntil: 'networkidle0',
       });
       
-      pdfBuffer = await page.pdf({
+      // page.pdf() returns a Uint8Array, which we need to convert to a Buffer
+      const pdfUint8Array = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: {
@@ -98,6 +99,7 @@ export async function POST(request: Request) {
           left: '0.75in',
         },
       });
+      pdfBuffer = Buffer.from(pdfUint8Array);
 
     } catch (pdfErr) {
       console.error('PDF generation error:', pdfErr);
