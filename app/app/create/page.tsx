@@ -776,13 +776,23 @@ const CreatePage = () => {
                   {loading ? 'Enhancing...' : 'Preview Enhanced Resume'}
                 </Button>
               ) : currentStep === 6 ? (
-                <Button
-                  onClick={handleDownloadPreview}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold"
-                >
-                  {loading ? 'Generating PDF...' : 'Download Enhanced Resume'}
-                </Button>
+                <div className="flex space-x-4">
+                  <Button
+                    onClick={handleDownload}
+                    disabled={loading}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold"
+                  >
+                    {loading ? 'Generating PDF...' : 'Download Basic Resume'}
+                  </Button>
+              
+                  <Button
+                    onClick={handleDownloadPreview}
+                    disabled={loading}
+                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold"
+                  >
+                    {loading ? 'Generating PDF...' : 'Download Enhanced Resume'}
+                  </Button>
+                </div>
               ) : (
                 <Button
                   onClick={handleNextStep}
@@ -791,6 +801,7 @@ const CreatePage = () => {
                   Next
                 </Button>
               )}
+              
             </div>
           </div>
         </div>
