@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import chromium from '@sparticuz/chromium';
 // Use puppeteer-core for serverless environments
 import puppeteer from 'puppeteer-core';
+import fs from 'fs';
+import path from 'path';
 
 // These settings are important for Vercel deployment
 export const runtime = 'nodejs';
@@ -110,39 +112,111 @@ export async function POST(request: Request) {
       } else {
         // Use serverless-friendly chromium for production
         console.log('Using serverless chromium for production');
-        // Configure chromium for Vercel serverless environment
-        await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf');
         
-        // Get the executable path with proper error handling
-        let executablePath;
+        // Configure chromium for Vercel serverless environment
+        console.log('Setting up chromium for serverless environment');
+        
+        // Set chromium to use /tmp directory for cache
+        const cacheDir = process.env.PUPPETEER_CACHE_DIR || '/tmp/puppeteer-cache';
+        process.env.PUPPETEER_CACHE_DIR = cacheDir;
+        console.log('Using cache directory:', cacheDir);
+        
+        // Ensure the cache directory exists
         try {
-          // Set chromium to use /tmp directory for cache
-          process.env.PUPPETEER_CACHE_DIR = process.env.PUPPETEER_CACHE_DIR || '/tmp/puppeteer-cache';
-          
-          // Ensure the cache directory exists
-          const fs = require('fs');
-          const path = require('path');
-          const cacheDir = process.env.PUPPETEER_CACHE_DIR;
           if (!fs.existsSync(cacheDir)) {
             console.log(`Creating cache directory: ${cacheDir}`);
             fs.mkdirSync(cacheDir, { recursive: true });
           }
-          
-          executablePath = await chromium.executablePath();
-          console.log('Chrome executable path:', executablePath);
-        } catch (pathError) {
-          console.error('Error getting Chrome executable path:', pathError);
-          // Use a fallback path for Vercel
-          executablePath = process.env.CHROME_EXECUTABLE_PATH || 
-                          '/tmp/chromium/chrome';
-          console.log('Using fallback executable path:', executablePath);
+        } catch (dirError) {
+          console.error('Error creating cache directory:', dirError);
+          // Continue anyway, the directory might be created by another process
         }
         
+        // Create additional directories that might be needed
+        const additionalDirs = [
+          '/tmp/chromium',
+          '/var/task/.next/server/app/api/bin'
+        ];
+        
+        for (const dir of additionalDirs) {
+          try {
+            if (!fs.existsSync(dir)) {
+              console.log(`Creating additional directory: ${dir}`);
+              fs.mkdirSync(dir, { recursive: true });
+            }
+          } catch (dirError) {
+            console.error(`Error creating directory ${dir}:`, dirError);
+            // Continue anyway, not all directories may be creatable
+          }
+        }
+        
+        // Load fonts for better text rendering
+        try {
+          await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf');
+          console.log('Loaded font successfully');
+        } catch (fontError) {
+          console.error('Error loading font:', fontError);
+          // Continue anyway, font loading is not critical
+        }
+        
+        // Get the executable path with proper error handling
+        let executablePath;
+        const possiblePaths = [
+          // Try environment variable first
+          process.env.CHROME_EXECUTABLE_PATH,
+          // Then try the standard chromium path
+          await chromium.executablePath().catch(() => null),
+          // Then try common fallback paths
+          '/tmp/chromium/chromium',
+          '/tmp/chromium/chrome',
+          '/var/task/node_modules/@sparticuz/chromium/bin',
+          '/var/task/.next/server/app/api/bin/chromium'
+        ].filter(Boolean); // Remove null/undefined values
+        
+        console.log('Checking possible Chrome executable paths:', possiblePaths);
+        
+        // Find the first path that exists
+        for (const path of possiblePaths) {
+          try {
+            if (path && fs.existsSync(path)) {
+              executablePath = path;
+              console.log('Found Chrome executable at:', executablePath);
+              break;
+            }
+          } catch (checkError) {
+            console.error(`Error checking path ${path}:`, checkError);
+          }
+        }
+        
+        if (!executablePath) {
+          console.error('No valid Chrome executable path found, using default');
+          // Use the default path as last resort
+          executablePath = await chromium.executablePath().catch(err => {
+            console.error('Error getting default path:', err);
+            return '/tmp/chromium/chrome'; // Absolute last resort
+          });
+        }
+        
+        // Launch browser with comprehensive options
+        console.log('Launching browser with executablePath:', executablePath);
         browser = await puppeteer.launch({
-            args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
-            defaultViewport: chromium.defaultViewport,
-            executablePath: executablePath,
-            headless: true
+          args: [
+            ...chromium.args,
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu',
+            '--font-render-hinting=none',
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins,site-per-process'
+          ],
+          defaultViewport: chromium.defaultViewport,
+          executablePath: executablePath,
+          headless: true
         });
       }
 
@@ -176,8 +250,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'PDF generation failed', details: String(pdfErr) }, { status: 500 });
     } finally {
         if (browser !== null) {
-            await browser.close();
-            console.log('Browser closed');
+            try {
+                await browser.close();
+                console.log('Browser closed');
+            } catch (closeError) {
+                console.error('Error closing browser:', closeError);
+                // Continue anyway, browser might already be closed
+            }
         }
     }
 

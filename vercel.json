@@ -10,6 +10,12 @@
     }
   },
   "env": {
-    "PUPPETEER_CACHE_DIR": "/tmp/puppeteer-cache"
+    "PUPPETEER_CACHE_DIR": "/tmp/puppeteer-cache",
+    "CHROME_EXECUTABLE_PATH": "/tmp/chromium/chromium"
+  },
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "false"
+    }
   }
 }
