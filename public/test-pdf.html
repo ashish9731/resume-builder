@@ -41,6 +41,19 @@
       background-color: #f2dede;
       color: #a94442;
     }
+    #debug {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      display: none;
+    }
+    #downloadFrame {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -67,8 +80,20 @@ Education:
   <button id="generateBtn">Generate PDF</button>
   
   <div id="status" style="display: none;"></div>
+  <div id="debug"></div>
+  
+  <!-- Hidden iframe for downloading -->
+  <iframe id="downloadFrame" name="downloadFrame"></iframe>
   
   <script>
+    const debugDiv = document.getElementById('debug');
+    
+    function logDebug(message) {
+      console.log(message);
+      debugDiv.style.display = 'block';
+      debugDiv.textContent += message + '\n';
+    }
+    
     document.getElementById('generateBtn').addEventListener('click', async () => {
       const resumeText = document.getElementById('resumeText').value;
       const statusDiv = document.getElementById('status');
@@ -76,35 +101,57 @@ Education:
       statusDiv.className = '';
       statusDiv.textContent = 'Generating PDF...';
       statusDiv.style.display = 'block';
+      debugDiv.textContent = ''; // Clear debug info
       
       try {
+        logDebug('Sending request to /api/pdf...');
+        
+        // Method 1: Using fetch and blob
         const response = await fetch('/api/pdf', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text: resumeText }),
         });
         
+        logDebug(`Response status: ${response.status} ${response.statusText}`);
+        
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
         
         const contentType = response.headers.get('Content-Type');
-        console.log('Response Content-Type:', contentType);
+        const contentDisposition = response.headers.get('Content-Disposition');
         
-        const pdfBlob = await response.blob();
-        const url = window.URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'resume.pdf';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        logDebug(`Response Content-Type: ${contentType}`);
+        logDebug(`Response Content-Disposition: ${contentDisposition}`);
         
-        statusDiv.className = 'success';
-        statusDiv.textContent = 'PDF generated and downloaded successfully!';
+        // Method 2: Create a form and submit it directly to trigger download
+        logDebug('Creating form for direct download...');
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/pdf';
+        form.target = '_blank'; // Open in new tab/window
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'text';
+        input.value = resumeText;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        
+        logDebug('Submitting form...');
+        form.submit();
+        
+        // Clean up the form
+        setTimeout(() => {
+          document.body.removeChild(form);
+          statusDiv.className = 'success';
+          statusDiv.textContent = 'PDF generation triggered. Check your downloads or new browser tab.';
+        }, 1000);
       } catch (error) {
         console.error('Download error:', error);
+        logDebug(`Error: ${error.message}`);
         statusDiv.className = 'error';
         statusDiv.textContent = `Failed to download PDF: ${error.message}`;
       }
