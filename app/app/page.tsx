@@ -5,15 +5,22 @@ import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
+import { AuthChangeEvent, Session, SupabaseClient } from '@supabase/supabase-js'
 
 export default function ApplicationPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
-
-  const supabase = getSupabaseBrowser()
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
 
   useEffect(() => {
+    // Initialize Supabase only in the browser
+    setSupabase(getSupabaseBrowser())
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return
+    
     // Check Supabase authentication
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -28,7 +35,7 @@ export default function ApplicationPage() {
     checkAuth()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (event === 'SIGNED_OUT' || !session) {
         router.push('/auth')
       } else if (session?.user) {
@@ -38,9 +45,10 @@ export default function ApplicationPage() {
     })
 
     return () => subscription.unsubscribe()
-  }, [router, supabase.auth])
+  }, [router, supabase])
 
   const handleSignOut = async () => {
+    if (!supabase) return
     await supabase.auth.signOut()
     router.push('/')
   }

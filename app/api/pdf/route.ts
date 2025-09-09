@@ -156,7 +156,9 @@ export async function POST(request: Request) {
 
     // Create a Blob from the PDF buffer and use it as the response body.
     console.log('Creating response with PDF data');
-    const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+    // Convert Buffer to Uint8Array which is compatible with BlobPart
+    const pdfUint8Array = new Uint8Array(pdfBuffer);
+    const pdfBlob = new Blob([pdfUint8Array], { type: 'application/pdf' });
     
     // Create the response with appropriate headers
     const response = new NextResponse(pdfBlob, {

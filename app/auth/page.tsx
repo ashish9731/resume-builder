@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -14,22 +15,30 @@ export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState('')
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
 
-  const supabase = getSupabaseBrowser()
+  useEffect(() => {
+    // Initialize Supabase only in the browser
+    setSupabase(getSupabaseBrowser())
+  }, [])
 
   useEffect(() => {
     // Check if user is already authenticated
     const checkUser = async () => {
+      if (!supabase) return
+      
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         router.push('/app')
       }
     }
     checkUser()
-  }, [router, supabase.auth])
+  }, [router, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!supabase) return
+    
     setLoading(true)
     setMessage('')
 

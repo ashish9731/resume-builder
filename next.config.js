@@ -30,6 +30,12 @@ const nextConfig = {
     
     return config;
   },
+
+  // Disable static optimization for pages that require dynamic data
+  output: 'standalone',
+  generateBuildId: async () => {
+    return 'build-' + new Date().getTime();
+  },
 }
 
 module.exports = nextConfig
