@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "next.config.js",
-      "use": "@vercel/next"
-    }
-  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
   "functions": {
-    "app/api/pdf/route.ts": {
+    "app/api/**/*.ts": {
       "memory": 1024,
       "maxDuration": 60
     }
+  },
+  "env": {
+    "PUPPETEER_CACHE_DIR": "/tmp/puppeteer-cache"
   }
 }

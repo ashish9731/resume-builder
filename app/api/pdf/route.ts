@@ -116,6 +116,18 @@ export async function POST(request: Request) {
         // Get the executable path with proper error handling
         let executablePath;
         try {
+          // Set chromium to use /tmp directory for cache
+          process.env.PUPPETEER_CACHE_DIR = process.env.PUPPETEER_CACHE_DIR || '/tmp/puppeteer-cache';
+          
+          // Ensure the cache directory exists
+          const fs = require('fs');
+          const path = require('path');
+          const cacheDir = process.env.PUPPETEER_CACHE_DIR;
+          if (!fs.existsSync(cacheDir)) {
+            console.log(`Creating cache directory: ${cacheDir}`);
+            fs.mkdirSync(cacheDir, { recursive: true });
+          }
+          
           executablePath = await chromium.executablePath();
           console.log('Chrome executable path:', executablePath);
         } catch (pathError) {
@@ -127,7 +139,7 @@ export async function POST(request: Request) {
         }
         
         browser = await puppeteer.launch({
-            args: [...chromium.args, '--no-sandbox'],
+            args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
             defaultViewport: chromium.defaultViewport,
             executablePath: executablePath,
             headless: true
