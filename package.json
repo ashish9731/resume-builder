@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "postinstall": "node node_modules/@sparticuz/chromium/install.js && node scripts/install-chromium.js"
+        "postinstall": "node scripts/install-chromium.js"
     },
     "dependencies": {
         "@radix-ui/react-slot": "^1.0.2",
