@@ -1,70 +1,144 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
-export async function POST(request: NextRequest) {
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
+export async function POST(request: Request) {
+  console.log('PDF generation API called');
+  
   try {
-    const { html, filename = 'resume.pdf' } = await request.json();
+    // Parse request body
+    const contentType = request.headers.get('content-type') || '';
+    let text = '';
 
-    if (!html) {
-      return NextResponse.json(
-        { error: 'HTML content is required' },
-        { status: 400 }
-      );
+    if (contentType.includes('application/json')) {
+      const body = await request.json();
+      text = body.text || body.html || '';
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await request.formData();
+      text = formData.get('text') as string || formData.get('html') as string || '';
+    } else {
+      try {
+        const body = await request.json();
+        text = body.text || body.html || '';
+      } catch {
+        return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+      }
     }
 
-    let browser;
+    if (!text) {
+      return NextResponse.json({ error: 'No text or HTML content provided' }, { status: 400 });
+    }
+
+    console.log('Received content length:', text.length);
+
+    // Create clean HTML for PDF
+    const htmlContent = text.includes('<!DOCTYPE html>') ? text : `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Resume</title>
+          <style>
+            @page { margin: 0.75in; size: A4; }
+            body { 
+              font-family: 'Times New Roman', Times, serif; 
+              line-height: 1.4; 
+              color: #000; 
+              font-size: 11pt; 
+              margin: 0;
+              padding: 0;
+            }
+            .resume-content { 
+              white-space: pre-wrap; 
+              word-wrap: break-word;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="resume-content">${text}</div>
+        </body>
+      </html>
+    `;
+
+    let browser = null;
     let pdfBuffer: Buffer;
 
     try {
       if (process.env.NODE_ENV === 'development') {
-        // Use local puppeteer for development
-        const localPuppeteer = (await import('puppeteer')).default;
-        browser = await localPuppeteer.launch({ headless: true });
+        // Use full puppeteer for development
+        const localPuppeteer = await import('puppeteer');
+        browser = await localPuppeteer.default.launch({ 
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
       } else {
-        // Use serverless-friendly chromium for production
+        // Use serverless chromium for production
         const executablePath = await chromium.executablePath();
+        
         browser = await puppeteer.launch({
-          args: chromium.args,
+          args: [
+            ...chromium.args,
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+          ],
           defaultViewport: chromium.defaultViewport,
-          executablePath: executablePath,
-          headless: chromium.headless,
+          executablePath,
+          headless: true
         });
       }
 
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
       
-      pdfBuffer = await page.pdf({
+      // Set content with proper waiting
+      await page.setContent(htmlContent, {
+        waitUntil: 'networkidle0'
+      });
+
+      // Generate PDF
+      const pdfData = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: {
-          top: '0.4in',
-          right: '0.4in',
-          bottom: '0.4in',
-          left: '0.4in'
+          top: '0.75in',
+          right: '0.75in',
+          bottom: '0.75in',
+          left: '0.75in'
         }
       });
 
-      await browser.close();
-    } catch (error) {
-      console.error('PDF generation error:', error);
-      return NextResponse.json(
-        { error: 'Failed to generate PDF' },
-        { status: 500 }
-      );
+      pdfBuffer = Buffer.from(pdfData);
+
+    } catch (pdfErr) {
+      console.error('PDF generation error:', pdfErr);
+      return NextResponse.json({ 
+        error: 'PDF generation failed', 
+        details: String(pdfErr) 
+      }, { status: 500 });
+    } finally {
+      if (browser) {
+        await browser.close().catch(console.error);
+      }
     }
 
+    // Return the PDF directly as a buffer
     const response = new NextResponse(pdfBuffer);
     response.headers.set('Content-Type', 'application/pdf');
-    response.headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+    response.headers.set('Content-Disposition', 'attachment; filename="resume.pdf"');
+    response.headers.set('Content-Length', pdfBuffer.length.toString());
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     
     return response;
 
   } catch (error) {
-    console.error('PDF endpoint error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process PDF request' },
-      { status: 500 }
-    );
+    console.error('API error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to process request', 
+      details: String(error) 
+    }, { status: 500 });
   }
 }
