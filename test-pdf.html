@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Download Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 20px;
+      padding: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <h1>PDF Download Test</h1>
+  <p>Enter some text below and click "Generate PDF" to test the PDF download functionality:</p>
+  
+  <textarea id="resumeText">This is a test resume content.
+
+Name: John Doe
+Email: john@example.com
+Phone: (123) 456-7890
+
+Summary:
+Experienced software developer with expertise in web development and cloud technologies.
+
+Experience:
+- Senior Developer, ABC Company (2018-Present)
+- Junior Developer, XYZ Inc. (2015-2018)
+
+Education:
+- Bachelor of Science in Computer Science, University College (2015)
+  </textarea>
+  
+  <button id="generateBtn">Generate PDF</button>
+  
+  <div id="status" style="display: none;"></div>
+  
+  <script>
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+      const resumeText = document.getElementById('resumeText').value;
+      const statusDiv = document.getElementById('status');
+      
+      statusDiv.className = '';
+      statusDiv.textContent = 'Generating PDF...';
+      statusDiv.style.display = 'block';
+      
+      try {
+        const response = await fetch('/api/pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: resumeText }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('Content-Type');
+        console.log('Response Content-Type:', contentType);
+        
+        const pdfBlob = await response.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'resume.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        statusDiv.className = 'success';
+        statusDiv.textContent = 'PDF generated and downloaded successfully!';
+      } catch (error) {
+        console.error('Download error:', error);
+        statusDiv.className = 'error';
+        statusDiv.textContent = `Failed to download PDF: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
