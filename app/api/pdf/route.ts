@@ -110,12 +110,27 @@ export async function POST(request: Request) {
       } else {
         // Use serverless-friendly chromium for production
         console.log('Using serverless chromium for production');
-        const executablePath = await chromium.executablePath();
+        // Configure chromium for Vercel serverless environment
+        await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf');
+        
+        // Get the executable path with proper error handling
+        let executablePath;
+        try {
+          executablePath = await chromium.executablePath();
+          console.log('Chrome executable path:', executablePath);
+        } catch (pathError) {
+          console.error('Error getting Chrome executable path:', pathError);
+          // Use a fallback path for Vercel
+          executablePath = process.env.CHROME_EXECUTABLE_PATH || 
+                          '/tmp/chromium/chrome';
+          console.log('Using fallback executable path:', executablePath);
+        }
+        
         browser = await puppeteer.launch({
-            args: chromium.args,
+            args: [...chromium.args, '--no-sandbox'],
             defaultViewport: chromium.defaultViewport,
             executablePath: executablePath,
-            headless: chromium.headless,
+            headless: true
         });
       }
 
