@@ -70,15 +70,20 @@ export async function POST(request: Request) {
     let pdfBuffer: Buffer;
 
     try {
-        // Path to chromium executable for serverless environments
+      if (process.env.NODE_ENV === 'development') {
+        // Use local puppeteer for development
+        const localPuppeteer = (await import('puppeteer')).default;
+        browser = await localPuppeteer.launch({ headless: true });
+      } else {
+        // Use serverless-friendly chromium for production
         const executablePath = await chromium.executablePath();
-        
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
             executablePath: executablePath,
             headless: chromium.headless,
         });
+      }
 
       const page = await browser.newPage();
       
