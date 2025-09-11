@@ -6,48 +6,38 @@ export const maxDuration = 30
 function createResumePDF(text: string): Buffer {
   const lines = text.split('\n').filter(line => line.trim().length > 0)
   
-  let content = ''
+  let pdfContent = ''
   let yPos = 750
-  const lineHeight = 14
+  const lineHeight = 18
   const leftMargin = 50
-  const rightMargin = 550
-  const pageWidth = 600
   
-  for (const line of lines) {
-    const cleanLine = line.trim()
+  // Start content stream
+  pdfContent += `BT\n/F1 12 Tf\n50 750 Td\n`
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]?.trim() || ''
+    if (!line) continue
     
-    if (cleanLine.length === 0) {
-      yPos -= lineHeight
-      continue
-    }
+    // Escape and prepare text
+    const escapedLine = escapePDFString(line)
     
-    // Handle different line types
-    if (cleanLine.includes(' | ')) {
-      // Header/contact info
-      content += `${leftMargin} ${yPos} Td (${escapePDFString(cleanLine)}) Tj\n`
-      yPos -= lineHeight
-    } else if (cleanLine.startsWith('•')) {
-      // Bullet points
-      const bulletText = cleanLine.substring(1).trim()
-      content += `${leftMargin + 10} ${yPos} Td (• ${escapePDFString(bulletText)}) Tj\n`
-      yPos -= lineHeight
-    } else if (cleanLine.toUpperCase() === cleanLine && cleanLine.length > 3 && !cleanLine.includes(' ')) {
-      // Section headers
-      content += `${leftMargin} ${yPos} Td (${escapePDFString(cleanLine)}) Tj\n`
-      yPos -= lineHeight + 4
+    // Add line to content
+    if (i === 0) {
+      pdfContent += `(${escapedLine}) Tj\n`
     } else {
-      // Regular text
-      content += `${leftMargin} ${yPos} Td (${escapePDFString(cleanLine)}) Tj\n`
-      yPos -= lineHeight
+      pdfContent += `0 -${lineHeight} Td (${escapedLine}) Tj\n`
     }
     
-    if (yPos < 50) {
-      // Add new page logic if needed
-      break
+    yPos -= lineHeight
+    
+    if (yPos < 100) {
+      break // Prevent going off page
     }
   }
-
-  const pdfHeader = `%PDF-1.4
+  
+  pdfContent += `ET`
+  
+  const pdfStructure = `%PDF-1.4
 1 0 obj
 <<
 /Type /Catalog
@@ -83,13 +73,10 @@ endobj
 
 4 0 obj
 <<
-/Length ${content.length}
+/Length ${pdfContent.length}
 >>
 stream
-BT
-/F1 12 Tf
-${content}
-ET
+${pdfContent}
 endstream
 endobj
 
@@ -106,10 +93,10 @@ trailer
 /Root 1 0 R
 >>
 startxref
-${400 + content.length}
+${400 + pdfContent.length}
 %%EOF`
 
-  return Buffer.from(pdfHeader, 'ascii')
+  return Buffer.from(pdfStructure, 'ascii')
 }
 
 function escapePDFString(str: string): string {
@@ -117,12 +104,12 @@ function escapePDFString(str: string): string {
     .replace(/\\/g, '\\\\')
     .replace(/\(/g, '\\(')
     .replace(/\)/g, '\\)')
-    .replace(/\n/g, ' ')
+    .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
+    .trim()
 }
 
 export async function POST(req: Request) {
   try {
-    // Parse request body
     const body = await req.json()
     const { text } = body
 
@@ -133,24 +120,31 @@ export async function POST(req: Request) {
       )
     }
 
-    // Clean the text further to ensure no artifacts
-    const cleanText = text
-      .replace(/\*{2,}/g, '') // Remove ** bold markers
-      .replace(/^#+\s*/gm, '') // Remove # headers
-      .replace(/^\d+\.\s*/gm, '') // Remove numbered lists
-      .replace(/\n{3,}/g, '\n\n') // Normalize spacing
-      .trim()
+    // Ensure we have actual content
+    const cleanText = text.trim()
+    if (!cleanText) {
+      return NextResponse.json(
+        { error: 'No content to generate PDF' },
+        { status: 400 }
+      )
+    }
+
+    console.log('Generating PDF with content:', cleanText.substring(0, 200) + '...')
 
     // Generate PDF
     const pdfBuffer = createResumePDF(cleanText)
+    
+    console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
 
-    // Return PDF response
-    return new Response(pdfBuffer, {
+    // Convert Buffer to Uint8Array for proper Response handling
+    const pdfArray = new Uint8Array(pdfBuffer)
+    
+    return new Response(pdfArray, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="enhanced-resume.pdf"',
-        'Content-Length': pdfBuffer.length.toString(),
+        'Content-Length': pdfArray.length.toString(),
       },
     })
 
