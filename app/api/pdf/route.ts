@@ -129,25 +129,6 @@ export async function POST(request: Request) {
           }
         } catch (dirError) {
           console.error('Error creating cache directory:', dirError);
-          // Continue anyway, the directory might be created by another process
-        }
-        
-        // Create additional directories that might be needed
-        const additionalDirs = [
-          '/tmp/chromium',
-          '/var/task/.next/server/app/api/bin'
-        ];
-        
-        for (const dir of additionalDirs) {
-          try {
-            if (!fs.existsSync(dir)) {
-              console.log(`Creating additional directory: ${dir}`);
-              fs.mkdirSync(dir, { recursive: true });
-            }
-          } catch (dirError) {
-            console.error(`Error creating directory ${dir}:`, dirError);
-            // Continue anyway, not all directories may be creatable
-          }
         }
         
         // Load fonts for better text rendering
@@ -156,49 +137,38 @@ export async function POST(request: Request) {
           console.log('Loaded font successfully');
         } catch (fontError) {
           console.error('Error loading font:', fontError);
-          // Continue anyway, font loading is not critical
         }
         
-        // Get the executable path with proper error handling
-        let executablePath;
-        const possiblePaths = [
-          // Try environment variable first
-          process.env.CHROME_EXECUTABLE_PATH,
-          // Then try the standard chromium path
-          await chromium.executablePath().catch(() => null),
-          // Then try common fallback paths
-          '/tmp/chromium/chromium',
-          '/tmp/chromium/chrome',
-          '/var/task/node_modules/@sparticuz/chromium/bin',
-          '/var/task/.next/server/app/api/bin/chromium'
-        ].filter(Boolean); // Remove null/undefined values
+        // Use the environment variable for executable path
+        const executablePath = process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath();
+        console.log('Using Chromium executable path:', executablePath);
         
-        console.log('Checking possible Chrome executable paths:', possiblePaths);
-        
-        // Find the first path that exists
-        for (const path of possiblePaths) {
-          try {
-            if (path && fs.existsSync(path)) {
-              executablePath = path;
-              console.log('Found Chrome executable at:', executablePath);
-              break;
-            }
-          } catch (checkError) {
-            console.error(`Error checking path ${path}:`, checkError);
-          }
+        // Verify the executable exists and has proper permissions
+        if (!fs.existsSync(executablePath)) {
+          console.error('Chromium executable not found at:', executablePath);
+          throw new Error(`Chromium executable not found: ${executablePath}`);
         }
         
-        if (!executablePath) {
-          console.error('No valid Chrome executable path found, using default');
-          // Use the default path as last resort
-          executablePath = await chromium.executablePath().catch(err => {
-            console.error('Error getting default path:', err);
-            return '/tmp/chromium/chrome'; // Absolute last resort
+        // Check if file is executable
+        try {
+          const stats = fs.statSync(executablePath);
+          const isExecutable = (stats.mode & parseInt('111', 8)) !== 0;
+          console.log('Chromium executable permissions:', {
+            path: executablePath,
+            exists: true,
+            isExecutable: isExecutable,
+            mode: stats.mode.toString(8)
           });
+          
+          if (!isExecutable) {
+            console.warn('Chromium may not have executable permissions');
+          }
+        } catch (permError) {
+          console.error('Error checking permissions:', permError);
         }
         
         // Launch browser with comprehensive options
-        console.log('Launching browser with executablePath:', executablePath);
+        console.log('Launching browser...');
         browser = await puppeteer.launch({
           args: [
             ...chromium.args,
