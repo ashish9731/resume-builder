@@ -48,56 +48,79 @@ export async function POST(req: Request) {
       )
     }
 
-    const prompt = `You are an elite resume writer with 15+ years of experience helping professionals land top-tier positions. Your resumes have helped thousands secure jobs at Fortune 500 companies. Transform this resume into a masterpiece that will make recruiters stop and take notice.
+    const prompt = `You are an expert ATS (Applicant Tracking System) resume writer. Transform this resume into an ATS-optimized masterpiece that will pass through ATS filters and impress recruiters. Follow this exact structure and formatting:
 
-🎯 ENHANCEMENT MISSION: Create a resume that tells a compelling story of professional excellence and value delivery.
+## ATS-OPTIMIZED RESUME STRUCTURE
 
-📋 ENHANCEMENT FRAMEWORK:
+### 1. HEADER (Required)
+Format exactly as:
+[FULL NAME]
+[PHONE NUMBER] | [PROFESSIONAL EMAIL] | [LINKEDIN PROFILE]
+[CITY, STATE]
 
-**1. PROFESSIONAL SUMMARY (Power Statement)**
-- Write a magnetic 3-4 line summary that immediately communicates value
-- Lead with years of experience and core expertise area
-- Include 2-3 key achievements or impact statements
-- Use industry-specific keywords and power phrases
-- Make it impossible to ignore
+### 2. PROFESSIONAL SUMMARY (3-4 sentences)
+Write a compelling summary that includes:
+- Years of experience and core expertise
+- 2-3 key achievements with metrics
+- Keywords from job descriptions
+- Value proposition statement
 
-**2. EXPERIENCE TRANSFORMATION (Achievement Focus)**
-- Convert every job description into achievement-focused bullet points
-- Start each bullet with powerful action verbs (Spearheaded, Orchestrated, Pioneered, Transformed, Accelerated)
-- Add quantifiable impact where logical (increased efficiency by X%, reduced costs by $Y, managed team of Z)
-- Include specific technologies, methodologies, and tools used
-- Highlight leadership, innovation, and problem-solving examples
-- Show progression and growth in responsibilities
+### 3. CORE SKILLS / KEY COMPETENCIES
+Format as comma-separated list:
+Technical Skills: [List 8-12 technical skills relevant to target role]
+Leadership Skills: [List 4-6 leadership/management skills]
+Industry Knowledge: [List 3-5 domain-specific skills]
 
-**3. SKILLS MASTERY (Strategic Categorization)**
-- Group skills into: Technical Expertise, Leadership & Management, Industry Knowledge
-- Include trending technologies and in-demand skills
-- Add proficiency indicators (Advanced, Expert, Proficient) where appropriate
-- Ensure alignment with current job market demands
+### 4. PROFESSIONAL EXPERIENCE (Reverse chronological)
+For each role, format as:
+[JOB TITLE] | [COMPANY NAME] | [LOCATION] | [MM/YYYY - MM/YYYY]
+• [Action verb] [achievement/task] resulting in [quantified result]
+• [Action verb] [achievement/task] leading to [quantified result]
+• [Action verb] [achievement/task] improving [quantified result]
 
-**4. EDUCATION & CREDENTIALS (Value Enhancement)**
-- Enhance education with relevant coursework, projects, or specializations
-- Add certifications, training, or professional development
-- Include academic achievements, honors, or distinctions
-- Show continuous learning and professional growth
+Use these action verbs: Spearheaded, Orchestrated, Pioneered, Transformed, Accelerated, Optimized, Streamlined, Implemented, Led, Managed, Developed, Designed, Analyzed, Delivered, Achieved
 
-**5. PROFESSIONAL PRESENTATION (Visual Excellence)**
-- Use clean, professional formatting with clear section headers
-- Ensure consistent formatting throughout
-- Optimize for both ATS systems and human readers
-- Create visual hierarchy that guides the reader's eye
+### 5. EDUCATION
+[DEGREE] in [MAJOR] | [UNIVERSITY NAME] | [GRADUATION YEAR]
+[GPA if 3.5+] | [Relevant coursework/projects if applicable]
 
-🚫 CRITICAL CONSTRAINTS:
-- NEVER fabricate companies, positions, dates, or achievements
-- ONLY enhance and expand existing information with logical, professional improvements
-- Maintain 100% truthfulness and accuracy
-- Use sophisticated, industry-appropriate language
+### 6. CERTIFICATIONS & TRAINING
+• [Certification Name] - [Issuing Organization] - [Year]
+• [Training Program] - [Provider] - [Year]
+
+### 7. PROJECTS (Optional but ATS-friendly)
+[Project Name] | [Technologies Used]
+• [Brief description with quantified impact]
+
+## FORMATTING RULES
+- Use simple text format (no tables, graphics, or columns)
+- Stick to standard fonts (use plain text)
+- Use bullet points (•) for clarity
+- Ensure consistent spacing between sections
+- Match keywords from job descriptions exactly
+- Include specific technologies, tools, and methodologies
+- Add quantifiable metrics wherever possible
+
+## ENHANCEMENT GUIDELINES
+- Convert job descriptions into achievement-focused statements
+- Add specific numbers, percentages, and dollar amounts
+- Include relevant keywords for ATS optimization
+- Highlight progression and increased responsibilities
+- Emphasize business impact and value delivery
+
+## STRICT CONSTRAINTS
+- NEVER fabricate companies, positions, or achievements
+- ONLY enhance existing information with logical improvements
+- Maintain 100% factual accuracy
+- Use sophisticated, professional language
 - Create compelling narrative without exaggeration
 
-📊 ANALYSIS INSIGHTS TO APPLY:
-${analysis ? analysis.substring(0, 1500) : 'No specific analysis provided - apply general enhancement principles'}
+TRANSFORM THIS RESUME:
+${text}
 
-🎯 DELIVERABLE: Return a complete, professionally formatted resume that will make this candidate irresistible to top employers. Focus on impact, value, and professional excellence.`
+${analysis ? `\nANALYSIS INSIGHTS: ${analysis.substring(0, 1000)}` : ''}
+
+Return only the ATS-optimized resume content, properly formatted with all sections included.`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
@@ -105,10 +128,10 @@ ${analysis ? analysis.substring(0, 1500) : 'No specific analysis provided - appl
       model,
       messages: [
         { role: 'system', content: systemGuardrails },
-        { role: 'user', content: prompt + '\n\nORIGINAL CONTENT:\n' + text.substring(0, 8000) }
+        { role: 'user', content: prompt }
       ],
-      temperature: 0.1, // Lower temperature for more consistent, professional output
-      max_tokens: 3000, // Allow much more detailed enhancement
+      temperature: 0.1,
+      max_tokens: 4000,
     })
 
     const enhanced = completion.choices[0]?.message?.content ?? ''
