@@ -70,56 +70,26 @@ export async function POST(request: Request) {
     try {
       console.log('Launching browser for PDF generation...');
       
-      // Use a completely different approach to avoid directory issues
+      // Simplified approach using only puppeteer-core for both dev and prod
       let puppeteer;
       let launchOptions: any = {};
       
       if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-        // Production: Use @sparticuz/chromium with explicit handling
-        console.log('Using serverless Chromium for production');
+        // Production: Use @sparticuz/chromium with puppeteer-core
+        console.log('Using serverless Chromium with puppeteer-core');
         
-        // Import chromium and puppeteer-core dynamically
-        const chromiumImport = await import('@sparticuz/chromium');
-        const chromium = chromiumImport.default || chromiumImport;
-        
-        const puppeteerImport = await import('puppeteer-core');
-        puppeteer = puppeteerImport.default || puppeteerImport;
-        
-        // Get executable path with fallback
-        let executablePath;
-        try {
-          executablePath = await chromium.executablePath();
-        } catch (e) {
-          console.warn('Could not get executablePath, using fallback:', e);
-          // Try common serverless paths
-          const possiblePaths = [
-            '/tmp/chromium',
-            '/opt/chromium',
-            '/usr/bin/chromium-browser',
-            '/usr/bin/google-chrome-stable'
-          ];
-          executablePath = possiblePaths[0]; // Let it fail if none work
-        }
+        const chromium = require('@sparticuz/chromium');
+        puppeteer = require('puppeteer-core');
         
         launchOptions = {
-          args: chromium.args || [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--single-process',
-            '--no-zygote',
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor'
-          ],
-          executablePath,
-          headless: true,
+          args: chromium.args,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
         };
       } else {
         // Development: Use local puppeteer
         console.log('Using local puppeteer for development');
-        const puppeteerImport = await import('puppeteer');
-        puppeteer = puppeteerImport.default || puppeteerImport;
+        puppeteer = require('puppeteer');
         
         launchOptions = {
           headless: true,
@@ -167,7 +137,6 @@ export async function POST(request: Request) {
     console.error('PDF generation error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    // Provide more detailed error info for debugging
     return NextResponse.json(
       { 
         error: 'PDF generation failed', 
