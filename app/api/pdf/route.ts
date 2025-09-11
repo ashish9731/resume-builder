@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
-// These settings are important for Vercel deployment
 export const runtime = 'nodejs';
 export const maxDuration = 60;
-
-// Import dynamically to avoid path issues
-let puppeteer: any;
-let chromium: any;
 
 export async function POST(request: Request) {
   console.log('PDF generation API called');
@@ -72,42 +69,15 @@ export async function POST(request: Request) {
     let pdfData: Uint8Array;
 
     try {
-      console.log('Starting PDF generation...');
+      console.log('Starting PDF generation with chrome-aws-lambda...');
       
-      // Handle both Vercel and local environments
-      const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
-      
-      if (isVercel) {
-        // Vercel/Production environment
-        console.log('Using Vercel serverless environment');
-        
-        // Import dynamically to avoid path issues
-        const chromiumModule = await import('@sparticuz/chromium');
-        const puppeteerModule = await import('puppeteer-core');
-        
-        chromium = chromiumModule.default;
-        puppeteer = puppeteerModule.default;
-        
-        const executablePath = await chromium.executablePath();
-        console.log('Chromium executable path:', executablePath);
-        
-        browser = await puppeteer.launch({
-          args: chromium.args,
-          executablePath,
-          headless: chromium.headless,
-        });
-      } else {
-        // Local development
-        console.log('Using local development environment');
-        
-        const puppeteerModule = await import('puppeteer');
-        puppeteer = puppeteerModule.default;
-        
-        browser = await puppeteer.launch({
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-      }
+      // Use the exact working pattern from the reference
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
 
       console.log('Browser launched successfully');
       
@@ -146,7 +116,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('PDF generation error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack : '';
     
     return NextResponse.json(
