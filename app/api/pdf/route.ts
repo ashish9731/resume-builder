@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
 
 // These settings are important for Vercel deployment
 export const runtime = 'nodejs';
@@ -72,26 +70,36 @@ export async function POST(request: Request) {
     try {
       console.log('Launching browser for PDF generation...');
       
-      // Use the correct serverless approach
+      // Use a more robust approach for serverless
+      let puppeteerModule;
+      let launchOptions: any = {};
+      
       if (process.env.NODE_ENV === 'development') {
         // Development: use local puppeteer
-        const localPuppeteer = (await import('puppeteer')).default;
-        browser = await localPuppeteer.launch({ 
+        puppeteerModule = (await import('puppeteer')).default;
+        launchOptions = {
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
+        };
       } else {
-        // Production: use @sparticuz/chromium
-        const executablePath = await chromium.executablePath();
+        // Production: use @sparticuz/chromium with proper handling
+        const chromiumModule: any = await import('@sparticuz/chromium');
+        puppeteerModule = (await import('puppeteer-core')).default;
         
-        browser = await puppeteer.launch({
-          args: chromium.args,
+        const executablePath = await chromiumModule.executablePath?.() || await chromiumModule.default?.executablePath?.();
+        const args = chromiumModule.args || chromiumModule.default?.args || [];
+        const headless = chromiumModule.headless !== undefined ? chromiumModule.headless : (chromiumModule.default?.headless ?? true);
+        
+        launchOptions = {
+          args,
           executablePath,
-          headless: chromium.headless,
-        });
+          headless,
+        };
       }
 
+      browser = await puppeteerModule.launch(launchOptions);
       console.log('Browser launched successfully');
+      
       const page = await browser.newPage();
       
       await page.setContent(htmlContent, {
