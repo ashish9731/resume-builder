@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
+// Critical for Vercel serverless environment
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
@@ -69,9 +70,9 @@ export async function POST(request: Request) {
     let pdfData: Uint8Array;
 
     try {
-      console.log('Starting PDF generation with chrome-aws-lambda...');
+      console.log('Starting PDF generation with serverless Chromium...');
       
-      // Use the exact working pattern from the reference
+      // Use serverless-compatible Chromium from @sparticuz/chromium
       browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
@@ -117,13 +118,12 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('PDF generation error:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const stack = error instanceof Error ? error.stack : '';
     
     return NextResponse.json(
       { 
         error: 'PDF generation failed', 
         details: errorMessage,
-        stack: process.env.NODE_ENV === 'development' ? stack : undefined
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );
