@@ -136,27 +136,26 @@ export default function UploadPage() {
     if (!enhancedResume) return
 
     try {
-      // Create a form and submit it to trigger the download
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = '/api/pdf'
-      form.target = '_blank' // Open in new tab/window
-      
-      const input = document.createElement('input')
-      input.type = 'hidden'
-      input.name = 'text'
-      input.value = enhancedResume
-      
-      form.appendChild(input)
-      document.body.appendChild(form)
-      
-      console.log('Submitting form for PDF download...')
-      form.submit()
-      
-      // Clean up the form
-      setTimeout(() => {
-        document.body.removeChild(form)
-      }, 1000)
+      const response = await fetch('/api/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: enhancedResume }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`PDF generation failed: ${errorText}`)
+      }
+
+      const pdfBlob = await response.blob()
+      const url = window.URL.createObjectURL(pdfBlob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'enhanced-resume.pdf'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
     } catch (error) {
       console.error('Download error:', error)
       alert('Failed to download PDF. Please try again.')

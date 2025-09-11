@@ -114,8 +114,19 @@ ${xrefOffset}
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { text } = body
+    const contentType = req.headers.get('content-type') || ''
+    let text: string
+
+    if (contentType.includes('application/json')) {
+      const body = await req.json()
+      text = body.text
+    } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
+      const formData = await req.formData()
+      text = formData.get('text') as string
+    } else {
+      // Fallback to text from body
+      text = await req.text()
+    }
 
     if (!text || typeof text !== 'string') {
       return NextResponse.json(
