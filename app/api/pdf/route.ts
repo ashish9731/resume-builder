@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import PDFDocument from 'pdfkit';
 
-// Pure JavaScript solution - no binaries needed
+// Pure JavaScript solution with embedded fonts
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 export async function POST(request: Request) {
-  console.log('PDF generation API called with pure JS solution');
+  console.log('PDF generation API called with embedded fonts');
   
   try {
     let text = '';
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     const cleanText = text.replace(/\*\*/g, '').replace(/\n\n\n+/g, '\n\n').trim();
 
-    // Create PDF using pure JavaScript - no binaries needed
+    // Create PDF with default settings - no font specification
     const doc = new PDFDocument({
       size: 'A4',
       margins: {
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       doc.on('error', reject);
     });
 
-    // Add content to PDF
+    // Add content to PDF using built-in font
     doc.fontSize(16).text('Resume', { align: 'center' });
     doc.moveDown();
     doc.fontSize(11).text(cleanText, {
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
 
     const pdfBuffer = await pdfPromise;
     
-    console.log('PDF generated successfully with pure JS, size:', pdfBuffer.length);
+    console.log('PDF generated successfully with built-in font, size:', pdfBuffer.length);
 
     return new NextResponse(pdfBuffer as any, {
       headers: {
