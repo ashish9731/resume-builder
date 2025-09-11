@@ -40,87 +40,66 @@ export async function POST(req: Request) {
       )
     }
 
-    // Validate analysis if provided
-    if (analysis && typeof analysis !== 'string') {
-      return NextResponse.json(
-        { error: 'Analysis must be a string if provided' },
-        { status: 400 }
-      )
-    }
+    const prompt = `You are an expert professional resume writer. Create a clean, ATS-optimized resume following this exact format. Return ONLY the resume content with no formatting markers, no section numbers, no asterisks, no hashtags, no bullet numbers - just clean professional text.
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) resume writer. Transform this resume into an ATS-optimized masterpiece that will pass through ATS filters and impress recruiters. Follow this exact structure and formatting:
+RESUME FORMAT:
 
-## ATS-OPTIMIZED RESUME STRUCTURE
+[Full Name]
+[Phone Number] | [Email] | [LinkedIn Profile]
+[City, State]
 
-### 1. HEADER (Required)
-Format exactly as:
-[FULL NAME]
-[PHONE NUMBER] | [PROFESSIONAL EMAIL] | [LINKEDIN PROFILE]
-[CITY, STATE]
+PROFESSIONAL SUMMARY
+[Write 3-4 compelling sentences about years of experience, core expertise, and key achievements with specific metrics]
 
-### 2. PROFESSIONAL SUMMARY (3-4 sentences)
-Write a compelling summary that includes:
-- Years of experience and core expertise
-- 2-3 key achievements with metrics
-- Keywords from job descriptions
-- Value proposition statement
+CORE COMPETENCIES
+[Technical Skills: List relevant technical skills separated by commas]
+[Leadership Skills: List management and leadership skills separated by commas]
+[Industry Knowledge: List domain expertise separated by commas]
 
-### 3. CORE SKILLS / KEY COMPETENCIES
-Format as comma-separated list:
-Technical Skills: [List 8-12 technical skills relevant to target role]
-Leadership Skills: [List 4-6 leadership/management skills]
-Industry Knowledge: [List 3-5 domain-specific skills]
+PROFESSIONAL EXPERIENCE
 
-### 4. PROFESSIONAL EXPERIENCE (Reverse chronological)
-For each role, format as:
-[JOB TITLE] | [COMPANY NAME] | [LOCATION] | [MM/YYYY - MM/YYYY]
-• [Action verb] [achievement/task] resulting in [quantified result]
-• [Action verb] [achievement/task] leading to [quantified result]
-• [Action verb] [achievement/task] improving [quantified result]
+[Job Title]
+[Company Name] | [Location] | [Month Year - Month Year]
+• [Action verb] [achievement/task] resulting in [specific metric/result]
+• [Action verb] [achievement/task] leading to [specific metric/result]
+• [Action verb] [achievement/task] improving [specific metric/result]
 
-Use these action verbs: Spearheaded, Orchestrated, Pioneered, Transformed, Accelerated, Optimized, Streamlined, Implemented, Led, Managed, Developed, Designed, Analyzed, Delivered, Achieved
+[Next Job Title]
+[Next Company Name] | [Location] | [Month Year - Month Year]
+• [Action verb] [achievement/task] resulting in [specific metric/result]
+• [Action verb] [achievement/task] leading to [specific metric/result]
+• [Action verb] [achievement/task] improving [specific metric/result]
 
-### 5. EDUCATION
-[DEGREE] in [MAJOR] | [UNIVERSITY NAME] | [GRADUATION YEAR]
-[GPA if 3.5+] | [Relevant coursework/projects if applicable]
+EDUCATION
+[Degree] in [Major]
+[University Name] | [Graduation Year]
 
-### 6. CERTIFICATIONS & TRAINING
+CERTIFICATIONS
 • [Certification Name] - [Issuing Organization] - [Year]
-• [Training Program] - [Provider] - [Year]
+• [Certification Name] - [Issuing Organization] - [Year]
 
-### 7. PROJECTS (Optional but ATS-friendly)
-[Project Name] | [Technologies Used]
+PROJECTS
+[Project Name] - [Technologies Used]
 • [Brief description with quantified impact]
 
-## FORMATTING RULES
-- Use simple text format (no tables, graphics, or columns)
-- Stick to standard fonts (use plain text)
-- Use bullet points (•) for clarity
-- Ensure consistent spacing between sections
-- Match keywords from job descriptions exactly
-- Include specific technologies, tools, and methodologies
-- Add quantifiable metrics wherever possible
+[Next Project Name] - [Technologies Used]
+• [Brief description with quantified impact]
 
-## ENHANCEMENT GUIDELINES
-- Convert job descriptions into achievement-focused statements
-- Add specific numbers, percentages, and dollar amounts
-- Include relevant keywords for ATS optimization
-- Highlight progression and increased responsibilities
-- Emphasize business impact and value delivery
-
-## STRICT CONSTRAINTS
-- NEVER fabricate companies, positions, or achievements
-- ONLY enhance existing information with logical improvements
-- Maintain 100% factual accuracy
-- Use sophisticated, professional language
-- Create compelling narrative without exaggeration
+GUIDELINES:
+- Use actual bullet points (•) not numbers or dashes
+- Include specific metrics, percentages, and dollar amounts
+- Use powerful action verbs: Spearheaded, Orchestrated, Pioneered, Transformed, Accelerated, Optimized, Streamlined, Implemented, Led, Managed, Developed, Designed, Analyzed, Delivered
+- Ensure all content is factual and professional
+- Write in clean, readable paragraphs with proper spacing
+- Focus on achievements and business impact
+- Include relevant keywords naturally throughout
 
 TRANSFORM THIS RESUME:
 ${text}
 
-${analysis ? `\nANALYSIS INSIGHTS: ${analysis.substring(0, 1000)}` : ''}
+${analysis ? `\nADDITIONAL CONTEXT: ${analysis.substring(0, 800)}` : ''}
 
-Return only the ATS-optimized resume content, properly formatted with all sections included.`
+Return only the clean, formatted resume content with no section labels, no formatting instructions, no asterisks, no hashtags, and no numbering - just the professional resume text.`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
@@ -134,7 +113,7 @@ Return only the ATS-optimized resume content, properly formatted with all sectio
       max_tokens: 4000,
     })
 
-    const enhanced = completion.choices[0]?.message?.content ?? ''
+    let enhanced = completion.choices[0]?.message?.content ?? ''
     
     if (!enhanced) {
       return NextResponse.json(
@@ -142,6 +121,17 @@ Return only the ATS-optimized resume content, properly formatted with all sectio
         { status: 500 }
       )
     }
+
+    // Clean up any remaining formatting artifacts
+    enhanced = enhanced
+      .replace(/^#+\s*/gm, '') // Remove # headers
+      .replace(/\*\*/g, '') // Remove ** bold markers
+      .replace(/^\d+\.\s*/gm, '') // Remove numbered lists
+      .replace(/^[-*]\s*/gm, '• ') // Convert to clean bullets
+      .replace(/\|/g, ' | ') // Normalize pipe separators
+      .replace(/\n{3,}/g, '\n\n') // Normalize spacing
+      .replace(/\s+$/gm, '') // Remove trailing whitespace
+      .trim()
 
     return NextResponse.json({ enhanced })
 
