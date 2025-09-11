@@ -1,13 +1,62 @@
 import { NextResponse } from 'next/server';
-// @ts-ignore - react-pdf renderer is CJS/ESM hybrid
-import { Document, Page, Text, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
 
-// Serverless-friendly PDF generation with @react-pdf/renderer (no external font/data files required)
+// Pure serverless PDF generation with no external dependencies
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
+// Simple PDF generation using raw PDF commands
+function createSimplePDF(text: string): Buffer {
+  const lines = text.split('\n').filter(line => line.trim());
+  const fontSize = 12;
+  const lineHeight = fontSize * 1.2;
+  const margin = 40;
+  const pageWidth = 595; // A4 width
+  const pageHeight = 842; // A4 height
+  const contentWidth = pageWidth - (2 * margin);
+  
+  let content = '';
+  let y = margin + lineHeight;
+  
+  // PDF header
+  content += `%PDF-1.4\n`;
+  content += `1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n`;
+  content += `2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n`;
+  
+  // Page content
+  let pageContent = `BT\n/F1 ${fontSize} Tf\n`;
+  
+  lines.forEach(line => {
+    if (y + lineHeight > pageHeight - margin) return; // Skip if too low
+    pageContent += `${margin} ${pageHeight - y} Td\n(${escapePDFString(line)}) Tj\n`;
+    y += lineHeight;
+  });
+  pageContent += `ET\n`;
+  
+  const contentLength = pageContent.length;
+  
+  content += `3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/MediaBox [0 0 ${pageWidth} ${pageHeight}]\n/Contents 4 0 R\n/Resources <<\n/Font <<\n/F1 <<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\n>>\n>>\n>>\nendobj\n`;
+  content += `4 0 obj\n<<\n/Length ${contentLength}\n>>\nstream\n${pageContent}endstream\nendobj\n`;
+  
+  // Cross-reference table
+  const xrefOffset = content.length;
+  content += `xref\n0 5\n0000000000 65535 f\n`;
+  content += `0000000010 00000 n\n`;
+  content += `0000000075 00000 n\n`;
+  content += `0000000150 00000 n\n`;
+  content += `0000000300 00000 n\n`;
+  
+  // Trailer
+  content += `trailer\n<<\n/Size 5\n/Root 1 0 R\n>>\nstartxref\n${xrefOffset}\n%%EOF`;
+  
+  return Buffer.from(content, 'binary');
+}
+
+function escapePDFString(str: string): string {
+  return str.replace(/[()\\]/g, '\\$&');
+}
+
 export async function POST(request: Request) {
-  console.log('PDF generation API called with @react-pdf/renderer');
+  console.log('PDF generation API called with pure serverless implementation');
 
   try {
     let text = '';
@@ -34,36 +83,9 @@ export async function POST(request: Request) {
     }
 
     const cleanText = text.replace(/\*\*/g, '').replace(/\n\n\n+/g, '\n\n').trim();
-
-    // Define styles and PDF structure
-    const styles = StyleSheet.create({
-      page: {
-        fontSize: 11,
-        padding: 40,
-        fontFamily: 'Helvetica',
-        lineHeight: 1.4,
-      },
-      heading: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginBottom: 10,
-      },
-      content: {
-        whiteSpace: 'pre-wrap',
-      },
-    });
-
-    const PdfDocument = (
-      <Document>
-        <Page size="A4" style={styles.page}>
-          <Text style={styles.heading}>Resume</Text>
-          <Text style={styles.content}>{cleanText}</Text>
-        </Page>
-      </Document>
-    );
-
+    
     // Generate PDF buffer directly
-    const pdfBuffer: Buffer = await renderToBuffer(PdfDocument);
+    const pdfBuffer = createSimplePDF(cleanText);
 
     console.log('PDF generated successfully (size:', pdfBuffer.length, 'bytes)');
 
