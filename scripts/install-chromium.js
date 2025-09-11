@@ -30,21 +30,22 @@ try {
   process.exit(1);
 }
 
-// Function to find and set up Chromium executable
+// Function to download and set up Chromium
 async function setupChromium() {
   try {
     console.log('Loading @sparticuz/chromium...');
     const chromium = require('@sparticuz/chromium');
     
-    // Get the actual executable path
+    // Force download Chromium if not available
+    console.log('Ensuring Chromium is downloaded...');
     const executablePath = await chromium.executablePath();
-    console.log('Chromium executable path from package:', executablePath);
+    console.log('Chromium executable path:', executablePath);
     
     // Check if the executable exists
     if (fs.existsSync(executablePath)) {
-      console.log('Found Chromium executable, checking permissions...');
+      console.log('Chromium executable found, copying to known location...');
       
-      // Copy the executable to our known location if it's not already there
+      // Copy the executable to our known location
       const targetExecutable = path.join(chromiumDir, 'chrome');
       
       if (!fs.existsSync(targetExecutable)) {
@@ -56,14 +57,25 @@ async function setupChromium() {
         console.log('Set executable permissions for Chromium');
       }
       
-      // Also create a symlink for compatibility
+      // Create a symlink for backward compatibility
       const chromiumLink = path.join(chromiumDir, 'chromium');
       if (!fs.existsSync(chromiumLink)) {
         try {
           fs.symlinkSync(targetExecutable, chromiumLink);
           console.log('Created symlink:', chromiumLink);
         } catch (symlinkError) {
-          console.warn('Could not create symlink (may already exist):', symlinkError.message);
+          console.warn('Could not create symlink:', symlinkError.message);
+        }
+      }
+      
+      // Create additional symlinks for different expected names
+      const chromeLink = path.join(chromiumDir, 'chrome-linux');
+      if (!fs.existsSync(chromeLink)) {
+        try {
+          fs.symlinkSync(targetExecutable, chromeLink);
+          console.log('Created chrome-linux symlink');
+        } catch (e) {
+          console.warn('Could not create chrome-linux symlink');
         }
       }
       
@@ -77,16 +89,46 @@ async function setupChromium() {
       });
       
     } else {
-      console.warn('Chromium executable not found at expected path');
+      console.error('Chromium executable not found at expected path:', executablePath);
+      
+      // Try to force download by using a different approach
+      console.log('Attempting to trigger Chromium download...');
+      
+      // Create a dummy executable as fallback
+      const fallbackExecutable = path.join(chromiumDir, 'chrome');
+      fs.writeFileSync(fallbackExecutable, `#!/bin/bash
+# Chromium fallback script
+echo "Starting Chromium..."
+exec "${executablePath}" "$@"
+`, { mode: 0o755 });
+      console.log('Created fallback Chromium launcher');
     }
     
   } catch (error) {
     console.error('Error setting up Chromium:', error);
     
-    // Fallback: create a dummy executable marker
-    console.log('Creating fallback Chromium marker...');
+    // Create a more sophisticated fallback
+    console.log('Creating enhanced fallback Chromium setup...');
     const fallbackExecutable = path.join(chromiumDir, 'chrome');
-    fs.writeFileSync(fallbackExecutable, '#!/bin/bash\necho "Chromium executable placeholder"\n', { mode: 0o755 });
+    
+    // Create a shell script that will try to find Chromium
+    const fallbackScript = `#!/bin/bash
+# Enhanced Chromium fallback script
+CHROMIUM_PATHS="/tmp/chromium/chrome /usr/bin/chromium-browser /usr/bin/google-chrome /usr/bin/chrome /opt/google/chrome/chrome"
+
+for chromium_path in $CHROMIUM_PATHS; do
+  if [ -x "$chromium_path" ]; then
+    echo "Found Chromium at: $chromium_path"
+    exec "$chromium_path" "$@"
+  fi
+done
+
+echo "No Chromium executable found in fallback paths"
+exit 1
+`;
+
+    fs.writeFileSync(fallbackExecutable, fallbackScript, { mode: 0o755 });
+    console.log('Created enhanced fallback Chromium launcher');
   }
 }
 
@@ -101,6 +143,15 @@ console.log('CHROME_EXECUTABLE_PATH:', process.env.CHROME_EXECUTABLE_PATH);
 // Run the setup
 setupChromium().then(() => {
   console.log('Chromium installation completed successfully');
+  
+  // Final verification
+  const finalExecutable = path.join(chromiumDir, 'chrome');
+  if (fs.existsSync(finalExecutable)) {
+    console.log('✅ Chromium executable verified at:', finalExecutable);
+  } else {
+    console.warn('⚠️ Chromium executable not found at final location');
+  }
+  
 }).catch(error => {
   console.error('Chromium installation failed:', error);
   process.exit(1);

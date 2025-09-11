@@ -100,9 +100,13 @@ export async function POST(request: Request) {
     `;
 
     let browser = null;
-    let pdfBuffer: Buffer;
+    let pdfData: Uint8Array;
 
     try {
+      // Cache directory setup for fonts and other resources
+      const cacheDir = '/tmp/.cache';
+      console.log('Using cache directory:', cacheDir);
+      
       console.log('Launching browser...');
       if (process.env.NODE_ENV === 'development') {
         // Use local puppeteer for development
@@ -112,9 +116,6 @@ export async function POST(request: Request) {
       } else {
         // Use serverless-friendly chromium for production
         console.log('Using serverless chromium for production');
-        
-        // Configure chromium for Vercel serverless environment
-        console.log('Setting up chromium for serverless environment');
         
         // Set chromium to use /tmp directory for cache
         const cacheDir = process.env.PUPPETEER_CACHE_DIR || '/tmp/puppeteer-cache';
@@ -131,6 +132,67 @@ export async function POST(request: Request) {
           console.error('Error creating cache directory:', dirError);
         }
         
+        // Use the standard Chromium executable path from our install script
+        const chromiumDir = '/tmp/chromium';
+        let executablePath = path.join(chromiumDir, 'chrome');
+        
+        // Fallback to chromium.executablePath() if our custom path doesn't exist
+        if (!fs.existsSync(executablePath)) {
+          console.log('Custom Chromium path not found, using chromium.executablePath()');
+          executablePath = await chromium.executablePath();
+        }
+        
+        console.log('Using Chromium executable path:', executablePath);
+        
+        // Verify the executable exists
+        if (!fs.existsSync(executablePath)) {
+          console.error('Chromium executable not found at:', executablePath);
+          
+          // Try alternative paths
+          const altPaths = [
+            '/tmp/chromium/chrome',
+            '/tmp/chromium/chromium',
+            await chromium.executablePath(),
+            '/usr/bin/chromium-browser',
+            '/usr/bin/google-chrome-stable',
+            '/usr/bin/google-chrome'
+          ];
+          
+          let foundPath = null;
+          for (const altPath of altPaths) {
+            if (fs.existsSync(altPath)) {
+              foundPath = altPath;
+              console.log('Found Chromium at alternative path:', altPath);
+              break;
+            }
+          }
+          
+          if (!foundPath) {
+            throw new Error(`Chromium executable not found. Tried: ${altPaths.join(', ')}`);
+          }
+          
+          executablePath = foundPath;
+        }
+        
+        // Check if file is executable
+        try {
+          const stats = fs.statSync(executablePath);
+          const isExecutable = (stats.mode & parseInt('111', 8)) !== 0;
+          console.log('Chromium executable verification:', {
+            path: executablePath,
+            exists: true,
+            isExecutable: isExecutable,
+            size: stats.size
+          });
+          
+          if (!isExecutable) {
+            console.log('Setting executable permissions...');
+            fs.chmodSync(executablePath, 0o755);
+          }
+        } catch (permError) {
+          console.error('Error checking/setting permissions:', permError);
+        }
+        
         // Load fonts for better text rendering
         try {
           await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf');
@@ -139,39 +201,10 @@ export async function POST(request: Request) {
           console.error('Error loading font:', fontError);
         }
         
-        // Use the environment variable for executable path
-        const executablePath = process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath();
-        console.log('Using Chromium executable path:', executablePath);
-        
-        // Verify the executable exists and has proper permissions
-        if (!fs.existsSync(executablePath)) {
-          console.error('Chromium executable not found at:', executablePath);
-          throw new Error(`Chromium executable not found: ${executablePath}`);
-        }
-        
-        // Check if file is executable
-        try {
-          const stats = fs.statSync(executablePath);
-          const isExecutable = (stats.mode & parseInt('111', 8)) !== 0;
-          console.log('Chromium executable permissions:', {
-            path: executablePath,
-            exists: true,
-            isExecutable: isExecutable,
-            mode: stats.mode.toString(8)
-          });
-          
-          if (!isExecutable) {
-            console.warn('Chromium may not have executable permissions');
-          }
-        } catch (permError) {
-          console.error('Error checking permissions:', permError);
-        }
-        
         // Launch browser with comprehensive options
-        console.log('Launching browser...');
+        console.log('Launching browser with executable:', executablePath);
         browser = await puppeteer.launch({
           args: [
-            ...chromium.args,
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
@@ -182,7 +215,12 @@ export async function POST(request: Request) {
             '--disable-gpu',
             '--font-render-hinting=none',
             '--disable-web-security',
-            '--disable-features=IsolateOrigins,site-per-process'
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--disable-extensions',
+            '--disable-default-apps',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding'
           ],
           defaultViewport: chromium.defaultViewport,
           executablePath: executablePath,
@@ -198,11 +236,10 @@ export async function POST(request: Request) {
       await page.setContent(htmlContent, {
         waitUntil: 'networkidle0',
       });
-      console.log('Page content set');
       
-      // page.pdf() returns a Uint8Array, which we need to convert to a Buffer
+      // Generate PDF
       console.log('Generating PDF...');
-      const pdfUint8Array = await page.pdf({
+      pdfData = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: {
@@ -212,49 +249,56 @@ export async function POST(request: Request) {
           left: '0.75in',
         },
       });
-      pdfBuffer = Buffer.from(pdfUint8Array);
-      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
-
-    } catch (pdfErr) {
-      console.error('PDF generation error:', pdfErr);
-      return NextResponse.json({ error: 'PDF generation failed', details: String(pdfErr) }, { status: 500 });
+      
+      console.log('PDF generated successfully, size:', pdfData.length);
+      
+    } catch (browserError) {
+      console.error('Browser/PDF generation error:', browserError);
+      throw browserError;
     } finally {
-        if (browser !== null) {
-            try {
-                await browser.close();
-                console.log('Browser closed');
-            } catch (closeError) {
-                console.error('Error closing browser:', closeError);
-                // Continue anyway, browser might already be closed
-            }
-        }
+      if (browser) {
+        console.log('Closing browser...');
+        await browser.close();
+      }
     }
 
-    // Create a Blob from the PDF buffer and use it as the response body.
-    console.log('Creating response with PDF data');
-    // Convert Buffer to Uint8Array which is compatible with BlobPart
-    const pdfUint8Array = new Uint8Array(pdfBuffer);
-    const pdfBlob = new Blob([pdfUint8Array], { type: 'application/pdf' });
-    
-    // Create the response with appropriate headers
-    const response = new NextResponse(pdfBlob, {
-      status: 200,
+    // Return the PDF
+    console.log('Returning PDF response...');
+    return new NextResponse(pdfData as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
-        'Content-Length': String(pdfBuffer.length),
-        // Add cache control headers to prevent caching issues
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
+        'Content-Length': pdfData.length.toString(),
       },
     });
-    
-    console.log('Response created successfully with headers:', response.headers);
-    return response;
 
   } catch (error) {
-    console.error('API error:', error);
-    return NextResponse.json({ error: 'Failed to process request', details: String(error) }, { status: 500 });
+    console.error('PDF generation error:', error);
+    
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      env: {
+        NODE_ENV: process.env.NODE_ENV,
+        CHROME_EXECUTABLE_PATH: process.env.CHROME_EXECUTABLE_PATH,
+        PUPPETEER_CACHE_DIR: process.env.PUPPETEER_CACHE_DIR
+      }
+    });
+    
+    return NextResponse.json(
+      { 
+        error: 'PDF generation failed', 
+        details: errorMessage,
+        debug: process.env.NODE_ENV === 'development' ? {
+          stack: errorStack,
+          executablePath: process.env.CHROME_EXECUTABLE_PATH
+        } : undefined
+      },
+      { status: 500 }
+    );
   }
 }
