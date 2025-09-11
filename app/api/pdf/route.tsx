@@ -6,54 +6,61 @@ export const maxDuration = 30
 function createResumePDF(text: string): Buffer {
   const lines = text.split('\n').filter(line => line.trim().length > 0)
   
-  let pdfContent = ''
+  let contentStream = ''
   let yPos = 750
-  const lineHeight = 18
+  const lineHeight = 15
   const leftMargin = 50
   
-  // Start content stream
-  pdfContent += `BT\n/F1 12 Tf\n50 750 Td\n`
+  // Build content stream properly
+  contentStream += `BT\n/F1 12 Tf\n`
   
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]?.trim() || ''
-    if (!line) continue
+  lines.forEach((line, index) => {
+    const cleanLine = line.trim()
+    if (!cleanLine) return
     
-    // Escape and prepare text
-    const escapedLine = escapePDFString(line)
+    const escapedText = escapePDFText(cleanLine)
     
-    // Add line to content
-    if (i === 0) {
-      pdfContent += `(${escapedLine}) Tj\n`
+    if (index === 0) {
+      contentStream += `${leftMargin} ${yPos} Td\n(${escapedText}) Tj\n`
     } else {
-      pdfContent += `0 -${lineHeight} Td (${escapedLine}) Tj\n`
+      contentStream += `0 -${lineHeight} Td\n(${escapedText}) Tj\n`
     }
     
     yPos -= lineHeight
-    
-    if (yPos < 100) {
-      break // Prevent going off page
-    }
-  }
+  })
   
-  pdfContent += `ET`
+  contentStream += `ET`
   
-  const pdfStructure = `%PDF-1.4
-1 0 obj
+  const pdfContent = generatePDFStructure(contentStream)
+  return Buffer.from(pdfContent, 'ascii')
+}
+
+function escapePDFText(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/[^\x20-\x7E]/g, ' ') // Replace non-printable chars with space
+    .trim()
+}
+
+function generatePDFStructure(content: string): string {
+  const obj1 = `1 0 obj
 <<
 /Type /Catalog
 /Pages 2 0 R
 >>
-endobj
+endobj`
 
-2 0 obj
+  const obj2 = `2 0 obj
 <<
 /Type /Pages
 /Kids [3 0 R]
 /Count 1
 >>
-endobj
+endobj`
 
-3 0 obj
+  const obj3 = `3 0 obj
 <<
 /Type /Page
 /Parent 2 0 R
@@ -69,43 +76,40 @@ endobj
 >>
 >>
 >>
-endobj
+endobj`
 
-4 0 obj
+  const obj4 = `4 0 obj
 <<
-/Length ${pdfContent.length}
+/Length ${content.length}
 >>
 stream
-${pdfContent}
+${content}
 endstream
-endobj
+endobj`
+
+  const xrefOffset = 9 + obj1.length + 1 + obj2.length + 1 + obj3.length + 1 + obj4.length + 1
+  
+  return `%PDF-1.4
+${obj1}
+${obj2}
+${obj3}
+${obj4}
 
 xref
 0 5
 0000000000 65535 f 
-0000000009 00000 n 
-0000000058 00000 n 
-0000000115 00000 n 
-0000000253 00000 n 
+0000000010 00000 n 
+0000000059 00000 n 
+0000000116 00000 n 
+0000000254 00000 n 
 trailer
 <<
 /Size 5
 /Root 1 0 R
 >>
 startxref
-${400 + pdfContent.length}
+${xrefOffset}
 %%EOF`
-
-  return Buffer.from(pdfStructure, 'ascii')
-}
-
-function escapePDFString(str: string): string {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)')
-    .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
-    .trim()
 }
 
 export async function POST(req: Request) {
@@ -120,7 +124,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Ensure we have actual content
     const cleanText = text.trim()
     if (!cleanText) {
       return NextResponse.json(
@@ -129,29 +132,30 @@ export async function POST(req: Request) {
       )
     }
 
-    console.log('Generating PDF with content:', cleanText.substring(0, 200) + '...')
+    const lines = cleanText.split('\n').filter(line => line.trim().length > 0)
+    console.log('Generating PDF with', lines.length, 'lines of content')
 
     // Generate PDF
     const pdfBuffer = createResumePDF(cleanText)
     
     console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
 
-    // Convert Buffer to Uint8Array for proper Response handling
-    const pdfArray = new Uint8Array(pdfBuffer)
+    // Convert to Uint8Array for Response
+    const pdfBytes = new Uint8Array(pdfBuffer)
     
-    return new Response(pdfArray, {
+    return new Response(pdfBytes, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="enhanced-resume.pdf"',
-        'Content-Length': pdfArray.length.toString(),
+        'Content-Length': pdfBytes.length.toString(),
       },
     })
 
   } catch (error) {
     console.error('PDF generation error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate PDF' },
+      { error: 'Failed to generate PDF', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   }
