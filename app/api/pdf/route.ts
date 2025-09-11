@@ -103,12 +103,12 @@ export async function POST(request: Request) {
     let pdfData: Uint8Array;
 
     try {
-      // Cache directory setup for fonts and other resources
-      const cacheDir = '/tmp/.cache';
-      console.log('Using cache directory:', cacheDir);
-      
       console.log('Launching browser...');
-      if (process.env.NODE_ENV === 'development') {
+      
+      // Check if we're in development
+      const isDev = process.env.NODE_ENV === 'development';
+      
+      if (isDev) {
         // Use local puppeteer for development
         console.log('Using local puppeteer for development');
         const localPuppeteer = (await import('puppeteer')).default;
@@ -117,114 +117,74 @@ export async function POST(request: Request) {
         // Use serverless-friendly chromium for production
         console.log('Using serverless chromium for production');
         
-        // Set chromium to use /tmp directory for cache
-        const cacheDir = process.env.PUPPETEER_CACHE_DIR || '/tmp/puppeteer-cache';
-        process.env.PUPPETEER_CACHE_DIR = cacheDir;
-        console.log('Using cache directory:', cacheDir);
-        
-        // Ensure the cache directory exists
+        // Get the executable path from chromium
+        let executablePath: string;
         try {
-          if (!fs.existsSync(cacheDir)) {
-            console.log(`Creating cache directory: ${cacheDir}`);
-            fs.mkdirSync(cacheDir, { recursive: true });
-          }
-        } catch (dirError) {
-          console.error('Error creating cache directory:', dirError);
-        }
-        
-        // Use the standard Chromium executable path from our install script
-        const chromiumDir = '/tmp/chromium';
-        let executablePath = path.join(chromiumDir, 'chrome');
-        
-        // Fallback to chromium.executablePath() if our custom path doesn't exist
-        if (!fs.existsSync(executablePath)) {
-          console.log('Custom Chromium path not found, using chromium.executablePath()');
           executablePath = await chromium.executablePath();
+          console.log('Chromium executable path from package:', executablePath);
+        } catch (chromiumError) {
+          console.error('Error getting chromium executable path:', chromiumError);
+          // Fallback to hardcoded path
+          executablePath = '/tmp/chromium/chrome';
         }
         
-        console.log('Using Chromium executable path:', executablePath);
-        
-        // Verify the executable exists
+        // Ensure executable exists
         if (!fs.existsSync(executablePath)) {
-          console.error('Chromium executable not found at:', executablePath);
+          console.log('Executable not found at:', executablePath);
           
-          // Try alternative paths
-          const altPaths = [
+          // Try common serverless paths
+          const serverlessPaths = [
             '/tmp/chromium/chrome',
             '/tmp/chromium/chromium',
-            await chromium.executablePath(),
+            '/opt/chromium/chrome',
             '/usr/bin/chromium-browser',
             '/usr/bin/google-chrome-stable',
             '/usr/bin/google-chrome'
           ];
           
-          let foundPath = null;
-          for (const altPath of altPaths) {
-            if (fs.existsSync(altPath)) {
-              foundPath = altPath;
-              console.log('Found Chromium at alternative path:', altPath);
+          for (const testPath of serverlessPaths) {
+            if (fs.existsSync(testPath)) {
+              executablePath = testPath;
+              console.log('Found executable at:', testPath);
               break;
             }
           }
           
-          if (!foundPath) {
-            throw new Error(`Chromium executable not found. Tried: ${altPaths.join(', ')}`);
+          if (!fs.existsSync(executablePath)) {
+            throw new Error(`Chromium executable not found. Tried: ${serverlessPaths.join(', ')} and ${executablePath}`);
           }
-          
-          executablePath = foundPath;
         }
         
-        // Check if file is executable
+        // Set up cache directory
+        const cacheDir = '/tmp/puppeteer-cache';
+        process.env.PUPPETEER_CACHE_DIR = cacheDir;
+        
+        // Ensure cache directory exists
         try {
-          const stats = fs.statSync(executablePath);
-          const isExecutable = (stats.mode & parseInt('111', 8)) !== 0;
-          console.log('Chromium executable verification:', {
-            path: executablePath,
-            exists: true,
-            isExecutable: isExecutable,
-            size: stats.size
-          });
-          
-          if (!isExecutable) {
-            console.log('Setting executable permissions...');
-            fs.chmodSync(executablePath, 0o755);
+          if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
           }
-        } catch (permError) {
-          console.error('Error checking/setting permissions:', permError);
+        } catch (dirError) {
+          console.warn('Could not create cache directory:', dirError);
         }
         
-        // Load fonts for better text rendering
-        try {
-          await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf');
-          console.log('Loaded font successfully');
-        } catch (fontError) {
-          console.error('Error loading font:', fontError);
-        }
-        
-        // Launch browser with comprehensive options
+        // Launch browser with minimal args for serverless
         console.log('Launching browser with executable:', executablePath);
         browser = await puppeteer.launch({
-          args: [
+          args: chromium.args.concat([
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
             '--disable-gpu',
-            '--font-render-hinting=none',
-            '--disable-web-security',
-            '--disable-features=IsolateOrigins,site-per-process',
+            '--no-first-run',
+            '--single-process',
             '--disable-extensions',
-            '--disable-default-apps',
             '--disable-background-timer-throttling',
             '--disable-backgrounding-occluded-windows',
             '--disable-renderer-backgrounding'
-          ],
-          defaultViewport: chromium.defaultViewport,
+          ]),
           executablePath: executablePath,
-          headless: true
+          headless: true,
         });
       }
 
