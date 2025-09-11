@@ -4,6 +4,10 @@ import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+// Import dynamically to avoid path issues
+let puppeteer: any;
+let chromium: any;
+
 export async function POST(request: Request) {
   console.log('PDF generation API called');
   
@@ -68,36 +72,43 @@ export async function POST(request: Request) {
     let pdfData: Uint8Array;
 
     try {
-      console.log('Launching browser for PDF generation...');
+      console.log('Starting PDF generation...');
       
-      // Simplified approach using only puppeteer-core for both dev and prod
-      let puppeteer;
-      let launchOptions: any = {};
+      // Handle both Vercel and local environments
+      const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
       
-      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-        // Production: Use @sparticuz/chromium with puppeteer-core
-        console.log('Using serverless Chromium with puppeteer-core');
+      if (isVercel) {
+        // Vercel/Production environment
+        console.log('Using Vercel serverless environment');
         
-        const chromium = require('@sparticuz/chromium');
-        puppeteer = require('puppeteer-core');
+        // Import dynamically to avoid path issues
+        const chromiumModule = await import('@sparticuz/chromium');
+        const puppeteerModule = await import('puppeteer-core');
         
-        launchOptions = {
+        chromium = chromiumModule.default;
+        puppeteer = puppeteerModule.default;
+        
+        const executablePath = await chromium.executablePath();
+        console.log('Chromium executable path:', executablePath);
+        
+        browser = await puppeteer.launch({
           args: chromium.args,
-          executablePath: await chromium.executablePath(),
+          executablePath,
           headless: chromium.headless,
-        };
+        });
       } else {
-        // Development: Use local puppeteer
-        console.log('Using local puppeteer for development');
-        puppeteer = require('puppeteer');
+        // Local development
+        console.log('Using local development environment');
         
-        launchOptions = {
+        const puppeteerModule = await import('puppeteer');
+        puppeteer = puppeteerModule.default;
+        
+        browser = await puppeteer.launch({
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox']
-        };
+        });
       }
 
-      browser = await puppeteer.launch(launchOptions);
       console.log('Browser launched successfully');
       
       const page = await browser.newPage();
@@ -136,15 +147,13 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('PDF generation error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const stack = error instanceof Error ? error.stack : '';
     
     return NextResponse.json(
       { 
         error: 'PDF generation failed', 
         details: errorMessage,
-        debug: process.env.NODE_ENV === 'development' ? {
-          env: process.env.NODE_ENV,
-          vercel: process.env.VERCEL
-        } : undefined
+        stack: process.env.NODE_ENV === 'development' ? stack : undefined
       },
       { status: 500 }
     );
