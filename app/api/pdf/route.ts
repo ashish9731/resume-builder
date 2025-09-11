@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
+import PDFDocument from 'pdfkit';
 
-// Critical for Vercel serverless environment
+// Pure JavaScript solution - no binaries needed
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 30;
 
 export async function POST(request: Request) {
-  console.log('PDF generation API called');
+  console.log('PDF generation API called with pure JS solution');
   
   try {
     let text = '';
@@ -16,13 +15,13 @@ export async function POST(request: Request) {
     try {
       if (contentType.includes('application/json')) {
         const body = await request.json();
-        text = body.text;
+        text = body.text || body.content || '';
       } else if (contentType.includes('application/x-www-form-urlencoded')) {
         const formData = await request.formData();
-        text = formData.get('text') as string;
+        text = formData.get('text') as string || formData.get('content') as string || '';
       } else {
         const body = await request.json();
-        text = body.text;
+        text = body.text || body.content || '';
       }
     } catch (parseError) {
       console.error('Error parsing request body:', parseError);
@@ -35,83 +34,44 @@ export async function POST(request: Request) {
 
     const cleanText = text.replace(/\*\*/g, '').replace(/\n\n\n+/g, '\n\n').trim();
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Resume</title>
-          <style>
-            @page { margin: 0.75in; size: A4; }
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-              font-family: 'Times New Roman', Times, serif; 
-              line-height: 1.4; 
-              color: #000; 
-              background: white; 
-              font-size: 11pt; 
-            }
-            .resume-content { 
-              white-space: pre-wrap; 
-              word-wrap: break-word;
-            }
-            @media print { 
-              body { margin: 0; } 
-            }
-          </style>
-        </head>
-        <body>
-          <div class="resume-content">${cleanText}</div>
-        </body>
-      </html>
-    `;
-
-    let browser = null;
-    let pdfData: Uint8Array;
-
-    try {
-      console.log('Starting PDF generation with serverless Chromium...');
-      
-      // Use serverless-compatible Chromium from @sparticuz/chromium
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
-
-      console.log('Browser launched successfully');
-      
-      const page = await browser.newPage();
-      
-      await page.setContent(htmlContent, {
-        waitUntil: 'networkidle0',
-      });
-      
-      pdfData = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '0.75in',
-          right: '0.75in',
-          bottom: '0.75in',
-          left: '0.75in',
-        },
-      });
-      
-      console.log('PDF generated successfully, size:', pdfData.length);
-      
-    } finally {
-      if (browser) {
-        await browser.close();
+    // Create PDF using pure JavaScript - no binaries needed
+    const doc = new PDFDocument({
+      size: 'A4',
+      margins: {
+        top: 72,
+        bottom: 72,
+        left: 72,
+        right: 72
       }
-    }
+    });
 
-    return new NextResponse(pdfData as any, {
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk) => chunks.push(chunk));
+    
+    const pdfPromise = new Promise<Buffer>((resolve, reject) => {
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+    });
+
+    // Add content to PDF
+    doc.fontSize(16).text('Resume', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(11).text(cleanText, {
+      align: 'left',
+      lineGap: 2
+    });
+
+    doc.end();
+
+    const pdfBuffer = await pdfPromise;
+    
+    console.log('PDF generated successfully with pure JS, size:', pdfBuffer.length);
+
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="resume.pdf"',
-        'Content-Length': pdfData.length.toString(),
+        'Content-Length': pdfBuffer.length.toString(),
       },
     });
 
