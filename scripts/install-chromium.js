@@ -33,24 +33,28 @@ try {
 // Function to download and set up Chromium
 async function setupChromium() {
   try {
-    console.log('Loading @sparticuz/chromium...');
-    const chromium = require('@sparticuz/chromium');
+    console.log('Installing Chromium using puppeteer...');
     
-    // Force download Chromium if not available
-    console.log('Ensuring Chromium is downloaded...');
-    const executablePath = await chromium.executablePath();
-    console.log('Chromium executable path:', executablePath);
+    // Use puppeteer to install Chrome
+    const { execSync } = require('child_process');
     
-    // Check if the executable exists
-    if (fs.existsSync(executablePath)) {
-      console.log('Chromium executable found, copying to known location...');
+    // Install Chrome using puppeteer browsers command
+    console.log('Downloading Chromium...');
+    const installOutput = execSync('npx puppeteer browsers install chrome', { encoding: 'utf8' });
+    console.log('Installation output:', installOutput);
+    
+    // Extract the path from the output
+    const pathMatch = installOutput.match(/chrome@[^\s]+\s+(.+)$/m);
+    if (pathMatch && pathMatch[1]) {
+      const chromePath = pathMatch[1].trim();
+      console.log('Found Chrome at:', chromePath);
       
       // Copy the executable to our known location
       const targetExecutable = path.join(chromiumDir, 'chrome');
       
       if (!fs.existsSync(targetExecutable)) {
         console.log('Copying Chromium executable to:', targetExecutable);
-        fs.copyFileSync(executablePath, targetExecutable);
+        fs.copyFileSync(chromePath, targetExecutable);
         
         // Ensure executable has proper permissions
         fs.chmodSync(targetExecutable, 0o755);
@@ -87,19 +91,23 @@ async function setupChromium() {
         mode: stats.mode.toString(8),
         isExecutable: (stats.mode & parseInt('111', 8)) !== 0
       });
-      
     } else {
-      console.error('Chromium executable not found at expected path:', executablePath);
+      console.error('Could not extract Chrome path from installation output');
       
-      // Try to force download by using a different approach
-      console.log('Attempting to trigger Chromium download...');
-      
-      // Create a dummy executable as fallback
+      // Create a fallback
       const fallbackExecutable = path.join(chromiumDir, 'chrome');
       fs.writeFileSync(fallbackExecutable, `#!/bin/bash
 # Chromium fallback script
 echo "Starting Chromium..."
-exec "${executablePath}" "$@"
+# Try to find Chrome in common locations
+CHROME_PATHS=("/usr/bin/google-chrome" "/usr/bin/chromium-browser" "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+for path in "\${CHROME_PATHS[@]}"; do
+  if [ -x "$path" ]; then
+    exec "$path" "$@"
+  fi
+done
+echo "Chrome not found in common locations"
+exit 1
 `, { mode: 0o755 });
       console.log('Created fallback Chromium launcher');
     }
@@ -135,6 +143,7 @@ exit 1
 // Set environment variables
 process.env.PUPPETEER_CACHE_DIR = cacheDir;
 process.env.CHROME_EXECUTABLE_PATH = path.join(chromiumDir, 'chrome');
+process.env.CHROMIUM_EXECUTABLE_PATH = path.join(chromiumDir, 'chrome');
 
 console.log('Environment variables set:');
 console.log('PUPPETEER_CACHE_DIR:', process.env.PUPPETEER_CACHE_DIR);
