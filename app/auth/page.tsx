@@ -16,6 +16,7 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState('')
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
     // Initialize Supabase only in the browser
@@ -33,12 +34,12 @@ export default function AuthPage() {
         
         if (user) {
           router.push('/app')
+        } else {
+          setAuthChecked(true)
         }
       } catch (error) {
         console.error('Error checking user:', error)
-        // Continue to show login form if there's an error
-      } finally {
-        // Always set loading to false after check
+        setAuthChecked(true) // Show login form if there's an error
       }
     }
     
@@ -94,6 +95,14 @@ export default function AuthPage() {
   }
 
 
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">

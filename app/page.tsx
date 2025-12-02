@@ -38,7 +38,7 @@ export default function HomePage() {
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <Link href="/auth">
+              <Link href="/start">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105">
                   Start Building Now
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -255,7 +255,7 @@ export default function HomePage() {
               Join thousands of professionals who have enhanced their resumes and prepared for interviews with our comprehensive AI-powered platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link href="/auth">
+              <Link href="/start">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-xl font-semibold rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105">
                   Get Started Free
                   <ArrowRight className="ml-2 h-6 w-6" />
