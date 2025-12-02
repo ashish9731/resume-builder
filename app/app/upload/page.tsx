@@ -122,12 +122,21 @@ export default function UploadPage() {
   const handleAnalyze = async () => {
     if (!resumeText) return
 
+    // Check if job description is provided
+    if (!jobDescription.trim()) {
+      alert('Please provide a job description to tailor your resume.')
+      return
+    }
+
     setAnalyzing(true)
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: resumeText }),
+        body: JSON.stringify({ 
+          text: resumeText,
+          jobDescription: jobDescription
+        }),
       })
 
       let data: any = null
@@ -165,7 +174,7 @@ export default function UploadPage() {
         body: JSON.stringify({ 
           text: resumeText,
           analysis: analysis,
-          jobDescription: jobDescription || undefined
+          jobDescription: jobDescription
         }),
       })
 
@@ -358,16 +367,17 @@ export default function UploadPage() {
                 {/* Job Description Input */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-white/90 mb-2">
-                    Target Job Description (Optional)
+                    Target Job Description *
                   </label>
                   <textarea
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
                     placeholder="Paste the job description here to tailor your resume for this specific role..."
+                    required
                   />
                   <p className="text-white/50 text-xs mt-2">
-                    Adding a job description helps us optimize your resume specifically for that role.
+                    Required: Adding a job description helps us optimize your resume specifically for that role.
                   </p>
                 </div>
                 

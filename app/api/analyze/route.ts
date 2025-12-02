@@ -23,12 +23,19 @@ export async function POST(req: Request) {
       )
     }
 
-    const { text } = await req.json()
+    const { text, jobDescription } = await req.json()
     
     // Validate input
     if (!text || typeof text !== 'string') {
       return NextResponse.json(
         { error: 'Missing or invalid text parameter' },
+        { status: 400 }
+      )
+    }
+
+    if (jobDescription && typeof jobDescription !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid jobDescription parameter' },
         { status: 400 }
       )
     }
@@ -80,7 +87,13 @@ export async function POST(req: Request) {
 - Industry best practices and market standards alignment
 - Strategic recommendations for maximum impact
 
-🎯 DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the resume. Focus on concrete improvements that will elevate this resume from good to exceptional. Include specific recommendations for each section that will make this candidate irresistible to top employers.`
+🎯 DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the resume. Focus on concrete improvements that will elevate this resume from good to exceptional. Include specific recommendations for each section that will make this candidate irresistible to top employers.
+
+${jobDescription ? `
+🎯 TARGET ROLE CONTEXT:
+${jobDescription.substring(0, 2000)}
+
+IMPORTANT: Prioritize analysis and recommendations that align the resume with this specific job description. Focus on matching required skills, qualifications, and experience mentioned in the job posting.` : ''}`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'

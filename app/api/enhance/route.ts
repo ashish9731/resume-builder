@@ -23,12 +23,19 @@ export async function POST(req: Request) {
       )
     }
 
-    const { text, analysis } = await req.json()
+    const { text, analysis, jobDescription } = await req.json()
     
     // Validate input
     if (!text || typeof text !== 'string') {
       return NextResponse.json(
         { error: 'Missing or invalid text parameter' },
+        { status: 400 }
+      )
+    }
+
+    if (jobDescription && typeof jobDescription !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid jobDescription parameter' },
         { status: 400 }
       )
     }
@@ -98,6 +105,8 @@ TRANSFORM THIS RESUME:
 ${text}
 
 ${analysis ? `\nADDITIONAL CONTEXT: ${analysis.substring(0, 800)}` : ''}
+
+${jobDescription ? `\nTARGET JOB DESCRIPTION: ${jobDescription.substring(0, 2000)}\n\nIMPORTANT: Tailor the resume specifically to match the requirements, skills, and keywords mentioned in this job description. Prioritize relevant experience and skills that align with the role.` : ''}
 
 Return only the clean, formatted resume content with no section labels, no formatting instructions, no asterisks, no hashtags, and no numbering - just the professional resume text.`
 
