@@ -27,31 +27,24 @@ export default function AuthPage() {
     const checkUser = async () => {
       if (!supabase) return
       
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        router.push('/app')
-      }
-    }
-    checkUser()
-    
-    // Listen for auth state changes
-    if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) throw error
+        
+        if (user) {
           router.push('/app')
         }
-      })
-      
-      // Cleanup subscription
-      return () => {
-        if (subscription) {
-          subscription.unsubscribe()
-        }
+      } catch (error) {
+        console.error('Error checking user:', error)
+        // Continue to show login form if there's an error
+      } finally {
+        // Always set loading to false after check
       }
     }
     
-    // Return undefined to satisfy useEffect return type
-    return undefined
+    if (supabase) {
+      checkUser()
+    }
   }, [router, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {

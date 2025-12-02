@@ -1,5 +1,5 @@
 "use client"
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User, Briefcase, GraduationCap, Award, Download, Sparkles, CheckCircle } from 'lucide-react'
@@ -7,10 +7,12 @@ import { Button } from '@/components/ui/button'
 import PersonalInfoStep from '@/components/PersonalInfoStep'
 import SummaryStep from '@/components/SummaryStep'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 const CreatePage = () => {
   const router = useRouter()
-  // Removed Supabase
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
+  const [authChecked, setAuthChecked] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [enhancedResume, setEnhancedResume] = useState('')
@@ -48,6 +50,53 @@ const CreatePage = () => {
     { number: 5, title: 'Skills & More', icon: Award },
     { number: 6, title: 'Preview & Download', icon: Download }
   ]
+
+  // Initialize Supabase
+  useEffect(() => {
+    const client = getSupabaseBrowser()
+    setSupabase(client)
+  }, [])
+
+  // Check authentication
+  useEffect(() => {
+    if (!supabase) return
+    
+    let mounted = true;
+    
+    const checkAuth = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) throw error
+        
+        if (!user && mounted) {
+          router.push('/auth')
+        } else if (mounted) {
+          setAuthChecked(true)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        if (mounted) {
+          router.push('/auth')
+        }
+      }
+    }
+    
+    checkAuth()
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        if (mounted) {
+          router.push('/auth')
+        }
+      }
+    })
+    
+    return () => {
+      mounted = false;
+      subscription.unsubscribe()
+    }
+  }, [router, supabase])
 
   const handleInputChange = useCallback((section: string, field: string, value: any, index?: number) => {
     setResumeData(prev => {
@@ -258,10 +307,10 @@ const CreatePage = () => {
   }, [generateResume])
 
   const handleSignOut = useCallback(async () => {
-    const supabase = getSupabaseBrowser()
+    if (!supabase) return
     await supabase.auth.signOut()
     router.push('/')
-  }, [router])
+  }, [router, supabase])
 
   const handlePrevStep = useCallback(() => {
     if (currentStep > 1) {
@@ -725,28 +774,34 @@ const CreatePage = () => {
     }
   }, [currentStep, resumeData, handleInputChange, handleAISummary, loading, enhancedResume, showPreview])
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto max-w-4xl p-6">
+      <div className="container mx-auto max-w-6xl p-6">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <Link href="/app" className="inline-flex items-center text-white/70 hover:text-white transition-colors">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
           </Link>
           <Button
-            variant="outline"
             onClick={handleSignOut}
+            variant="outline"
             className="border-white/20 text-white hover:bg-white/10 backdrop-blur-sm"
           >
             Sign out
           </Button>
         </div>
 
-        {/* Title */}
+        {/* Main Content */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Create New Resume
-          </h1>
+          <h1 className="text-4xl font-bold text-white mb-4">Create Professional Resume</h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Build your professional resume step by step with our guided form.
           </p>

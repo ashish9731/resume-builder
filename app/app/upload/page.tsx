@@ -5,9 +5,12 @@ import Link from 'next/link'
 import { ArrowLeft, Upload, FileText, Download, Sparkles, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export default function UploadPage() {
   const router = useRouter()
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
+  const [authChecked, setAuthChecked] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
@@ -20,6 +23,53 @@ export default function UploadPage() {
   const [showOriginal, setShowOriginal] = useState(true)
   const [showEnhanced, setShowEnhanced] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
+
+  // Initialize Supabase
+  useEffect(() => {
+    const client = getSupabaseBrowser()
+    setSupabase(client)
+  }, [])
+
+  // Check authentication
+  useEffect(() => {
+    if (!supabase) return
+    
+    let mounted = true;
+    
+    const checkAuth = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) throw error
+        
+        if (!user && mounted) {
+          router.push('/auth')
+        } else if (mounted) {
+          setAuthChecked(true)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        if (mounted) {
+          router.push('/auth')
+        }
+      }
+    }
+    
+    checkAuth()
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        if (mounted) {
+          router.push('/auth')
+        }
+      }
+    })
+    
+    return () => {
+      mounted = false;
+      subscription.unsubscribe()
+    }
+  }, [router, supabase])
 
   // Prevent browser from opening file when dropped outside the drop zone
   useEffect(() => {
@@ -165,9 +215,17 @@ export default function UploadPage() {
   }
 
   const handleSignOut = async () => {
-    const supabase = getSupabaseBrowser()
+    if (!supabase) return
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
   }
 
   return (

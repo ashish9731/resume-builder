@@ -21,14 +21,25 @@ export default function ApplicationPage() {
   useEffect(() => {
     if (!supabase) return
     
+    let mounted = true;
+    
     // Check Supabase authentication
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
-        setLoading(false)
-      } else {
-        router.push('/auth')
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) throw error
+        
+        if (user && mounted) {
+          setUser(user)
+          setLoading(false)
+        } else if (mounted) {
+          router.push('/auth')
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        if (mounted) {
+          router.push('/auth')
+        }
       }
     }
     
@@ -37,14 +48,21 @@ export default function ApplicationPage() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (event === 'SIGNED_OUT' || !session) {
-        router.push('/auth')
+        if (mounted) {
+          router.push('/auth')
+        }
       } else if (session?.user) {
-        setUser(session.user)
-        setLoading(false)
+        if (mounted) {
+          setUser(session.user)
+          setLoading(false)
+        }
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false;
+      subscription.unsubscribe()
+    }
   }, [router, supabase])
 
   const handleSignOut = async () => {
