@@ -88,10 +88,21 @@ export default function AuthPage() {
     setMessage('')
     
     try {
+      // Determine the redirect URL based on environment
+      let redirectUrl = 'http://localhost:3000/app';
+      
+      if (typeof window !== 'undefined') {
+        // Client-side: use current origin
+        redirectUrl = `${window.location.origin}/app`;
+      } else if (process.env.NEXT_PUBLIC_APP_URL) {
+        // Server-side: use environment variable if available
+        redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/app`;
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/app` : 'http://localhost:3000/app'
+          redirectTo: redirectUrl
         }
       })
       
