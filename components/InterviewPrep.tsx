@@ -23,9 +23,9 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleSetupSubmit = async () => {
-    if (!jobTitle || !jobDescription || !resume) {
-      setError('Please fill in all required fields.')
+  const generateQuestions = async () => {
+    if (!jobTitle.trim() || !jobDescription.trim() || !resume.trim()) {
+      setError('Please fill in all fields')
       return
     }
 
@@ -33,7 +33,7 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
     setError('')
 
     try {
-      const response = await fetch('/api/interview-prep', {
+      const response = await fetch('/api/interview-preparation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -63,29 +63,12 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
     }
   }
 
-  const handleResponseSubmit = () => {
-    // Create a new array with the updated response
-    const updatedResponses = interviewResponses.map((item: { question: string; response: string }, index: number) => 
-      index === currentQuestionIndex ? { ...item, response: currentResponse } : item
-    );
-    
-    setInterviewResponses(updatedResponses)
-    
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
-      setCurrentResponse('')
-    } else {
-      // End of interview
-      finishInterview(updatedResponses)
-    }
-  }
-
   const finishInterview = async (responses: { question: string; response: string }[]) => {
     setIsLoading(true)
     setError('')
 
     try {
-      const response = await fetch('/api/interview-prep', {
+      const response = await fetch('/api/interview-preparation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -106,6 +89,23 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
       console.error('Interview analysis error:', err)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleResponseSubmit = () => {
+    // Create a new array with the updated response
+    const updatedResponses = interviewResponses.map((item: { question: string; response: string }, index: number) => 
+      index === currentQuestionIndex ? { ...item, response: currentResponse } : item
+    );
+    
+    setInterviewResponses(updatedResponses)
+    
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setCurrentResponse('')
+    } else {
+      // End of interview
+      finishInterview(updatedResponses)
     }
   }
 
@@ -288,7 +288,7 @@ B.S. Computer Science | Stanford University | 2017`
             </div>
 
             <Button
-              onClick={handleSetupSubmit}
+              onClick={generateQuestions}
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
             >

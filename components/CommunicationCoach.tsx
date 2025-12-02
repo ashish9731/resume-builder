@@ -84,8 +84,8 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
   }
 
   const analyzeSpeech = async () => {
-    if (!transcript) {
-      setError('Please record or enter some speech text first.')
+    if (!transcript.trim()) {
+      setError('Please provide speech content to analyze')
       return
     }
 
@@ -93,9 +93,11 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
     setError('')
 
     try {
-      const response = await fetch('/api/communication-coach', {
+      const response = await fetch('/api/communication-analysis', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ transcript }),
       })
 
