@@ -33,6 +33,25 @@ export default function AuthPage() {
       }
     }
     checkUser()
+    
+    // Listen for auth state changes
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          router.push('/app')
+        }
+      })
+      
+      // Cleanup subscription
+      return () => {
+        if (subscription) {
+          subscription.unsubscribe()
+        }
+      }
+    }
+    
+    // Return undefined to satisfy useEffect return type
+    return undefined
   }, [router, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
