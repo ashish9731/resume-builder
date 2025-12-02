@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Sparkles, FileText, Brain, Download, Shield, Zap, Users, Star, CheckCircle } from 'lucide-react'
+import { ArrowRight, Sparkles, FileText, Brain, Download, Shield, Zap, Users, Star, CheckCircle, Mic, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
@@ -32,7 +32,8 @@ export default function HomePage() {
             {/* Subtitle */}
             <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
               Transform your resume with AI analysis, ATS optimization, and professional enhancement. 
-              Get hired faster with a resume that stands out.
+              Practice your communication skills and prepare for interviews with our AI-powered tools.
+              Get hired faster with a complete job search solution.
             </p>
             
             {/* CTA Buttons */}
@@ -75,7 +76,7 @@ export default function HomePage() {
               Why Choose Our AI Resume Builder?
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Advanced AI technology meets professional design to create resumes that get you noticed.
+              Advanced AI technology meets professional design to create resumes that get you noticed and prepare you for interviews.
             </p>
           </div>
           
@@ -100,16 +101,16 @@ export default function HomePage() {
                 color: 'from-purple-500 to-pink-500'
               },
               {
-                icon: Zap,
-                title: 'Lightning Fast',
-                desc: 'Create a professional resume in minutes, not hours.',
-                color: 'from-yellow-500 to-orange-500'
+                icon: Mic,
+                title: 'Communication Coach',
+                desc: 'Analyze your speech clarity, pacing, and confidence with AI-powered feedback.',
+                color: 'from-green-500 to-teal-500'
               },
               {
-                icon: Download,
-                title: 'PDF Export',
-                desc: 'Download your resume in high-quality PDF format instantly.',
-                color: 'from-red-500 to-rose-500'
+                icon: Play,
+                title: 'Interview Prep',
+                desc: 'Simulate real interviews with AI-generated questions and performance analysis.',
+                color: 'from-yellow-500 to-amber-500'
               },
               {
                 icon: Users,
@@ -140,11 +141,11 @@ export default function HomePage() {
               How It Works
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Create your perfect resume in just 3 simple steps
+              Create your perfect resume and prepare for interviews with our comprehensive tools
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
             {[
               {
                 step: '01',
@@ -158,8 +159,18 @@ export default function HomePage() {
               },
               {
                 step: '03',
+                title: 'Communication Coach',
+                desc: 'Record yourself speaking and get AI-powered feedback on clarity, pacing, and confidence.'
+              },
+              {
+                step: '04',
+                title: 'Interview Prep',
+                desc: 'Practice real interviews with AI-generated questions and receive detailed performance analysis.'
+              },
+              {
+                step: '05',
                 title: 'Download & Apply',
-                desc: 'Get your ATS-optimized resume in professional PDF format.'
+                desc: 'Get your enhanced resume and interview preparation materials in professional formats.'
               }
             ].map((step, index) => (
               <div key={index} className="text-center">
@@ -183,7 +194,7 @@ export default function HomePage() {
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
             {[
               {
                 name: 'Sarah Johnson',
@@ -195,6 +206,18 @@ export default function HomePage() {
                 name: 'Michael Chen',
                 role: 'Marketing Manager',
                 content: 'The AI suggestions helped me highlight my achievements better. My resume looks so professional now.',
+                rating: 5
+              },
+              {
+                name: 'David Wilson',
+                role: 'Product Manager',
+                content: 'The Communication Coach helped me improve my presentation skills dramatically. I went from nervous speaker to confident presenter!',
+                rating: 5
+              },
+              {
+                name: 'Lisa Thompson',
+                role: 'UX Designer',
+                content: 'The Interview Prep feature was a game-changer. I practiced with AI-generated questions and felt completely prepared for my interviews.',
                 rating: 5
               },
               {
@@ -229,7 +252,7 @@ export default function HomePage() {
               Ready to Land Your Dream Job?
             </h2>
             <p className="text-xl text-gray-300 mb-8">
-              Join thousands of professionals who have enhanced their resumes with our AI-powered platform.
+              Join thousands of professionals who have enhanced their resumes and prepared for interviews with our comprehensive AI-powered platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Link href="/auth">
@@ -251,6 +274,14 @@ export default function HomePage() {
               <div className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
                 AI-powered optimization
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
+                Communication coaching
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
+                Interview preparation
               </div>
             </div>
           </div>

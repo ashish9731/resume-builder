@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link'
-import { ArrowLeft, FileUp, FilePlus2, LogOut } from 'lucide-react'
+import { ArrowLeft, FileUp, FilePlus2, Mic, Play, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -154,6 +154,64 @@ export default function ApplicationPage() {
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>Step-by-step Guidance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+          
+          {/* Communication Coach Card */}
+          <Link href="/app/communication-coach" className="group">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-500/30 transition-colors">
+                  <Mic className="h-8 w-8 text-green-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">Communication Coach</h3>
+                <p className="text-white/80 mb-6 leading-relaxed">
+                  Analyze your speech clarity, pacing, and confidence with AI. Record yourself introducing your resume for professional feedback.
+                </p>
+                <div className="space-y-2 text-sm text-white/70">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Speech Clarity Analysis</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Pacing & Confidence Evaluation</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Actionable Improvements</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Interview Prep Card */}
+          <Link href="/app/interview-prep" className="group">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-500/30 transition-colors">
+                  <Play className="h-8 w-8 text-yellow-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">Interview Prep</h3>
+                <p className="text-white/80 mb-6 leading-relaxed">
+                  Simulate real interviews with AI-generated questions based on job descriptions and your resume.
+                </p>
+                <div className="space-y-2 text-sm text-white/70">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Job-Specific Questions</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Performance Analysis</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Strengths & Improvement Areas</span>
                   </div>
                 </div>
               </div>

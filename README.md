@@ -1,6 +1,6 @@
 # AI Resume Builder (Next.js + Supabase + OpenAI)
 
-Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a new resume with per-section AI assistance. Export ATS-aligned results as PDF.
+Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a new resume with per-section AI assistance. Practice communication skills and prepare for interviews with AI-powered tools. Export ATS-aligned results as PDF.
 
 ## Setup
 
@@ -35,6 +35,8 @@ Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a 
 - `/app` - Protected application hub
 - `/app/upload` - Upload resume & analyze/enhance
 - `/app/create` - Create new resume with AI assist
+- `/app/communication-coach` - Analyze speech clarity, pacing, and confidence
+- `/app/interview-prep` - Practice interviews with AI-generated questions
 
 ## API Endpoints
 
@@ -43,6 +45,8 @@ Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a 
 - `POST /api/enhance` - Enhance resume with AI (`{ text, analysis? }`)
 - `POST /api/assist` - Get AI assistance for sections (`{ section, input }`)
 - `POST /api/pdf` - Generate PDF from text (`{ text }`)
+- `POST /api/communication-coach` - Analyze speech clarity, pacing, and confidence (`{ transcript }`)
+- `POST /api/interview-prep` - Generate interview questions and analyze performance (`{ action, jobTitle, jobDescription, resume, questionCount, interviewHistory }`)
 
 ## Deployment (Vercel)
 
@@ -59,6 +63,8 @@ Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a 
 - ✅ ATS-optimized resume enhancement
 - ✅ Per-section AI assistance for new resumes
 - ✅ PDF export functionality
+- ✅ Communication Coach - Analyze speech clarity, pacing, and confidence
+- ✅ Interview Prep - Practice with AI-generated job-specific questions
 - ✅ Responsive design for all devices
 - ✅ Supabase authentication (no data storage)
 - ✅ Anti-hallucination measures in AI prompts
