@@ -63,19 +63,19 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
   }
 
   const handleResponseSubmit = () => {
-    const updatedResponses = [...interviewResponses]
-    // Add bounds check to prevent TypeScript error
-    if (currentQuestionIndex >= 0 && currentQuestionIndex < updatedResponses.length) {
-      updatedResponses[currentQuestionIndex].response = currentResponse
-      setInterviewResponses(updatedResponses)
-      
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1)
-        setCurrentResponse('')
-      } else {
-        // End of interview
-        finishInterview(updatedResponses)
-      }
+    // Create a new array with the updated response
+    const updatedResponses = interviewResponses.map((item: { question: string; response: string }, index: number) => 
+      index === currentQuestionIndex ? { ...item, response: currentResponse } : item
+    );
+    
+    setInterviewResponses(updatedResponses)
+    
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setCurrentResponse('')
+    } else {
+      // End of interview
+      finishInterview(updatedResponses)
     }
   }
 
@@ -277,7 +277,8 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
               onClick={() => {
                 if (currentQuestionIndex > 0) {
                   setCurrentQuestionIndex(currentQuestionIndex - 1)
-                  setCurrentResponse(interviewResponses[currentQuestionIndex - 1].response)
+                  // Use optional chaining to prevent TypeScript error
+                  setCurrentResponse(interviewResponses[currentQuestionIndex - 1]?.response || '')
                 }
               }}
               disabled={currentQuestionIndex === 0}
