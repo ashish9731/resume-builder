@@ -13,6 +13,7 @@ export default function UploadPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [enhancing, setEnhancing] = useState(false)
   const [resumeText, setResumeText] = useState('')
+  const [jobDescription, setJobDescription] = useState('')
   const [analysis, setAnalysis] = useState('')
   const [enhancedResume, setEnhancedResume] = useState('')
   const [currentStep, setCurrentStep] = useState(1) // 1: Upload, 2: Analyze, 3: Enhance, 4: Download
@@ -113,7 +114,8 @@ export default function UploadPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           text: resumeText,
-          analysis: analysis 
+          analysis: analysis,
+          jobDescription: jobDescription || undefined
         }),
       })
 
@@ -294,6 +296,23 @@ export default function UploadPage() {
                   AI Analysis Complete
                 </h2>
                 <p className="text-white/70 mb-4">Your resume has been analyzed. Review the suggestions below.</p>
+                
+                {/* Job Description Input */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Target Job Description (Optional)
+                  </label>
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+                    placeholder="Paste the job description here to tailor your resume for this specific role..."
+                  />
+                  <p className="text-white/50 text-xs mt-2">
+                    Adding a job description helps us optimize your resume specifically for that role.
+                  </p>
+                </div>
+                
                 <Button
                   onClick={handleAnalyze}
                   disabled={analyzing}

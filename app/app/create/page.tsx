@@ -270,10 +270,45 @@ const CreatePage = () => {
   }, [currentStep])
 
   const handleNextStep = useCallback(() => {
+    // Validation for required fields
+    if (currentStep === 1) {
+      // Personal Info validation
+      if (!resumeData.personalInfo.fullName || !resumeData.personalInfo.email) {
+        alert('Please fill in all required fields (Full Name and Email).')
+        return
+      }
+    } else if (currentStep === 2) {
+      // Summary validation
+      if (!resumeData.summary) {
+        alert('Please add a professional summary.')
+        return
+      }
+    } else if (currentStep === 3) {
+      // Experience validation
+      const hasValidExperience = resumeData.experience.some(exp => exp.company && exp.position)
+      if (!hasValidExperience) {
+        alert('Please add at least one work experience with company and position.')
+        return
+      }
+    } else if (currentStep === 4) {
+      // Education validation
+      const hasValidEducation = resumeData.education.some(edu => edu.institution && edu.degree)
+      if (!hasValidEducation) {
+        alert('Please add at least one education entry with institution and degree.')
+        return
+      }
+    } else if (currentStep === 5) {
+      // Skills validation
+      if (!resumeData.skills) {
+        alert('Please add your skills.')
+        return
+      }
+    }
+    
     if (currentStep < 6) {
       setCurrentStep(currentStep + 1)
     }
-  }, [currentStep])
+  }, [currentStep, resumeData])
 
   const handlePreviewResume = useCallback(async () => {
     setLoading(true)
