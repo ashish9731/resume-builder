@@ -1,6 +1,6 @@
 "use client"
-import { useState } from 'react'
-import { Play, Square, RotateCcw, Download, Sparkles, AlertCircle } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Play, Square, RotateCcw, Download, Sparkles, AlertCircle, Upload, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface InterviewPrepProps {
@@ -21,6 +21,7 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
   const [analysis, setAnalysis] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSetupSubmit = async () => {
     if (!jobTitle || !jobDescription || !resume) {
@@ -122,6 +123,61 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
     URL.revokeObjectURL(url)
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Check if file is text-based
+    if (!file.type.includes('text/') && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')) {
+      setError('Please upload a text file (TXT, PDF, DOCX)')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      // For this demo, we'll simulate reading the file
+      // In a real implementation, we would parse the file content
+      const simulatedResume = `John Doe
+Software Engineer
+john.doe@example.com | (555) 123-4567 | San Francisco, CA
+
+PROFESSIONAL SUMMARY
+Experienced Software Engineer with 5+ years of expertise in full-stack development, specializing in React, Node.js, and cloud technologies. Proven track record of delivering scalable applications and leading development teams.
+
+PROFESSIONAL EXPERIENCE
+Senior Software Engineer | TechCorp | Jan 2020 - Present
+• Led a team of 5 developers to deliver 3 major product releases, resulting in 40% increase in user engagement
+• Architected microservices infrastructure reducing system downtime by 99.9%
+• Implemented CI/CD pipelines that decreased deployment time by 70%
+
+Software Engineer | InnovateX | Jun 2017 - Dec 2019
+• Developed responsive web applications using React and Redux, improving page load speed by 50%
+• Integrated RESTful APIs with Node.js and Express, serving 1M+ daily active users
+• Collaborated with UX designers to implement pixel-perfect interfaces meeting WCAG 2.1 standards
+
+TECHNICAL SKILLS
+Languages: JavaScript, TypeScript, Python, SQL
+Frameworks: React, Node.js, Express, Next.js
+Tools: Docker, Kubernetes, AWS, Git, Jenkins
+Databases: PostgreSQL, MongoDB, Redis
+
+EDUCATION
+B.S. Computer Science | Stanford University | 2017`
+      setResume(simulatedResume)
+    } catch (err) {
+      setError('Failed to process file. Please try again.')
+      console.error('File processing error:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click()
+  }
+
   const resetInterview = () => {
     setStep('setup')
     setJobTitle('')
@@ -188,11 +244,28 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
 
             <div>
               <label className="block text-sm font-medium text-white/90 mb-2">Your Resume *</label>
+              <div className="mb-2">
+                <Button
+                  onClick={triggerFileUpload}
+                  className="flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-lg"
+                  disabled={isLoading}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Resume File
+                </Button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".txt,.pdf,.docx"
+                  className="hidden"
+                />
+              </div>
               <textarea
                 value={resume}
                 onChange={(e) => setResume(e.target.value)}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
-                placeholder="Paste your resume content here..."
+                placeholder="Paste your resume content here or upload a file above..."
                 required
               />
             </div>

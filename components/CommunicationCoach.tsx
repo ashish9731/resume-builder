@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef } from 'react'
-import { Mic, Square, Download, Sparkles, AlertCircle } from 'lucide-react'
+import { Mic, Square, Download, Sparkles, AlertCircle, Upload, FileAudio } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface CommunicationCoachProps {
@@ -13,8 +13,10 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
   const [analysis, setAnalysis] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const startRecording = async () => {
     try {
@@ -48,6 +50,37 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
       setIsRecording(false)
     }
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Check if file is audio
+    if (!file.type.startsWith('audio/')) {
+      setError('Please upload an audio file (MP3, WAV, etc.)')
+      return
+    }
+
+    setUploadedFile(file)
+    setIsAnalyzing(true)
+    setError('')
+
+    try {
+      // In a real implementation, we would send the audio to a speech-to-text service
+      // For this demo, we'll simulate transcription
+      const simulatedTranscript = "Hello, my name is John Doe and I'm applying for the Software Engineer position. I have five years of experience in full-stack development with React, Node.js, and cloud technologies. In my previous role at TechCorp, I led a team of developers and delivered projects 20% ahead of schedule."
+      setTranscript(simulatedTranscript)
+    } catch (err) {
+      setError('Failed to process audio file. Please try again.')
+      console.error('File processing error:', err)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click()
   }
 
   const analyzeSpeech = async () => {
@@ -126,32 +159,51 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
         <div className="flex flex-col items-center space-y-4">
           {!transcript ? (
             <>
-              <Button
-                onClick={isRecording ? stopRecording : startRecording}
-                className={`flex items-center px-6 py-3 rounded-full ${
-                  isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                    : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
-                }`}
-                disabled={isAnalyzing}
-              >
-                {isRecording ? (
-                  <>
-                    <Square className="w-5 h-5 mr-2" />
-                    Stop Recording
-                  </>
-                ) : (
-                  <>
-                    <Mic className="w-5 h-5 mr-2" />
-                    Start Recording
-                  </>
-                )}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <Button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`flex items-center px-6 py-3 rounded-full ${
+                    isRecording 
+                      ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                      : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
+                  }`}
+                  disabled={isAnalyzing}
+                >
+                  {isRecording ? (
+                    <>
+                      <Square className="w-5 h-5 mr-2" />
+                      Stop Recording
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-5 h-5 mr-2" />
+                      Record Live
+                    </>
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={triggerFileUpload}
+                  className="flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
+                  disabled={isAnalyzing}
+                >
+                  <Upload className="w-5 h-5 mr-2" />
+                  Upload Audio
+                </Button>
+                
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="audio/*"
+                  className="hidden"
+                />
+              </div>
               
-              <p className="text-white/50 text-sm">
+              <p className="text-white/50 text-sm text-center">
                 {isRecording 
                   ? 'Recording... Click stop when finished' 
-                  : 'Click to start recording your speech'}
+                  : 'Record live or upload an audio file for analysis'}
               </p>
             </>
           ) : (
