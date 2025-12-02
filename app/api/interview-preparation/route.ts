@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
       const count = Math.min(Math.max(questionCount || 5, 1), 10)
       
-      const prompt = `You are an expert interview coach and HR professional with extensive experience in preparing candidates for technical and behavioral interviews. Generate ${count} high-quality, job-specific interview questions based on the provided information.
+      const prompt = `You are an expert interview coach and HR professional with extensive experience in preparing candidates for technical and behavioral interviews. Generate ${count} high-quality, job-specific interview questions based EXCLUSIVELY on the provided job description and candidate resume.
 
 JOB ROLE: ${jobTitle}
 
@@ -63,17 +63,19 @@ ${resume.substring(0, 3000)}
 INSTRUCTIONS:
 1. Generate exactly ${count} diverse questions that test both technical skills and behavioral competencies
 2. Include a mix of:
-   - Technical questions relevant to the job role
-   - Behavioral questions about past experiences
-   - Situational judgment questions
-   - Problem-solving scenarios
-3. Make questions specific to the candidate's background and the job requirements
-4. Vary question difficulty from foundational to advanced
-5. Focus on assessing both hard skills and soft skills
-6. Avoid generic questions like "Tell me about yourself"
-7. Ensure questions are open-ended to encourage detailed responses
+   - Technical questions relevant to the SPECIFIC technologies, tools, and responsibilities mentioned in the job description
+   - Behavioral questions about SPECIFIC experiences detailed in the candidate's resume
+   - Situational judgment questions based on challenges mentioned in the job description
+   - Problem-solving scenarios using technologies or methodologies from both the job description and resume
+3. CRITICAL: Every question MUST directly reference:
+   - Specific skills, technologies, or requirements from the job description
+   - Specific experiences, projects, or achievements from the candidate's resume
+4. Vary question difficulty from foundational to advanced based on the candidate's experience level
+5. Focus on assessing both hard skills (technical competencies) and soft skills (leadership, communication, problem-solving)
+6. ABSOLUTELY FORBIDDEN: Generic questions like "Tell me about yourself", "What are your strengths/weaknesses?", "Where do you see yourself in 5 years?"
+7. Ensure questions are open-ended to encourage detailed responses that showcase the candidate's relevant experience
 
-Return ONLY a JSON array of exactly ${count} questions as strings, with no additional text, formatting, or explanations.`
+Return ONLY a JSON array of exactly ${count} questions as strings, with no additional text, formatting, or explanations. Each question should be highly specific to the job-role combination.`
 
       const completion = await openai.chat.completions.create({
         model,
