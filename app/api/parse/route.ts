@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import mammoth from 'mammoth'
-import pdf from 'pdf-parse'
+import * as pdfjsLib from 'pdfjs-dist'
 import { TextDecoder } from 'util'
+
+// Set the worker path for pdfjs
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -87,8 +90,20 @@ export async function POST(req: Request) {
         const result = await mammoth.extractRawText({ buffer })
         text = result.value
       } else if (fileName.endsWith('.pdf')) {
-        const data = await pdf(buffer)
-        text = data.text
+        // Load PDF document
+        const pdfDoc = await pdfjsLib.getDocument({ data: buffer }).promise
+        const numPages = pdfDoc.numPages
+        
+        // Extract text from all pages
+        let fullText = ''
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdfDoc.getPage(i)
+          const textContent = await page.getTextContent()
+          const pageText = textContent.items.map((item: any) => item.str).join(' ')
+          fullText += pageText + ' '
+        }
+        
+        text = fullText.trim()
       }
 
       // Clean up text
