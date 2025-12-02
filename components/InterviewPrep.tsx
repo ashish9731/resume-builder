@@ -64,15 +64,18 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
 
   const handleResponseSubmit = () => {
     const updatedResponses = [...interviewResponses]
-    updatedResponses[currentQuestionIndex].response = currentResponse
-    setInterviewResponses(updatedResponses)
-    
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
-      setCurrentResponse('')
-    } else {
-      // End of interview
-      finishInterview(updatedResponses)
+    // Add bounds check to prevent TypeScript error
+    if (currentQuestionIndex >= 0 && currentQuestionIndex < updatedResponses.length) {
+      updatedResponses[currentQuestionIndex].response = currentResponse
+      setInterviewResponses(updatedResponses)
+      
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1)
+        setCurrentResponse('')
+      } else {
+        // End of interview
+        finishInterview(updatedResponses)
+      }
     }
   }
 
