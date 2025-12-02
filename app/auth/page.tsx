@@ -91,7 +91,7 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/app`
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/app` : 'http://localhost:3000/app'
         }
       })
       
