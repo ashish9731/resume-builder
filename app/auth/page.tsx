@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Mail, Lock, Eye, EyeOff, Sparkles, Chrome } from 'lucide-react'
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { SupabaseClient } from '@supabase/supabase-js'
@@ -100,37 +100,7 @@ export default function AuthPage() {
     }
   }
 
-  const handleGoogleSignIn = async () => {
-    if (!supabase) return
-    
-    setLoading(true)
-    setMessage('')
-    
-    try {
-      // Determine the redirect URL based on environment
-      let redirectUrl = 'http://localhost:3000/app';
-      
-      if (typeof window !== 'undefined') {
-        // Client-side: use current origin
-        redirectUrl = `${window.location.origin}/app`;
-      } else if (process.env.NEXT_PUBLIC_APP_URL) {
-        // Server-side: use environment variable if available
-        redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/app`;
-      }
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl
-        }
-      })
-      
-      if (error) throw error
-    } catch (error: any) {
-      setMessage(error.message)
-      setLoading(false)
-    }
-  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
@@ -222,26 +192,6 @@ export default function AuthPage() {
               ) : (
                 isSignUp ? 'Create Account' : 'Sign In'
               )}
-            </Button>
-            
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-transparent text-white/50">Or continue with</span>
-              </div>
-            </div>
-            
-            {/* Google Sign In */}
-            <Button
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-full bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
-            >
-              <Chrome className="w-5 h-5 mr-2" />
-              Google
             </Button>
           </form>
 
