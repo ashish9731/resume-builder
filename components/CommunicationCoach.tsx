@@ -18,32 +18,6 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
   const audioChunksRef = useRef<Blob[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorderRef.current = new MediaRecorder(stream)
-      audioChunksRef.current = []
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data)
-      }
-
-      mediaRecorderRef.current.onstop = async () => {
-        // In a real implementation, we would send the audio to a speech-to-text service
-        // For this demo, we'll simulate transcription
-        const simulatedTranscript = "Hello, my name is John Doe and I'm applying for the Software Engineer position. I have five years of experience in full-stack development with React, Node.js, and cloud technologies. In my previous role at TechCorp, I led a team of developers and delivered projects 20% ahead of schedule."
-        setTranscript(simulatedTranscript)
-      }
-
-      mediaRecorderRef.current.start()
-      setIsRecording(true)
-      setError('')
-    } catch (err) {
-      setError('Microphone access denied. Please allow microphone access to use this feature.')
-      console.error('Error accessing microphone:', err)
-    }
-  }
-
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
@@ -67,15 +41,74 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
     setError('')
 
     try {
-      // In a real implementation, we would send the audio to a speech-to-text service
-      // For this demo, we'll simulate transcription
-      const simulatedTranscript = "Hello, my name is John Doe and I'm applying for the Software Engineer position. I have five years of experience in full-stack development with React, Node.js, and cloud technologies. In my previous role at TechCorp, I led a team of developers and delivered projects 20% ahead of schedule."
-      setTranscript(simulatedTranscript)
+      // Create FormData and append the file
+      const formData = new FormData()
+      formData.append('file', file)
+
+      // Send file to transcription API
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to process audio file')
+      }
+
+      const data = await response.json()
+      setTranscript(data.transcript)
     } catch (err) {
       setError('Failed to process audio file. Please try again.')
       console.error('File processing error:', err)
     } finally {
       setIsAnalyzing(false)
+    }
+  }
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorderRef.current = new MediaRecorder(stream)
+      audioChunksRef.current = []
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data)
+      }
+
+      mediaRecorderRef.current.onstop = async () => {
+        try {
+          // Create blob from recorded audio chunks
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+          
+          // Send blob to transcription API
+          const response = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: audioBlob,
+            headers: {
+              'Content-Type': 'audio/webm',
+            },
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            throw new Error(errorData.error || 'Failed to process recorded audio')
+          }
+
+          const data = await response.json()
+          setTranscript(data.transcript)
+        } catch (err) {
+          setError('Failed to process recorded audio. Please try again.')
+          console.error('Recording processing error:', err)
+        }
+      }
+
+      mediaRecorderRef.current.start()
+      setIsRecording(true)
+      setError('')
+    } catch (err) {
+      setError('Microphone access denied. Please allow microphone access to use this feature.')
+      console.error('Error accessing microphone:', err)
     }
   }
 
