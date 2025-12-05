@@ -3,7 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   
   // Allow larger files to be uploaded
-  serverComponentsExternalPackages: ['pdf-parse', 'mammoth'],
+  experimental: {
+    serverComponentsExternalPackages: ['pdf-parse', 'mammoth'],
+  },
   
   // Optional: Configure images if you're using Next.js Image optimization
   images: {
