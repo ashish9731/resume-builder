@@ -54,53 +54,58 @@ export async function POST(req: Request) {
       )
     }
 
-    const prompt = `You are a senior resume strategist and ATS expert with 20+ years of experience helping professionals secure top-tier positions. Your analysis has helped thousands of candidates land dream jobs at Fortune 500 companies. Conduct a comprehensive, actionable analysis of this resume.
+    const prompt = `You are a senior resume strategist and ATS expert with 20+ years of experience helping professionals secure top-tier positions. Your analysis has helped thousands of candidates land dream jobs at Fortune 500 companies. Conduct a comprehensive, actionable analysis of this resume with specific focus on alignment with the target job description.
 
-🔍 ANALYSIS MISSION: Identify every opportunity to transform this resume into a powerful career tool that will make recruiters stop and take notice.
+🔍 ANALYSIS MISSION: Identify every opportunity to transform this resume into a powerful career tool that will make recruiters stop and take notice, specifically tailored to the target role.
+
+🎯 TARGET ROLE CONTEXT:
+${jobDescription.substring(0, 2000)}
 
 📊 COMPREHENSIVE EVALUATION FRAMEWORK:
 
-**1. STRUCTURAL EXCELLENCE**
+**1. ROLE ALIGNMENT ASSESSMENT**
+- Match between candidate's experience and job requirements
+- Gap analysis between current resume and job description keywords
+- Missing skills or experiences that should be emphasized
+- Opportunities to reframe existing experience for the target role
+
+**2. STRUCTURAL EXCELLENCE**
 - Resume format, organization, and visual hierarchy
 - Section completeness, flow, and logical progression
 - Professional presentation and readability
 - Length optimization and content density
 
-**2. CONTENT POWER ASSESSMENT**
+**3. CONTENT POWER ASSESSMENT**
 - Professional summary impact and value communication
 - Work experience depth, achievement focus, and progression
 - Quantifiable accomplishments and measurable impact
 - Skills positioning, relevance, and market alignment
 - Education presentation and credential value
 
-**3. ATS OPTIMIZATION AUDIT**
+**4. ATS OPTIMIZATION AUDIT**
 - Keyword density, relevance, and strategic placement
 - Industry-specific terminology and technical language
 - Skills visibility and trending technology inclusion
 - Action verb variety and power language usage
 - Format compatibility and parsing optimization
 
-**4. COMPETITIVE ADVANTAGE ANALYSIS**
+**5. COMPETITIVE ADVANTAGE ANALYSIS**
 - Unique selling propositions and differentiation factors
 - Leadership examples and initiative demonstrations
 - Problem-solving capabilities and innovation showcases
 - Market positioning and value proposition clarity
 - Career progression and growth trajectory
 
-**5. TRANSFORMATION ROADMAP**
+**6. TRANSFORMATION ROADMAP**
 - Specific content enhancement opportunities
 - Formatting improvements and visual enhancements
 - Missing elements and gap identification
 - Industry best practices and market standards alignment
 - Strategic recommendations for maximum impact
 
-🎯 DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the resume. Focus on concrete improvements that will elevate this resume from good to exceptional. Include specific recommendations for each section that will make this candidate irresistible to top employers.
+🎯 DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the resume. Focus on concrete improvements that will elevate this resume to perfectly align with the target job description. Include specific recommendations for each section that will make this candidate irresistible to employers for this specific role.
 
-${jobDescription ? `
-🎯 TARGET ROLE CONTEXT:
-${jobDescription.substring(0, 2000)}
-
-IMPORTANT: Prioritize analysis and recommendations that align the resume with this specific job description. Focus on matching required skills, qualifications, and experience mentioned in the job posting.` : ''}`
+IMPORTANT: Your analysis must directly reference the job description requirements and provide specific guidance on how to align the resume with those requirements.`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'

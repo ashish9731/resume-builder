@@ -3,12 +3,45 @@ import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const maxDuration = 30
 
-function createResumePDF(text: string): Buffer {
+function createResumePDF(text: string, template: string = 'professional'): Buffer {
   const lines = text.split('\n');
   
   let contentStream = ''
   let yPos = 750
   const leftMargin = 50
+  
+  // Template-specific adjustments
+  let headerFontSize = 14;
+  let bodyFontSize = 12;
+  let bulletFontSize = 11;
+  
+  // Adjust formatting based on template
+  switch(template) {
+    case 'executive':
+      headerFontSize = 16;
+      bodyFontSize = 11;
+      bulletFontSize = 10;
+      break;
+    case 'modern':
+      headerFontSize = 15;
+      bodyFontSize = 12;
+      bulletFontSize = 11;
+      break;
+    case 'creative':
+      headerFontSize = 13;
+      bodyFontSize = 13;
+      bulletFontSize = 12;
+      break;
+    case 'minimal':
+      headerFontSize = 14;
+      bodyFontSize = 11;
+      bulletFontSize = 10;
+      break;
+    default: // professional
+      headerFontSize = 14;
+      bodyFontSize = 12;
+      bulletFontSize = 11;
+  }
   
   // Build content stream properly
   contentStream += `BT\n`
@@ -19,24 +52,24 @@ function createResumePDF(text: string): Buffer {
     
     // Determine font based on line content
     let font = '/F2'; // Regular font
-    let fontSize = 12;
-    let lineHeight = 15;
+    let fontSize = bodyFontSize;
+    let lineHeight = fontSize + 3;
     
     // Check if this is a header (all caps, short, or specific patterns)
     if (cleanLine.toUpperCase() === cleanLine && cleanLine.length < 50 && cleanLine.includes(' ')) {
       font = '/F1'; // Bold font
-      fontSize = 14;
-      lineHeight = 18;
+      fontSize = headerFontSize;
+      lineHeight = fontSize + 4;
     } else if (cleanLine.startsWith('•') || cleanLine.startsWith('-')) {
       // Bullet points
       font = '/F2';
-      fontSize = 11;
-      lineHeight = 14;
+      fontSize = bulletFontSize;
+      lineHeight = fontSize + 3;
     } else if (cleanLine.match(/^([A-Z][a-z]+\s*)+\|/)) {
       // Contact info line
       font = '/F2';
-      fontSize = 11;
-      lineHeight = 14;
+      fontSize = bulletFontSize;
+      lineHeight = fontSize + 3;
     }
     
     contentStream += `${font} ${fontSize} Tf\n`;
@@ -50,7 +83,7 @@ function createResumePDF(text: string): Buffer {
     yPos -= lineHeight;
     
     // Add extra space after section headers
-    if (font === '/F1' && fontSize === 14) {
+    if (font === '/F1' && fontSize === headerFontSize) {
       yPos -= 10;
     }
   })
@@ -147,13 +180,16 @@ export async function POST(req: Request) {
   try {
     const contentType = req.headers.get('content-type') || ''
     let text: string
+    let template: string = 'professional'
 
     if (contentType.includes('application/json')) {
       const body = await req.json()
       text = body.text
+      template = body.template || 'professional'
     } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
       const formData = await req.formData()
       text = formData.get('text') as string
+      template = (formData.get('template') as string) || 'professional'
     } else {
       // Fallback to text from body
       text = await req.text()
@@ -175,10 +211,10 @@ export async function POST(req: Request) {
     }
 
     const lines = cleanText.split('\n').filter(line => line.trim().length > 0)
-    console.log('Generating PDF with', lines.length, 'lines of content')
+    console.log('Generating PDF with', lines.length, 'lines of content using template:', template)
 
     // Generate PDF
-    const pdfBuffer = createResumePDF(cleanText)
+    const pdfBuffer = createResumePDF(cleanText, template)
     
     console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
 
@@ -189,7 +225,7 @@ export async function POST(req: Request) {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="enhanced-resume.pdf"',
+        'Content-Disposition': `attachment; filename="enhanced-resume-${template}.pdf"`,
         'Content-Length': pdfBytes.length.toString(),
       },
     })

@@ -54,7 +54,16 @@ export async function POST(req: Request) {
       )
     }
 
-    const prompt = `You are an expert professional resume writer. Create a clean, ATS-optimized resume following this exact format. Return ONLY the resume content with no formatting markers, no section numbers, no asterisks, no hashtags, no bullet numbers - just clean professional text.
+    const prompt = `You are an expert professional resume writer specializing in ATS optimization. Create a clean, professionally formatted resume that strategically aligns with the target job description while preserving all factual information from the original resume.
+
+CRITICAL INSTRUCTIONS:
+1. MAINTAIN ALL FACTUAL INFORMATION from the original resume
+2. STRATEGICALLY ENHANCE the content to match the job description
+3. PRESERVE the candidate's actual experience and achievements
+4. OPTIMIZE for ATS systems by including relevant keywords
+5. QUANTIFY achievements with specific metrics where possible
+6. USE powerful action verbs to describe responsibilities
+7. ALIGN skills and experiences with job requirements
 
 RESUME FORMAT:
 
@@ -63,59 +72,58 @@ RESUME FORMAT:
 [City, State]
 
 PROFESSIONAL SUMMARY
-[Write 3-4 compelling sentences about years of experience, core expertise, and key achievements with specific metrics]
+[Write 3-4 compelling sentences about years of experience, core expertise, and key achievements with specific metrics. Tailor this section to highlight experience most relevant to the job description.]
 
 CORE COMPETENCIES
-[Technical Skills: List relevant technical skills separated by commas]
+[Technical Skills: List relevant technical skills separated by commas - prioritize skills mentioned in the job description]
 [Leadership Skills: List management and leadership skills separated by commas]
-[Industry Knowledge: List domain expertise separated by commas]
+[Industry Knowledge: List domain expertise separated by commas - align with industry terms in job description]
 
 PROFESSIONAL EXPERIENCE
 
 [Job Title]
 [Company Name] | [Location] | [Month Year - Month Year]
-• [Action verb] [achievement/task] resulting in [specific metric/result]
-• [Action verb] [achievement/task] leading to [specific metric/result]
-• [Action verb] [achievement/task] improving [specific metric/result]
+• [Action verb] [achievement/task] resulting in [specific metric/result] - Align with job responsibilities
+• [Action verb] [achievement/task] leading to [specific metric/result] - Highlight transferable skills
+• [Action verb] [achievement/task] improving [specific metric/result] - Emphasize measurable outcomes
 
 [Next Job Title]
 [Next Company Name] | [Location] | [Month Year - Month Year]
-• [Action verb] [achievement/task] resulting in [specific metric/result]
-• [Action verb] [achievement/task] leading to [specific metric/result]
-• [Action verb] [achievement/task] improving [specific metric/result]
+• [Action verb] [achievement/task] resulting in [specific metric/result] - Connect to job requirements
+• [Action verb] [achievement/task] leading to [specific metric/result] - Showcase relevant experience
+• [Action verb] [achievement/task] improving [specific metric/result] - Demonstrate value
 
 EDUCATION
 [Degree] in [Major]
 [University Name] | [Graduation Year]
 
 CERTIFICATIONS
-• [Certification Name] - [Issuing Organization] - [Year]
-• [Certification Name] - [Issuing Organization] - [Year]
+• [Certification Name] - [Issuing Organization] - [Year] - Prioritize industry-recognized certifications
 
 PROJECTS
 [Project Name] - [Technologies Used]
-• [Brief description with quantified impact]
+• [Brief description with quantified impact] - Emphasize relevance to job
 
 [Next Project Name] - [Technologies Used]
-• [Brief description with quantified impact]
+• [Brief description with quantified impact] - Highlight transferable skills
 
-GUIDELINES:
-- Use actual bullet points (•) not numbers or dashes
-- Include specific metrics, percentages, and dollar amounts
-- Use powerful action verbs: Spearheaded, Orchestrated, Pioneered, Transformed, Accelerated, Optimized, Streamlined, Implemented, Led, Managed, Developed, Designed, Analyzed, Delivered
-- Ensure all content is factual and professional
-- Write in clean, readable paragraphs with proper spacing
-- Focus on achievements and business impact
-- Include relevant keywords naturally throughout
-
-TRANSFORM THIS RESUME:
+ORIGINAL RESUME:
 ${text}
 
-${analysis ? `\nADDITIONAL CONTEXT: ${analysis.substring(0, 800)}` : ''}
+ANALYSIS FEEDBACK:
+${analysis}
 
-${jobDescription ? `\nTARGET JOB DESCRIPTION: ${jobDescription.substring(0, 2000)}\n\nIMPORTANT: Tailor the resume specifically to match the requirements, skills, and keywords mentioned in this job description. Prioritize relevant experience and skills that align with the role.` : ''}
+TARGET JOB DESCRIPTION:
+${jobDescription}
 
-Return only the clean, formatted resume content with no section labels, no formatting instructions, no asterisks, no hashtags, and no numbering - just the professional resume text.`
+IMPORTANT: Your primary task is to enhance the resume content to better align with the job description while preserving all factual information from the original resume. Focus on:
+1. Incorporating relevant keywords and phrases from the job description
+2. Restructuring content to emphasize skills and experiences that match job requirements
+3. Quantifying achievements with specific metrics
+4. Using action verbs that resonate with the target role
+5. Maintaining honesty and accuracy - do not fabricate any information
+
+Return only the enhanced resume content with no explanations, formatting markers, or section labels.`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'

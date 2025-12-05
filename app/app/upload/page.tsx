@@ -19,6 +19,7 @@ export default function UploadPage() {
   const [jobDescription, setJobDescription] = useState('')
   const [analysis, setAnalysis] = useState('')
   const [enhancedResume, setEnhancedResume] = useState('')
+  const [selectedTemplate, setSelectedTemplate] = useState('professional')
   const [currentStep, setCurrentStep] = useState(1) // 1: Upload, 2: Analyze, 3: Enhance, 4: Download
   const [showOriginal, setShowOriginal] = useState(true)
   const [showEnhanced, setShowEnhanced] = useState(true)
@@ -200,7 +201,10 @@ export default function UploadPage() {
       const response = await fetch('/api/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: enhancedResume }),
+        body: JSON.stringify({ 
+          text: enhancedResume,
+          template: selectedTemplate
+        }),
       })
 
       if (!response.ok) {
@@ -212,7 +216,7 @@ export default function UploadPage() {
       const url = window.URL.createObjectURL(pdfBlob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'enhanced-resume.pdf'
+      a.download = `enhanced-resume-${selectedTemplate}.pdf`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -437,6 +441,28 @@ export default function UploadPage() {
                   Download Your Resume
                 </h2>
                 <p className="text-white/70 mb-4">Your enhanced resume is ready for download!</p>
+                
+                {/* Template Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-white/90 mb-2">
+                    Select Resume Template
+                  </label>
+                  <select
+                    value={selectedTemplate}
+                    onChange={(e) => setSelectedTemplate(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="professional">Professional (Default)</option>
+                    <option value="executive">Executive</option>
+                    <option value="modern">Modern</option>
+                    <option value="creative">Creative</option>
+                    <option value="minimal">Minimal</option>
+                  </select>
+                  <p className="text-white/50 text-xs mt-2">
+                    Choose a template that best fits your industry and personal style.
+                  </p>
+                </div>
+                
                 <Button
                   onClick={handleDownload}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
