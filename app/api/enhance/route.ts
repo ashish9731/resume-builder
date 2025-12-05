@@ -33,9 +33,9 @@ export async function POST(req: Request) {
       )
     }
 
-    if (jobDescription && typeof jobDescription !== 'string') {
+    if (!jobDescription || typeof jobDescription !== 'string') {
       return NextResponse.json(
-        { error: 'Invalid jobDescription parameter' },
+        { error: 'Job description is required for resume enhancement' },
         { status: 400 }
       )
     }
@@ -43,6 +43,13 @@ export async function POST(req: Request) {
     if (text.length > 10000) {
       return NextResponse.json(
         { error: 'Text too long. Maximum 10,000 characters allowed.' },
+        { status: 400 }
+      )
+    }
+
+    if (jobDescription.length > 5000) {
+      return NextResponse.json(
+        { error: 'Job description too long. Maximum 5000 characters allowed.' },
         { status: 400 }
       )
     }

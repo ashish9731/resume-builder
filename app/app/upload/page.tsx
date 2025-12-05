@@ -135,7 +135,7 @@ export default function UploadPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           text: resumeText,
-          jobDescription: jobDescription
+          jobDescription: jobDescription.trim()
         }),
       })
 
@@ -174,7 +174,7 @@ export default function UploadPage() {
         body: JSON.stringify({ 
           text: resumeText,
           analysis: analysis,
-          jobDescription: jobDescription
+          jobDescription: jobDescription.trim()
         }),
       })
 

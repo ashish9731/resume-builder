@@ -4,21 +4,42 @@ export const runtime = 'nodejs'
 export const maxDuration = 30
 
 function createResumePDF(text: string): Buffer {
-  const lines = text.split('\n').filter(line => line.trim().length > 0)
+  const lines = text.split('\n');
   
   let contentStream = ''
   let yPos = 750
-  const lineHeight = 15
   const leftMargin = 50
   
   // Build content stream properly
-  contentStream += `BT\n/F1 12 Tf\n`
+  contentStream += `BT\n`
   
   lines.forEach((line, index) => {
-    const cleanLine = line.trim()
-    if (!cleanLine) return
-    
+    const cleanLine = line;
     const escapedText = escapePDFText(cleanLine)
+    
+    // Determine font based on line content
+    let font = '/F2'; // Regular font
+    let fontSize = 12;
+    let lineHeight = 15;
+    
+    // Check if this is a header (all caps, short, or specific patterns)
+    if (cleanLine.toUpperCase() === cleanLine && cleanLine.length < 50 && cleanLine.includes(' ')) {
+      font = '/F1'; // Bold font
+      fontSize = 14;
+      lineHeight = 18;
+    } else if (cleanLine.startsWith('•') || cleanLine.startsWith('-')) {
+      // Bullet points
+      font = '/F2';
+      fontSize = 11;
+      lineHeight = 14;
+    } else if (cleanLine.match(/^([A-Z][a-z]+\s*)+\|/)) {
+      // Contact info line
+      font = '/F2';
+      fontSize = 11;
+      lineHeight = 14;
+    }
+    
+    contentStream += `${font} ${fontSize} Tf\n`;
     
     if (index === 0) {
       contentStream += `${leftMargin} ${yPos} Td\n(${escapedText}) Tj\n`
@@ -26,7 +47,12 @@ function createResumePDF(text: string): Buffer {
       contentStream += `0 -${lineHeight} Td\n(${escapedText}) Tj\n`
     }
     
-    yPos -= lineHeight
+    yPos -= lineHeight;
+    
+    // Add extra space after section headers
+    if (font === '/F1' && fontSize === 14) {
+      yPos -= 10;
+    }
   })
   
   contentStream += `ET`
@@ -69,6 +95,11 @@ endobj`
 /Resources <<
 /Font <<
 /F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+>>
+/F2 <<
 /Type /Font
 /Subtype /Type1
 /BaseFont /Helvetica
