@@ -146,14 +146,13 @@ Return only the enhanced resume content with no explanations, formatting markers
       )
     }
 
-    // Clean up any remaining formatting artifacts
+    // Clean up any remaining formatting artifacts while preserving structure
     enhanced = enhanced
       .replace(/^#+\s*/gm, '') // Remove # headers
       .replace(/\*\*/g, '') // Remove ** bold markers
       .replace(/^\d+\.\s*/gm, '') // Remove numbered lists
       .replace(/^[-*]\s*/gm, '• ') // Convert to clean bullets
       .replace(/\|/g, ' | ') // Normalize pipe separators
-      .replace(/\n{3,}/g, '\n\n') // Normalize spacing
       .replace(/\s+$/gm, '') // Remove trailing whitespace
       .trim()
 

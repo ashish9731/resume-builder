@@ -4,6 +4,7 @@ export const runtime = 'nodejs'
 export const maxDuration = 30
 
 function createResumePDF(text: string, template: string = 'professional'): Buffer {
+  // Split text into lines but preserve empty lines for proper spacing
   const lines = text.split('\n');
   
   let contentStream = ''
@@ -46,8 +47,24 @@ function createResumePDF(text: string, template: string = 'professional'): Buffe
   // Build content stream properly
   contentStream += `BT\n`
   
+  let previousLineWasEmpty = false;
+  
   lines.forEach((line, index) => {
     const cleanLine = line;
+    const isEmptyLine = cleanLine.trim() === '';
+    
+    // Handle empty lines for spacing
+    if (isEmptyLine) {
+      if (!previousLineWasEmpty) {
+        // Add extra spacing for paragraph breaks
+        yPos -= 15;
+      }
+      previousLineWasEmpty = true;
+      return;
+    }
+    
+    previousLineWasEmpty = false;
+    
     const escapedText = escapePDFText(cleanLine)
     
     // Determine font based on line content
@@ -84,7 +101,14 @@ function createResumePDF(text: string, template: string = 'professional'): Buffe
     
     // Add extra space after section headers
     if (font === '/F1' && fontSize === headerFontSize) {
-      yPos -= 10;
+      yPos -= 15;
+    }
+    
+    // Check if we're running out of space
+    if (yPos < 50) {
+      // For simplicity, we'll just stop adding content
+      // In a real implementation, we'd add a new page
+      return;
     }
   })
   
