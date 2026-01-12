@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Sparkles, FileText, Brain, Download, Shield, Zap, Users, Star, CheckCircle, Mic, Play, Menu, X, Home, User, LogIn, LogOut } from 'lucide-react'
+import { ArrowRight, Sparkles, FileText, Brain, Download, Shield, Zap, Users, Star, CheckCircle, Mic, Play, Menu, X, Home, User, LogIn, LogOut, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
@@ -40,6 +40,7 @@ export default function HomePage() {
           </div>
         </div>
       </nav>
+
       {/* Hero Section */}
       <div className="relative overflow-hidden" id="home">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -47,11 +48,6 @@ export default function HomePage() {
             {/* Left Side - Text Content */}
             <div className="text-left">
               <div className="mb-8">
-                {/* Logo */}
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-2xl">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                
                 {/* Main Heading */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-stone-800 mb-6 leading-tight">
                   AI-Powered
@@ -150,58 +146,6 @@ export default function HomePage() {
                 <div className="absolute -bottom-4 -left-4 w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center shadow-lg">
                   <Zap className="w-6 h-6 text-blue-600" />
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-            {/* Logo */}
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-8 shadow-2xl">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
-            
-            {/* Main Heading */}
-            <h1 className="text-5xl md:text-7xl font-bold text-stone-800 mb-6 leading-tight">
-              AI-Powered
-              <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Resume Builder
-              </span>
-            </h1>
-            
-            {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-stone-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Transform your resume with AI analysis, ATS optimization, and professional enhancement. 
-              Practice your communication skills and prepare for interviews with our AI-powered tools.
-              Get hired faster with a complete job search solution.
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <Link href="/start">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105">
-                  Start Building Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/pricing">
-                <Button variant="outline" size="lg" className="border-2 border-stone-300 text-stone-700 hover:bg-stone-100 px-8 py-4 text-lg font-semibold rounded-xl">
-                  View Pricing
-                </Button>
-              </Link>
-            </div>
-            
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-stone-800 mb-2">10K+</div>
-                <div className="text-stone-500">Resumes Enhanced</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-stone-800 mb-2">95%</div>
-                <div className="text-stone-500">ATS Pass Rate</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-stone-800 mb-2">5min</div>
-                <div className="text-stone-500">Average Time</div>
               </div>
             </div>
           </div>
@@ -402,7 +346,6 @@ export default function HomePage() {
                 </Button>
               </Link>
             </div>
-
           </div>
         </div>
       </div>

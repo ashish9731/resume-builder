@@ -15,13 +15,23 @@ interface UserCredits {
 
 export default function CreditDisplay({ userId }: { userId: string }) {
   const [credits, setCredits] = useState<UserCredits | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Start with false to show immediately
 
   useEffect(() => {
     if (userId) {
       fetchUserCredits()
     }
   }, [userId])
+
+  // Show default free tier immediately while loading
+  const defaultCredits: UserCredits = {
+    tier_name: 'Free',
+    credits_total: 4,
+    credits_used: 0,
+    credits_remaining: 4,
+    subscription_start: new Date().toISOString(),
+    subscription_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  }
 
   const fetchUserCredits = async () => {
     try {
@@ -43,16 +53,18 @@ export default function CreditDisplay({ userId }: { userId: string }) {
     }
   }
 
-  if (loading || !credits) {
+  const displayCredits = credits || defaultCredits
+  
+  if (loading && !credits) {
     return (
       <div className="bg-stone-100 rounded-full px-3 py-1 text-sm text-stone-600 animate-pulse">
-        Loading credits...
+        Loading...
       </div>
     )
   }
 
-  const percentageUsed = (credits.credits_used / credits.credits_total) * 100
-  const isLowCredits = credits.credits_remaining <= 2
+  const percentageUsed = (displayCredits.credits_used / displayCredits.credits_total) * 100
+  const isLowCredits = displayCredits.credits_remaining <= 2
 
   return (
     <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${
@@ -64,7 +76,7 @@ export default function CreditDisplay({ userId }: { userId: string }) {
     }`}>
       <CreditCard className="w-4 h-4" />
       <span>
-        {credits.credits_remaining} / {credits.credits_total} credits
+        {displayCredits.credits_remaining} / {displayCredits.credits_total} credits
       </span>
       {isLowCredits && (
         <span className="text-xs">(Low credits)</span>

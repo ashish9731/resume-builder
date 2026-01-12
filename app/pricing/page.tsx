@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { Button } from '@/components/ui/button'
-import { Check, X, CreditCard, QrCode, Lock, Unlock } from 'lucide-react'
+import { Check, X, CreditCard, QrCode, Lock, Unlock, ArrowLeft } from 'lucide-react'
 
 interface PricingTier {
   id: string
@@ -203,17 +203,29 @@ export default function PricingPage() {
       <div className="bg-white/80 backdrop-blur-sm border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-stone-800">Pricing Plans</h1>
-            {user && userCredits && (
-              <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
-                Credits: {userCredits.credits_remaining}/{userCredits.credits_total}
-              </div>
-            )}
-            {!user && (
-              <Button onClick={() => router.push('/auth')} variant="outline">
-                Sign In
+            <div className="flex items-center space-x-4">
+              <Button 
+                onClick={() => router.back()} 
+                variant="ghost" 
+                className="text-stone-600 hover:text-stone-800 hover:bg-stone-100"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Back
               </Button>
-            )}
+              <h1 className="text-2xl font-bold text-stone-800">Pricing Plans</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              {user && userCredits && (
+                <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
+                  Credits: {userCredits.credits_remaining}/{userCredits.credits_total}
+                </div>
+              )}
+              {!user && (
+                <Button onClick={() => router.push('/auth')} variant="outline">
+                  Sign In
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -244,35 +256,35 @@ export default function PricingPage() {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {pricingTiers.map((tier) => (
             <div 
               key={tier.id}
-              className={`relative bg-white rounded-2xl border-2 p-8 shadow-lg transition-all duration-300 hover:scale-105 ${
+              className={`relative bg-white rounded-xl border-2 p-6 shadow-md transition-all duration-300 hover:scale-102 ${
                 tier.name === 'Pro' 
-                  ? 'border-blue-500 ring-4 ring-blue-100' 
+                  ? 'border-blue-500 ring-2 ring-blue-100' 
                   : 'border-stone-200 hover:border-stone-300'
               }`}
             >
               {tier.name === 'Pro' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                   MOST POPULAR
                 </div>
               )}
               
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-stone-800 mb-2">{tier.name}</h3>
-                <div className="mb-4">
-                  <span className="text-5xl font-bold text-stone-900">${tier.price}</span>
-                  {tier.price > 0 && <span className="text-stone-600">/month</span>}
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-stone-800 mb-2">{tier.name}</h3>
+                <div className="mb-3">
+                  <span className="text-3xl font-bold text-stone-900">${tier.price}</span>
+                  {tier.price > 0 && <span className="text-stone-600 text-sm">/month</span>}
                 </div>
-                <p className="text-stone-600">{tier.description}</p>
+                <p className="text-stone-600 text-sm">{tier.description}</p>
               </div>
 
-              <div className="space-y-6 mb-8">
-                <div>
-                  <h4 className="font-semibold text-stone-800 mb-3 flex items-center">
-                    <CreditCard className="w-5 h-5 mr-2 text-blue-500" />
+              <div className="space-y-4 mb-6">
+                <div className="text-center py-2">
+                  <h4 className="font-semibold text-stone-800 text-sm flex items-center justify-center">
+                    <CreditCard className="w-4 h-4 mr-1 text-blue-500" />
                     {tier.credits} Total Credits
                   </h4>
                 </div>
