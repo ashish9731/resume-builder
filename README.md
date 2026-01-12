@@ -1,4 +1,4 @@
-# AI Resume Builder (Next.js + Supabase + OpenAI)
+# AI Resume Builder (Next.js + Supabase)
 
 Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a new resume with per-section AI assistance. Practice communication skills and prepare for interviews with AI-powered tools. Export ATS-aligned results as PDF.
 
