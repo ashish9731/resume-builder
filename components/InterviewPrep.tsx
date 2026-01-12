@@ -195,20 +195,20 @@ B.S. Computer Science | Stanford University | 2017`
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">Interview Prep</h2>
+        <h2 className="text-2xl font-bold text-stone-800">Interview Prep</h2>
         <Button
           onClick={onBack}
-          className="bg-gray-600 hover:bg-gray-700 text-white"
+          className="bg-gray-600 hover:bg-gray-700 text-stone-800"
         >
           Back to Dashboard
         </Button>
       </div>
 
       {step === 'setup' && (
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
           <div className="flex items-center mb-4">
             <Sparkles className="w-5 h-5 text-purple-400 mr-2" />
-            <h3 className="text-lg font-semibold text-white">Interview Setup</h3>
+            <h3 className="text-lg font-semibold text-stone-800">Interview Setup</h3>
           </div>
           
           {error && (
@@ -220,34 +220,34 @@ B.S. Computer Science | Stanford University | 2017`
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">Job Title *</label>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Job Title *</label>
               <input
                 type="text"
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., Software Engineer"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">Job Description *</label>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Job Description *</label>
               <textarea
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
                 placeholder="Paste the job description here..."
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">Your Resume *</label>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Your Resume *</label>
               <div className="mb-2">
                 <Button
                   onClick={triggerFileUpload}
-                  className="flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-lg"
+                  className="flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-stone-800 rounded-lg"
                   disabled={isLoading}
                 >
                   <Upload className="w-4 h-4 mr-2" />
@@ -264,20 +264,20 @@ B.S. Computer Science | Stanford University | 2017`
               <textarea
                 value={resume}
                 onChange={(e) => setResume(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
                 placeholder="Paste your resume content here or upload a file above..."
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
+              <label className="block text-sm font-medium text-stone-700 mb-2">
                 Number of Questions (Max 10)
               </label>
               <select
                 value={questionCount}
                 onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
                   <option key={num} value={num} className="bg-gray-800">
@@ -309,13 +309,13 @@ B.S. Computer Science | Stanford University | 2017`
       )}
 
       {step === 'interview' && (
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <Sparkles className="w-5 h-5 text-purple-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Interview Session</h3>
+              <h3 className="text-lg font-semibold text-stone-800">Interview Session</h3>
             </div>
-            <div className="text-white/70">
+            <div className="text-stone-700">
               Question {currentQuestionIndex + 1} of {questions.length}
             </div>
           </div>
@@ -328,19 +328,19 @@ B.S. Computer Science | Stanford University | 2017`
           )}
 
           <div className="mb-6 p-4 bg-white/5 rounded-lg">
-            <p className="text-white text-lg">
+            <p className="text-stone-800 text-lg">
               {questions[currentQuestionIndex]}
             </p>
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-white/90 mb-2">
+            <label className="block text-sm font-medium text-stone-700 mb-2">
               Your Response
             </label>
             <textarea
               value={currentResponse}
               onChange={(e) => setCurrentResponse(e.target.value)}
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
               placeholder="Type or paste your response here..."
             />
           </div>
@@ -355,7 +355,7 @@ B.S. Computer Science | Stanford University | 2017`
                 }
               }}
               disabled={currentQuestionIndex === 0}
-              className="bg-gray-600 hover:bg-gray-700 text-white"
+              className="bg-gray-600 hover:bg-gray-700 text-stone-800"
             >
               Previous
             </Button>
@@ -372,11 +372,11 @@ B.S. Computer Science | Stanford University | 2017`
 
       {step === 'analysis' && (
         <div className="space-y-6">
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+          <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <Sparkles className="w-5 h-5 text-purple-400 mr-2" />
-                <h3 className="text-lg font-semibold text-white">Interview Analysis</h3>
+                <h3 className="text-lg font-semibold text-stone-800">Interview Analysis</h3>
               </div>
               <Button
                 onClick={handleDownload}
@@ -388,7 +388,7 @@ B.S. Computer Science | Stanford University | 2017`
             </div>
             
             <div className="bg-white/5 rounded-lg p-4 max-h-96 overflow-y-auto">
-              <div className="text-white/90 whitespace-pre-wrap text-sm leading-relaxed">
+              <div className="text-stone-700 whitespace-pre-wrap text-sm leading-relaxed">
                 {analysis}
               </div>
             </div>
@@ -403,7 +403,7 @@ B.S. Computer Science | Stanford University | 2017`
           <div className="flex space-x-4">
             <Button
               onClick={resetInterview}
-              className="bg-gray-600 hover:bg-gray-700 text-white"
+              className="bg-gray-600 hover:bg-gray-700 text-stone-800"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Start New Interview

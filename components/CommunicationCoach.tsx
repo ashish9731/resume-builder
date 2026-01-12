@@ -165,7 +165,7 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">Communication Coach</h2>
+        <h2 className="text-2xl font-bold text-stone-800">Communication Coach</h2>
         <Button
           onClick={onBack}
           className="bg-gray-600 hover:bg-gray-700 text-white"
@@ -177,10 +177,10 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
       <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <div className="flex items-center mb-4">
           <Sparkles className="w-5 h-5 text-purple-400 mr-2" />
-          <h3 className="text-lg font-semibold text-white">Record Your Speech</h3>
+          <h3 className="text-lg font-semibold text-stone-800">Record Your Speech</h3>
         </div>
         
-        <p className="text-white/70 mb-6">
+        <p className="text-stone-700 mb-6">
           Read a paragraph from your resume or introduce yourself to analyze your professional tone.
         </p>
         
@@ -235,7 +235,7 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
                 />
               </div>
               
-              <p className="text-white/50 text-sm text-center">
+              <p className="text-stone-500 text-sm text-center">
                 {isRecording 
                   ? 'Recording... Click stop when finished' 
                   : 'Record live or upload an audio file for analysis'}
@@ -244,11 +244,11 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
           ) : (
             <div className="w-full">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-white/90 mb-2">Your Transcript</label>
+                <label className="block text-sm font-medium text-stone-700 mb-2">Your Transcript</label>
                 <textarea
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
                   placeholder="Your recorded speech will appear here..."
                 />
               </div>
@@ -292,7 +292,7 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
               <Sparkles className="w-5 h-5 text-purple-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Speech Analysis</h3>
+              <h3 className="text-lg font-semibold text-stone-800">Speech Analysis</h3>
             </div>
             <Button
               onClick={handleDownload}
@@ -304,7 +304,7 @@ export default function CommunicationCoach({ onBack }: CommunicationCoachProps) 
           </div>
           
           <div className="bg-white/5 rounded-lg p-4 max-h-96 overflow-y-auto">
-            <div className="text-white/90 whitespace-pre-wrap text-sm leading-relaxed">
+            <div className="text-stone-800 whitespace-pre-wrap text-sm leading-relaxed">
               {analysis}
             </div>
           </div>
