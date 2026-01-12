@@ -424,7 +424,7 @@ const CreatePage = () => {
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Work Experience</h2>
+              <h2 className="text-2xl font-bold text-stone-800">Work Experience</h2>
               <Button
                 onClick={() => addItem('experience')}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -435,7 +435,7 @@ const CreatePage = () => {
             {resumeData.experience.map((exp, index) => (
               <div key={index} className="bg-white/5 rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">Experience {index + 1}</h3>
+                  <h3 className="text-lg font-semibold text-stone-800">Experience {index + 1}</h3>
                   {resumeData.experience.length > 1 && (
                     <Button
                       onClick={() => removeItem('experience', index)}
@@ -447,34 +447,34 @@ const CreatePage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Company *</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Company *</label>
                     <input
                       type="text"
                       value={exp.company}
                       onChange={(e) => handleInputChange('experience', 'company', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Google"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Position *</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Position *</label>
                     <input
                       type="text"
                       value={exp.position}
                       onChange={(e) => handleInputChange('experience', 'position', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Software Engineer"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Duration</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Duration</label>
                     <input
                       type="text"
                       value={exp.duration}
                       onChange={(e) => handleInputChange('experience', 'duration', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Jan 2020 - Present"
                     />
                   </div>
@@ -511,7 +511,7 @@ const CreatePage = () => {
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Education</h2>
+              <h2 className="text-2xl font-bold text-stone-800">Education</h2>
               <Button
                 onClick={() => addItem('education')}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -522,7 +522,7 @@ const CreatePage = () => {
             {resumeData.education.map((edu, index) => (
               <div key={index} className="bg-white/5 rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">Education {index + 1}</h3>
+                  <h3 className="text-lg font-semibold text-stone-800">Education {index + 1}</h3>
                   {resumeData.education.length > 1 && (
                     <Button
                       onClick={() => removeItem('education', index)}
@@ -534,44 +534,44 @@ const CreatePage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Institution *</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Institution *</label>
                     <input
                       type="text"
                       value={edu.institution}
                       onChange={(e) => handleInputChange('education', 'institution', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Stanford University"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Degree *</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Degree *</label>
                     <input
                       type="text"
                       value={edu.degree}
                       onChange={(e) => handleInputChange('education', 'degree', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Bachelor of Science in Computer Science"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Year</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Year</label>
                     <input
                       type="text"
                       value={edu.year}
                       onChange={(e) => handleInputChange('education', 'year', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="2020"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">GPA</label>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">GPA</label>
                     <input
                       type="text"
                       value={edu.gpa}
                       onChange={(e) => handleInputChange('education', 'gpa', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="3.8/4.0"
                     />
                   </div>
@@ -584,11 +584,11 @@ const CreatePage = () => {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Skills & Additional Information</h2>
+            <h2 className="text-2xl font-bold text-stone-800 mb-6">Skills & Additional Information</h2>
             
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-white/90">Skills *</label>
+                <label className="block text-sm font-medium text-stone-700">Skills *</label>
                 <Button
                   onClick={handleAISkills}
                   disabled={loading}
@@ -617,7 +617,7 @@ const CreatePage = () => {
             </div>
 
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-white">Projects</h3>
+              <h3 className="text-xl font-semibold text-stone-800">Projects</h3>
               <Button
                 onClick={() => addItem('projects')}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -645,7 +645,7 @@ const CreatePage = () => {
                       type="text"
                       value={proj.name}
                       onChange={(e) => handleInputChange('projects', 'name', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="E-commerce Website"
                     />
                   </div>
@@ -678,7 +678,7 @@ const CreatePage = () => {
                       type="text"
                       value={proj.technologies}
                       onChange={(e) => handleInputChange('projects', 'technologies', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="React, Node.js, MongoDB"
                     />
                   </div>
@@ -715,7 +715,7 @@ const CreatePage = () => {
                       type="text"
                       value={cert.name}
                       onChange={(e) => handleInputChange('certifications', 'name', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="AWS Certified Developer"
                     />
                   </div>
@@ -725,7 +725,7 @@ const CreatePage = () => {
                       type="text"
                       value={cert.issuer}
                       onChange={(e) => handleInputChange('certifications', 'issuer', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Amazon Web Services"
                     />
                   </div>
@@ -735,7 +735,7 @@ const CreatePage = () => {
                       type="text"
                       value={cert.date}
                       onChange={(e) => handleInputChange('certifications', 'date', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="2023"
                     />
                   </div>

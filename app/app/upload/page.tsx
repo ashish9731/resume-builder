@@ -246,13 +246,13 @@ export default function UploadPage() {
       <div className="container mx-auto max-w-6xl p-6">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <Link href="/app" className="inline-flex items-center text-white/70 hover:text-white transition-colors">
+          <Link href="/app" className="inline-flex items-center text-stone-600 hover:text-stone-800 transition-colors">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
           </Link>
           <Button
             variant="outline"
             onClick={handleSignOut}
-            className="border-white/20 text-white hover:bg-white/10 backdrop-blur-sm"
+            className="border-stone-300 text-stone-700 hover:bg-stone-100"
           >
             Sign out
           </Button>
