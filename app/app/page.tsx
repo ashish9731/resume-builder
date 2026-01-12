@@ -140,10 +140,10 @@ export default function ApplicationPage() {
                   <FileUp className="h-8 w-8 text-blue-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-stone-800 mb-4">Upload Resume</h3>
-                <p className="text-white/80 mb-6 leading-relaxed">
+                <p className="text-stone-700 mb-6 leading-relaxed">
                   Upload your existing resume (PDF, DOCX, or TXT) and get AI-powered analysis and enhancement recommendations.
                 </p>
-                <div className="space-y-2 text-sm text-white/70">
+                <div className="space-y-2 text-sm text-stone-600">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>AI Analysis & Recommendations</span>
@@ -169,10 +169,10 @@ export default function ApplicationPage() {
                   <FilePlus2 className="h-8 w-8 text-purple-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-stone-800 mb-4">Create New Resume</h3>
-                <p className="text-stone-600 mb-6 leading-relaxed">
+                <p className="text-stone-700 mb-6 leading-relaxed">
                   Build a professional resume from scratch with AI assistance for each section and real-time optimization.
                 </p>
-                <div className="space-y-2 text-sm text-white/70">
+                <div className="space-y-2 text-sm text-stone-600">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>AI-Powered Form Assistance</span>
@@ -198,10 +198,10 @@ export default function ApplicationPage() {
                   <Mic className="h-8 w-8 text-green-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-stone-800 mb-4">Communication Coach</h3>
-                <p className="text-stone-600 mb-6 leading-relaxed">
+                <p className="text-stone-700 mb-6 leading-relaxed">
                   Analyze your speech clarity, pacing, and confidence with AI. Record yourself introducing your resume for professional feedback.
                 </p>
-                <div className="space-y-2 text-sm text-white/70">
+                <div className="space-y-2 text-sm text-stone-600">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>Speech Clarity Analysis</span>
@@ -227,10 +227,10 @@ export default function ApplicationPage() {
                   <Play className="h-8 w-8 text-yellow-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-stone-800 mb-4">Interview Prep</h3>
-                <p className="text-stone-600 mb-6 leading-relaxed">
+                <p className="text-stone-700 mb-6 leading-relaxed">
                   Simulate real interviews with AI-generated questions based on job descriptions and your resume.
                 </p>
-                <div className="space-y-2 text-sm text-white/70">
+                <div className="space-y-2 text-sm text-stone-600">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>Job-Specific Questions</span>

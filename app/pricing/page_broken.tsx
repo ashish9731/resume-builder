@@ -183,6 +183,66 @@ export default function PricingPage() {
         .catch(error => console.log('Background data fetch failed:', error))
     }
   }
+      // Fallback to hardcoded data with correct INR pricing
+      const fallbackTiers: PricingTier[] = [
+        {
+          id: 'free-monthly',
+          name: 'Free',
+          credits: 4,
+          price_inr: 0,
+          billing_cycle: 'monthly',
+          description: 'Perfect for getting started',
+          features: {
+            resume_builder: { credits: 1, features: ['Download option'] },
+            resume_optimizer: { credits: 1, features: ['Generation only', 'No download', 'No copy'] },
+            communication_coach: { credits: 1, features: ['Record and analyze', 'Speaking/grammar analysis only'] },
+            interview_prep: { credits: 1, features: ['Limited to 3-5 questions'] }
+          }
+        },
+        {
+          id: 'basic-monthly',
+          name: 'Basic',
+          credits: 24,
+          price_inr: 175,
+          billing_cycle: 'monthly',
+          description: 'Great for regular job seekers',
+          features: {
+            resume_builder: { credits: 10, features: ['Full download option'] },
+            resume_optimizer: { credits: 6, features: ['Full features with download'] },
+            communication_coach: { credits: 3, features: ['Full analysis', '3 credits per recording'] },
+            interview_prep: { credits: 3, features: ['Full interview prep'] }
+          }
+        },
+        {
+          id: 'pro-monthly',
+          name: 'Pro',
+          credits: 40,
+          price_inr: 299,
+          billing_cycle: 'monthly',
+          description: 'Best for serious job seekers',
+          features: {
+            resume_builder: { credits: 15, features: ['Unlimited usage'] },
+            resume_optimizer: { credits: 10, features: ['Unlimited usage'] },
+            communication_coach: { credits: 10, features: ['Unlimited usage'] },
+            interview_prep: { credits: 10, features: ['Unlimited usage'] }
+          }
+        }
+      ]
+      
+      if (billingCycle === 'yearly') {
+        setPricingTiers(fallbackTiers.map(tier => ({
+          ...tier,
+          id: tier.id.replace('-monthly', '-yearly'),
+          credits: tier.credits * 12,
+          price_inr: tier.name === 'Basic' ? 1799 : tier.name === 'Pro' ? 2999 : 0,
+          billing_cycle: 'yearly',
+          description: tier.description.includes('Annual') ? tier.description : tier.description + ' (Annual)' 
+        })).filter(tier => tier.name !== 'Free'))
+      } else {
+        setPricingTiers(fallbackTiers)
+      }
+    }
+  }
 
   const fetchUserCredits = (userId: string) => {
     // Show immediate default credits while loading
