@@ -44,9 +44,11 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="border-2 border-white/20 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm">
-                Watch Demo
-              </Button>
+              <Link href="/pricing">
+                <Button variant="outline" size="lg" className="border-2 border-stone-300 text-stone-700 hover:bg-stone-100 px-8 py-4 text-lg font-semibold rounded-xl">
+                  View Pricing
+                </Button>
+              </Link>
             </div>
             
             {/* Stats */}

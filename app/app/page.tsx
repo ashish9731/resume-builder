@@ -1,11 +1,12 @@
 "use client"
 import Link from 'next/link'
-import { ArrowLeft, FileUp, FilePlus2, Mic, Play, LogOut } from 'lucide-react'
+import { ArrowLeft, FileUp, FilePlus2, Mic, Play, LogOut, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { AuthChangeEvent, Session, SupabaseClient } from '@supabase/supabase-js'
+import CreditDisplay from '@/components/CreditDisplay'
 
 export default function ApplicationPage() {
   const router = useRouter()
@@ -92,7 +93,18 @@ export default function ApplicationPage() {
               <h1 className="text-xl font-semibold text-stone-800">Resume Builder</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-stone-600 text-sm">
+              <Link href="/pricing">
+                <Button variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-100">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Pricing
+                </Button>
+              </Link>
+              {user && (
+                <div className="hidden sm:block">
+                  <CreditDisplay userId={user.id} />
+                </div>
+              )}
+              <span className="text-stone-600 text-sm hidden md:inline">
                 Welcome, {user?.email || 'User'}
               </span>
               <Button
