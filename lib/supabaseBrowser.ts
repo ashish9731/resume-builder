@@ -12,8 +12,15 @@ export const getSupabaseBrowser = () => {
     return {
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-        signIn: () => Promise.resolve({ data: { user: null, session: null }, error: null }),
+        signInWithPassword: ({ email, password }: { email: string; password: string }) => 
+          Promise.resolve({ data: { user: null, session: null }, error: { message: "Authentication not configured" } }),
+        signUp: ({ email, password }: { email: string; password: string }) => 
+          Promise.resolve({ data: { user: null, session: null }, error: { message: "Authentication not configured" } }),
         signOut: () => Promise.resolve({ error: null }),
+        onAuthStateChange: (callback: any) => {
+          callback("SIGNED_OUT", null);
+          return { subscription: { unsubscribe: () => {} } };
+        }
       },
       from: () => ({
         select: () => Promise.resolve({ data: [], error: null }),
@@ -29,8 +36,15 @@ export const getSupabaseBrowser = () => {
     return {
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-        signIn: () => Promise.resolve({ data: { user: null, session: null }, error: null }),
+        signInWithPassword: ({ email, password }: { email: string; password: string }) => 
+          Promise.resolve({ data: { user: null, session: null }, error: { message: "Authentication not configured" } }),
+        signUp: ({ email, password }: { email: string; password: string }) => 
+          Promise.resolve({ data: { user: null, session: null }, error: { message: "Authentication not configured" } }),
         signOut: () => Promise.resolve({ error: null }),
+        onAuthStateChange: (callback: any) => {
+          callback("SIGNED_OUT", null);
+          return { subscription: { unsubscribe: () => {} } };
+        }
       },
       from: () => ({
         select: () => Promise.resolve({ data: [], error: null }),
@@ -48,8 +62,15 @@ export const getSupabaseBrowser = () => {
     return {
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-        signIn: () => Promise.resolve({ data: { user: null, session: null }, error: null }),
+        signInWithPassword: ({ email, password }: { email: string; password: string }) => 
+          Promise.resolve({ data: { user: null, session: null }, error: { message: "Authentication not configured" } }),
+        signUp: ({ email, password }: { email: string; password: string }) => 
+          Promise.resolve({ data: { user: null, session: null }, error: { message: "Authentication not configured" } }),
         signOut: () => Promise.resolve({ error: null }),
+        onAuthStateChange: (callback: any) => {
+          callback("SIGNED_OUT", null);
+          return { subscription: { unsubscribe: () => {} } };
+        }
       },
       from: () => ({
         select: () => Promise.resolve({ data: [], error: null }),
