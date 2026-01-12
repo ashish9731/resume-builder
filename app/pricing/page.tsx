@@ -155,7 +155,8 @@ export default function PricingPage() {
     // Try to fetch real data in background
     if (supabase) {
       supabase.rpc('get_pricing_tiers_grouped')
-        .then(({ data: groupedData, error: groupedError }) => {
+        .then((result: { data: any; error: any }) => {
+          const { data: groupedData, error: groupedError } = result;
           if (!groupedError && groupedData) {
             const flattenedTiers: PricingTier[] = []
             groupedData.forEach((group: any) => {
@@ -180,7 +181,7 @@ export default function PricingPage() {
             }
           }
         })
-        .catch(error => console.log('Background data fetch failed:', error))
+        .catch((error: any) => console.log('Background data fetch failed:', error))
     }
   }
 
@@ -188,12 +189,13 @@ export default function PricingPage() {
     // Show immediate default credits while loading
     if (supabase) {
       supabase.rpc('get_user_credits', { user_uuid: userId })
-        .then(({ data, error }) => {
+        .then((result: { data: any; error: any }) => {
+          const { data, error } = result;
           if (!error && data && data.length > 0) {
             setUserCredits(data[0])
           }
         })
-        .catch(error => console.log('User credits fetch failed:', error))
+        .catch((error: any) => console.log('User credits fetch failed:', error))
     }
   }
 
