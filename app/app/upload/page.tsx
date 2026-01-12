@@ -235,24 +235,24 @@ export default function UploadPage() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 flex items-center justify-center">
-        <div className="text-stone-800 text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="container mx-auto max-w-6xl p-6">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <Link href="/app" className="inline-flex items-center text-stone-600 hover:text-stone-800 transition-colors">
+          <Link href="/app" className="inline-flex items-center text-white/70 hover:text-white transition-colors>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
           </Link>
           <Button
             variant="outline"
             onClick={handleSignOut}
-            className="border-stone-300 text-stone-700 hover:bg-stone-100"
+            className="border-white/20 text-white hover:bg-white/10/10 backdrop-blur-sm"
           >
             Sign out
           </Button>
@@ -265,24 +265,24 @@ export default function UploadPage() {
               <div key={step} className="flex items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
                   currentStep >= step 
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-stone-800' 
-                    : 'bg-white text-stone-500'
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' 
+                    : 'bg-white/10 text-white/50'
                 }`}>
                   {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
                 </div>
                 {step < 4 && (
                   <div className={`w-16 h-1 mx-2 ${
-                    currentStep > step ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 'bg-white'
+                    currentStep > step ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 'bg-white/10'
                   }`} />
                 )}
               </div>
             ))}
           </div>
           <div className="flex justify-center mt-4 space-x-16">
-            <span className={`text-sm ${currentStep >= 1 ? 'text-stone-800' : 'text-stone-500'}`}>Upload</span>
-            <span className={`text-sm ${currentStep >= 2 ? 'text-stone-800' : 'text-stone-500'}`}>Analyze</span>
-            <span className={`text-sm ${currentStep >= 3 ? 'text-stone-800' : 'text-stone-500'}`}>Enhance</span>
-            <span className={`text-sm ${currentStep >= 4 ? 'text-stone-800' : 'text-stone-500'}`}>Download</span>
+            <span className={`text-sm ${currentStep >= 1 ? 'text-white' : 'text-white/50'}`}>Upload</span>
+            <span className={`text-sm ${currentStep >= 2 ? 'text-white' : 'text-white/50'}`}>Analyze</span>
+            <span className={`text-sm ${currentStep >= 3 ? 'text-white' : 'text-white/50'}`}>Enhance</span>
+            <span className={`text-sm ${currentStep >= 4 ? 'text-white' : 'text-white/50'}`}>Download</span>
           </div>
         </div>
 
@@ -291,14 +291,14 @@ export default function UploadPage() {
           <div className="space-y-6">
             {/* Step 1: Upload */}
             {currentStep === 1 && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
-                <h2 className="text-2xl font-bold text-stone-800 mb-4 flex items-center">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                   <Upload className="mr-3 w-6 h-6" />
                   Upload Your Resume
                 </h2>
                 <div
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                    isDragging ? 'border-cyan-400 bg-white/5' : 'border-white/30'
+                    isDragging ? 'border-cyan-400 bg-white/10/5' : 'border-white/30'
                   }`}
                   onDragEnter={(e) => {
                     e.preventDefault()
@@ -345,15 +345,15 @@ export default function UploadPage() {
                     htmlFor="file-upload"
                     className="cursor-pointer flex flex-col items-center"
                   >
-                    <Upload className="w-12 h-12 text-stone-500 mb-4" />
-                    <p className="text-stone-800 mb-2">Click to upload or drag and drop</p>
-                    <p className="text-stone-500 text-sm">PDF, DOCX, or TXT files only</p>
+                    <Upload className="w-12 h-12 text-white/50 mb-4" />
+                    <p className="text-white mb-2">Click to upload or drag and drop</p>
+                    <p className="text-white/50 text-sm">PDF, DOCX, or TXT files only</p>
                   </label>
                 </div>
                 {uploading && (
                   <div className="mt-4 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                    <p className="text-stone-800">Processing file...</p>
+                    <p className="text-white">Processing file...</p>
                   </div>
                 )}
               </div>
@@ -361,26 +361,26 @@ export default function UploadPage() {
 
             {/* Step 2: Analysis */}
             {currentStep === 2 && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
-                <h2 className="text-2xl font-bold text-stone-800 mb-4 flex items-center">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                   <Sparkles className="mr-3 w-6 h-6" />
                   AI Analysis Complete
                 </h2>
-                <p className="text-stone-700 mb-4">Your resume has been analyzed. Review the suggestions below.</p>
+                <p className="text-white/80 mb-4">Your resume has been analyzed. Review the suggestions below.</p>
                 
                 {/* Job Description Input */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-stone-700 mb-2">
+                  <label className="block text-sm font-medium text-white/80 mb-2">
                     Target Job Description *
                   </label>
                   <textarea
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
                     placeholder="Paste the job description here to tailor your resume for this specific role..."
                     required
                   />
-                  <p className="text-stone-500 text-xs mt-2">
+                  <p className="text-white/50 text-xs mt-2">
                     Required: Adding a job description helps us optimize your resume specifically for that role.
                   </p>
                 </div>
@@ -407,12 +407,12 @@ export default function UploadPage() {
 
             {/* Step 3: Enhancement */}
             {currentStep === 3 && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
-                <h2 className="text-2xl font-bold text-stone-800 mb-4 flex items-center">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                   <CheckCircle className="mr-3 w-6 h-6" />
                   Ready to Enhance
                 </h2>
-                <p className="text-stone-700 mb-4">Based on the analysis, we can enhance your resume with AI.</p>
+                <p className="text-white/80 mb-4">Based on the analysis, we can enhance your resume with AI.</p>
                 <Button
                   onClick={handleEnhance}
                   disabled={enhancing}
@@ -435,22 +435,22 @@ export default function UploadPage() {
 
             {/* Step 4: Download */}
             {currentStep === 4 && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
-                <h2 className="text-2xl font-bold text-stone-800 mb-4 flex items-center">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                   <Download className="mr-3 w-6 h-6" />
                   Download Your Resume
                 </h2>
-                <p className="text-stone-700 mb-4">Your enhanced resume is ready for download!</p>
+                <p className="text-white/80 mb-4">Your enhanced resume is ready for download!</p>
                 
                 {/* Template Selection */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-stone-700 mb-2">
+                  <label className="block text-sm font-medium text-white/80 mb-2">
                     Select Resume Template
                   </label>
                   <select
                     value={selectedTemplate}
                     onChange={(e) => setSelectedTemplate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="professional">Professional (Default)</option>
                     <option value="executive">Executive</option>
@@ -458,7 +458,7 @@ export default function UploadPage() {
                     <option value="creative">Creative</option>
                     <option value="minimal">Minimal</option>
                   </select>
-                  <p className="text-stone-500 text-xs mt-2">
+                  <p className="text-white/50 text-xs mt-2">
                     Choose a template that best fits your industry and personal style.
                   </p>
                 </div>
@@ -475,13 +475,13 @@ export default function UploadPage() {
 
             {/* Analysis Results */}
             {analysis && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
-                <h3 className="text-xl font-bold text-stone-800 mb-4 flex items-center">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                   <AlertCircle className="mr-2 w-5 h-5 text-yellow-400" />
                   Comprehensive AI Analysis
                 </h3>
-                <div className="bg-white/5 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <div className="text-stone-700 whitespace-pre-wrap text-sm leading-relaxed">
+                <div className="bg-white/10/5 rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <div className="text-white/80 whitespace-pre-wrap text-sm leading-relaxed">
                     {analysis}
                   </div>
                 </div>
@@ -498,9 +498,9 @@ export default function UploadPage() {
           <div className="space-y-6">
             {/* Original Resume */}
             {resumeText && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-stone-800 flex items-center">
+                  <h3 className="text-xl font-bold text-white flex items-center">
                     <FileText className="mr-2 w-5 h-5" />
                     Original Resume
                   </h3>
@@ -508,14 +508,14 @@ export default function UploadPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowOriginal(!showOriginal)}
-                    className="text-stone-700 hover:text-stone-800"
+                    className="text-white/80 hover:text-white"
                   >
                     {showOriginal ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
                 {showOriginal && (
-                  <div className="bg-white/5 rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="text-stone-800/80 text-sm whitespace-pre-wrap font-mono leading-relaxed">
+                  <div className="bg-white/10/5 rounded-lg p-4 max-h-96 overflow-y-auto">
+                    <pre className="text-white/80 text-sm whitespace-pre-wrap font-mono leading-relaxed">
                       {resumeText}
                     </pre>
                   </div>
@@ -525,9 +525,9 @@ export default function UploadPage() {
 
             {/* Enhanced Resume */}
             {enhancedResume && (
-              <div className="bg-white backdrop-blur-xl rounded-2xl p-6 border border-stone-200">
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-stone-800 flex items-center">
+                  <h3 className="text-xl font-bold text-white flex items-center">
                     <Sparkles className="mr-2 w-5 h-5 text-purple-400" />
                     AI-Enhanced Resume
                   </h3>
@@ -535,14 +535,14 @@ export default function UploadPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowEnhanced(!showEnhanced)}
-                    className="text-stone-700 hover:text-stone-800"
+                    className="text-white/80 hover:text-white"
                   >
                     {showEnhanced ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
                 {showEnhanced && (
-                  <div className="bg-white/5 rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <div className="text-stone-700 text-sm whitespace-pre-wrap leading-relaxed">
+                  <div className="bg-white/10/5 rounded-lg p-4 max-h-96 overflow-y-auto">
+                    <div className="text-white/80 text-sm whitespace-pre-wrap leading-relaxed">
                       {enhancedResume}
                     </div>
                   </div>

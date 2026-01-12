@@ -424,22 +424,22 @@ const CreatePage = () => {
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-stone-800">Work Experience</h2>
+              <h2 className="text-2xl font-bold text-white">Work Experience</h2>
               <Button
                 onClick={() => addItem('experience')}
-                className="bg-blue-600 hover:bg-blue-700 text-stone-800"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Add Experience
               </Button>
             </div>
             {resumeData.experience.map((exp, index) => (
-              <div key={index} className="bg-white/5 rounded-xl p-6">
+              <div key={index} className="bg-white/10 rounded-xl p-6 border border-white/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-stone-800">Experience {index + 1}</h3>
+                  <h3 className="text-lg font-semibold text-white">Experience {index + 1}</h3>
                   {resumeData.experience.length > 1 && (
                     <Button
                       onClick={() => removeItem('experience', index)}
-                      className="bg-red-600 hover:bg-red-700 text-stone-800"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                     >
                       Remove
                     </Button>
@@ -447,34 +447,34 @@ const CreatePage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Company *</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Company *</label>
                     <input
                       type="text"
                       value={exp.company}
                       onChange={(e) => handleInputChange('experience', 'company', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Google"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Position *</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Position *</label>
                     <input
                       type="text"
                       value={exp.position}
                       onChange={(e) => handleInputChange('experience', 'position', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Software Engineer"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Duration</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Duration</label>
                     <input
                       type="text"
                       value={exp.duration}
                       onChange={(e) => handleInputChange('experience', 'duration', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Jan 2020 - Present"
                     />
                   </div>
@@ -485,7 +485,7 @@ const CreatePage = () => {
                         onClick={() => handleAIExperience(index)}
                         disabled={loading}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                       >
                         {loading ? (
                           <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
@@ -497,7 +497,7 @@ const CreatePage = () => {
                     <textarea
                       value={exp.description}
                       onChange={(e) => handleInputChange('experience', 'description', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
                       placeholder="Developed and maintained web applications... or click AI button"
                     />
                   </div>
@@ -511,7 +511,7 @@ const CreatePage = () => {
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-stone-800">Education</h2>
+              <h2 className="text-2xl font-bold text-white">Education</h2>
               <Button
                 onClick={() => addItem('education')}
                 className="bg-blue-600 hover:bg-blue-700 text-stone-800"
@@ -520,13 +520,13 @@ const CreatePage = () => {
               </Button>
             </div>
             {resumeData.education.map((edu, index) => (
-              <div key={index} className="bg-white/5 rounded-xl p-6">
+              <div key={index} className="bg-white/10 rounded-xl p-6 border border-white/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-stone-800">Education {index + 1}</h3>
+                  <h3 className="text-lg font-semibold text-white">Education {index + 1}</h3>
                   {resumeData.education.length > 1 && (
                     <Button
                       onClick={() => removeItem('education', index)}
-                      className="bg-red-600 hover:bg-red-700 text-stone-800"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                     >
                       Remove
                     </Button>
@@ -534,44 +534,44 @@ const CreatePage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Institution *</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Institution *</label>
                     <input
                       type="text"
                       value={edu.institution}
                       onChange={(e) => handleInputChange('education', 'institution', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Stanford University"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Degree *</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Degree *</label>
                     <input
                       type="text"
                       value={edu.degree}
                       onChange={(e) => handleInputChange('education', 'degree', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Bachelor of Science in Computer Science"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Year</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Year</label>
                     <input
                       type="text"
                       value={edu.year}
                       onChange={(e) => handleInputChange('education', 'year', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="2020"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">GPA</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">GPA</label>
                     <input
                       type="text"
                       value={edu.gpa}
                       onChange={(e) => handleInputChange('education', 'gpa', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="3.8/4.0"
                     />
                   </div>
@@ -584,15 +584,15 @@ const CreatePage = () => {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-stone-800 mb-6">Skills & Additional Information</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">Skills & Additional Information</h2>
             
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-stone-700">Skills *</label>
+                <label className="block text-sm font-medium text-white/80">Skills *</label>
                 <Button
                   onClick={handleAISkills}
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                 >
                   {loading ? (
                     <>
@@ -610,29 +610,29 @@ const CreatePage = () => {
               <textarea
                 value={resumeData.skills}
                 onChange={(e) => handleInputChange('skills', '', e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
                 placeholder="JavaScript, React, Node.js, Python, SQL, AWS... or click AI Assist"
                 required
               />
             </div>
 
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-stone-800">Projects</h3>
+              <h3 className="text-xl font-semibold text-white">Projects</h3>
               <Button
                 onClick={() => addItem('projects')}
-                className="bg-blue-600 hover:bg-blue-700 text-stone-800"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Add Project
               </Button>
             </div>
             {resumeData.projects.map((proj, index) => (
-              <div key={index} className="bg-white/5 rounded-xl p-6">
+              <div key={index} className="bg-white/10 rounded-xl p-6 border border-white/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-stone-800">Project {index + 1}</h4>
+                  <h4 className="text-lg font-semibold text-white">Project {index + 1}</h4>
                   {resumeData.projects.length > 1 && (
                     <Button
                       onClick={() => removeItem('projects', index)}
-                      className="bg-red-600 hover:bg-red-700 text-stone-800"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                     >
                       Remove
                     </Button>
@@ -640,12 +640,12 @@ const CreatePage = () => {
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Project Name</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Project Name</label>
                     <input
                       type="text"
                       value={proj.name}
                       onChange={(e) => handleInputChange('projects', 'name', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="E-commerce Website"
                     />
                   </div>
@@ -656,7 +656,7 @@ const CreatePage = () => {
                         onClick={() => handleAIProject(index)}
                         disabled={loading}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                       >
                         {loading ? (
                           <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
@@ -668,17 +668,17 @@ const CreatePage = () => {
                     <textarea
                       value={proj.description}
                       onChange={(e) => handleInputChange('projects', 'description', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
                       placeholder="Built a full-stack e-commerce platform... or click AI button"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Technologies</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Technologies</label>
                     <input
                       type="text"
                       value={proj.technologies}
                       onChange={(e) => handleInputChange('projects', 'technologies', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="React, Node.js, MongoDB"
                     />
                   </div>
@@ -687,22 +687,22 @@ const CreatePage = () => {
             ))}
 
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-stone-800">Certifications</h3>
+              <h3 className="text-xl font-semibold text-white">Certifications</h3>
               <Button
                 onClick={() => addItem('certifications')}
-                className="bg-blue-600 hover:bg-blue-700 text-stone-800"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Add Certification
               </Button>
             </div>
             {resumeData.certifications.map((cert, index) => (
-              <div key={index} className="bg-white/5 rounded-xl p-6">
+              <div key={index} className="bg-white/10 rounded-xl p-6 border border-white/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-stone-800">Certification {index + 1}</h4>
+                  <h4 className="text-lg font-semibold text-white">Certification {index + 1}</h4>
                   {resumeData.certifications.length > 1 && (
                     <Button
                       onClick={() => removeItem('certifications', index)}
-                      className="bg-red-600 hover:bg-red-700 text-stone-800"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                     >
                       Remove
                     </Button>
@@ -710,32 +710,32 @@ const CreatePage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Name</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Name</label>
                     <input
                       type="text"
                       value={cert.name}
                       onChange={(e) => handleInputChange('certifications', 'name', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="AWS Certified Developer"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Issuer</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Issuer</label>
                     <input
                       type="text"
                       value={cert.issuer}
                       onChange={(e) => handleInputChange('certifications', 'issuer', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Amazon Web Services"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Date</label>
+                    <label className="block text-sm font-medium text-white/80 mb-2">Date</label>
                     <input
                       type="text"
                       value={cert.date}
                       onChange={(e) => handleInputChange('certifications', 'date', e.target.value, index)}
-                      className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="2023"
                     />
                   </div>
@@ -749,17 +749,17 @@ const CreatePage = () => {
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-stone-800">Enhanced Resume Preview</h2>
+              <h2 className="text-2xl font-bold text-white">Enhanced Resume Preview</h2>
               <Button
                 onClick={() => setCurrentStep(5)}
-                className="bg-gray-600 hover:bg-gray-700 text-stone-800"
+                className="bg-gray-600 hover:bg-gray-700 text-white"
               >
                 Back to Edit
               </Button>
             </div>
             
-            <div className="bg-white/5 rounded-xl p-6 border border-stone-200">
-              <div className="bg-white rounded-lg p-6 text-gray-800 max-h-96 overflow-y-auto">
+            <div className="bg-white/10 rounded-xl p-6 border border-white/20">
+              <div className="bg-white/10 rounded-lg p-6 text-white max-h-96 overflow-y-auto">
                 <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
                   {enhancedResume}
                 </pre>
@@ -776,24 +776,24 @@ const CreatePage = () => {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 flex items-center justify-center">
-        <div className="text-stone-800 text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="container mx-auto max-w-6xl p-6">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <Link href="/app" className="inline-flex items-center text-stone-800/70 hover:text-stone-800 transition-colors">
+          <Link href="/app" className="inline-flex items-center text-white/70 hover:text-white transition-colors">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
           </Link>
           <Button
             onClick={handleSignOut}
             variant="outline"
-            className="border-stone-200 text-stone-800 hover:bg-white backdrop-blur-sm"
+            className="border-white/20 text-white hover:bg-white/10 backdrop-blur-sm"
           >
             Sign out
           </Button>
@@ -801,8 +801,8 @@ const CreatePage = () => {
 
         {/* Main Content */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-stone-800 mb-4">Create Professional Resume</h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-4">Create Professional Resume</h1>
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
             Build your professional resume step by step with our guided form.
           </p>
         </div>
@@ -822,7 +822,7 @@ const CreatePage = () => {
                     isCompleted ? 'border-green-500 bg-green-500' : 
                     'border-gray-600 bg-gray-600'
                   }`}>
-                    <Icon className="w-6 h-6 text-stone-800" />
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
                   <span className={`ml-2 text-sm font-medium whitespace-nowrap ${
                     isActive ? 'text-blue-400' : 
@@ -843,15 +843,15 @@ const CreatePage = () => {
         </div>
 
         {/* Content */}
-        <div className="bg-white backdrop-blur-xl rounded-3xl p-8 border border-stone-200 shadow-2xl">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
           {renderStep}
 
           {/* Navigation */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-stone-200">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/20">
             <Button
               onClick={handlePrevStep}
               disabled={currentStep === 1}
-              className="bg-gray-600 hover:bg-gray-700 text-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-600 hover:bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </Button>
@@ -861,7 +861,7 @@ const CreatePage = () => {
                 <Button
                   onClick={handlePreviewResume}
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-stone-800 px-8 py-3 rounded-xl font-semibold"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-xl font-semibold"
                 >
                   {loading ? 'Enhancing...' : 'Preview Enhanced Resume'}
                 </Button>
@@ -870,7 +870,7 @@ const CreatePage = () => {
                   <Button
                     onClick={handleDownload}
                     disabled={loading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-stone-800 px-8 py-3 rounded-xl font-semibold"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold"
                   >
                     {loading ? 'Generating PDF...' : 'Download Basic Resume'}
                   </Button>
@@ -878,7 +878,7 @@ const CreatePage = () => {
                   <Button
                     onClick={handleDownloadPreview}
                     disabled={loading}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-stone-800 px-8 py-3 rounded-xl font-semibold"
+                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold"
                   >
                     {loading ? 'Generating PDF...' : 'Download Enhanced Resume'}
                   </Button>
@@ -886,7 +886,7 @@ const CreatePage = () => {
               ) : (
                 <Button
                   onClick={handleNextStep}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-stone-800 px-8 py-3 rounded-xl font-semibold"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold"
                 >
                   Next
                 </Button>
