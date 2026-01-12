@@ -93,12 +93,6 @@ export default function ApplicationPage() {
               <h1 className="text-xl font-semibold text-stone-800">Resume Builder</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/pricing">
-                <Button variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-100">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Pricing
-                </Button>
-              </Link>
               {user && (
                 <div className="hidden sm:block">
                   <CreditDisplay userId={user.id} />
