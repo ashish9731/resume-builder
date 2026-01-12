@@ -10,7 +10,10 @@ interface PricingTier {
   id: string
   name: string
   credits: number
-  price: number
+  price_inr: number
+  original_price_inr?: number
+  discount_percentage?: number
+  billing_cycle: string
   description: string
   features: {
     resume_builder: { credits: number; features: string[] }
@@ -22,11 +25,13 @@ interface PricingTier {
 
 interface UserCredits {
   tier_name: string
+  billing_cycle: string
   credits_total: number
   credits_used: number
   credits_remaining: number
   subscription_start: string
   subscription_end: string
+  price_inr: number
 }
 
 export default function PricingPage() {
@@ -37,6 +42,7 @@ export default function PricingPage() {
   const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
   useEffect(() => {
     setSupabase(getSupabaseBrowser())
@@ -65,27 +71,58 @@ export default function PricingPage() {
     }
 
     initialize()
-  }, [supabase])
+  }, [supabase, billingCycle])
 
   const fetchPricingTiers = async () => {
     try {
+      // Try to call the new function first
+      const { data: groupedData, error: groupedError } = await supabase.rpc('get_pricing_tiers_grouped')
+      
+      if (!groupedError && groupedData) {
+        // Transform grouped data to flat array
+        const flattenedTiers: PricingTier[] = []
+        groupedData.forEach((group: any) => {
+          if (group.billing_cycle === billingCycle) {
+            group.tiers.forEach((tier: any) => {
+              flattenedTiers.push({
+                id: tier.id,
+                name: tier.name,
+                credits: tier.credits,
+                price_inr: tier.price_inr,
+                original_price_inr: tier.original_price_inr,
+                discount_percentage: tier.discount_percentage,
+                billing_cycle: group.billing_cycle,
+                description: tier.description,
+                features: tier.features
+              })
+            })
+          }
+        })
+        setPricingTiers(flattenedTiers)
+        return
+      }
+      
+      // Fallback to direct table query
       const { data, error } = await supabase
         .from('pricing_tiers')
         .select('*')
         .eq('is_active', true)
-        .order('price')
+        .eq('billing_cycle', billingCycle)
+        .order('credits')
 
       if (error) throw error
       setPricingTiers(data || [])
+      
     } catch (error) {
       console.error('Error fetching pricing tiers:', error)
-      // Fallback to hardcoded data if database fails
-      setPricingTiers([
+      // Fallback to hardcoded data with correct INR pricing
+      const fallbackTiers: PricingTier[] = [
         {
-          id: 'free',
+          id: 'free-monthly',
           name: 'Free',
           credits: 4,
-          price: 0,
+          price_inr: 0,
+          billing_cycle: 'monthly',
           description: 'Perfect for getting started',
           features: {
             resume_builder: { credits: 1, features: ['Download option'] },
@@ -95,10 +132,11 @@ export default function PricingPage() {
           }
         },
         {
-          id: 'basic',
+          id: 'basic-monthly',
           name: 'Basic',
           credits: 24,
-          price: 29.99,
+          price_inr: 175,
+          billing_cycle: 'monthly',
           description: 'Great for regular job seekers',
           features: {
             resume_builder: { credits: 10, features: ['Full download option'] },
@@ -108,10 +146,11 @@ export default function PricingPage() {
           }
         },
         {
-          id: 'pro',
+          id: 'pro-monthly',
           name: 'Pro',
           credits: 40,
-          price: 49.99,
+          price_inr: 299,
+          billing_cycle: 'monthly',
           description: 'Best for serious job seekers',
           features: {
             resume_builder: { credits: 15, features: ['Unlimited usage'] },
@@ -120,7 +159,20 @@ export default function PricingPage() {
             interview_prep: { credits: 10, features: ['Unlimited usage'] }
           }
         }
-      ])
+      ]
+      
+      if (billingCycle === 'yearly') {
+        setPricingTiers(fallbackTiers.map(tier => ({
+          ...tier,
+          id: tier.id.replace('-monthly', '-yearly'),
+          credits: tier.credits * 12,
+          price_inr: tier.name === 'Basic' ? 1799 : tier.name === 'Pro' ? 2999 : 0,
+          billing_cycle: 'yearly',
+          description: tier.description.includes('Annual') ? tier.description : tier.description + ' (Annual)' 
+        })).filter(tier => tier.name !== 'Free'))
+      } else {
+        setPricingTiers(fallbackTiers)
+      }
     }
   }
 
@@ -231,12 +283,45 @@ export default function PricingPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Billing Cycle Toggle */}
+        <div className="flex justify-center mb-12">
+          <div className="bg-white rounded-xl p-2 border border-stone-200 shadow-sm">
+            <div className="flex rounded-lg overflow-hidden">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`px-6 py-3 text-sm font-medium transition-colors ${
+                  billingCycle === 'monthly'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-stone-600 hover:text-stone-800'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingCycle('yearly')}
+                className={`px-6 py-3 text-sm font-medium transition-colors relative ${
+                  billingCycle === 'yearly'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-stone-600 hover:text-stone-800'
+                }`}
+              >
+                Yearly
+                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                  Save 20%
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Current Plan Display */}
         {userCredits && (
           <div className="mb-12 p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-stone-800">Current Plan: {userCredits.tier_name}</h2>
+                <h2 className="text-xl font-bold text-stone-800">
+                  Current Plan: {userCredits.tier_name} ({userCredits.billing_cycle})
+                </h2>
                 <p className="text-stone-600">
                   {userCredits.credits_remaining} of {userCredits.credits_total} credits remaining
                 </p>
@@ -256,7 +341,7 @@ export default function PricingPage() {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {pricingTiers.map((tier) => (
             <div 
               key={tier.id}
@@ -275,10 +360,27 @@ export default function PricingPage() {
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold text-stone-800 mb-2">{tier.name}</h3>
                 <div className="mb-3">
-                  <span className="text-3xl font-bold text-stone-900">${tier.price}</span>
-                  {tier.price > 0 && <span className="text-stone-600 text-sm">/month</span>}
+                  <span className="text-3xl font-bold text-stone-900">₹{tier.price_inr.toLocaleString()}</span>
+                  {tier.price_inr > 0 && (
+                    <span className="text-stone-600 text-sm">
+                      /{billingCycle === 'monthly' ? 'month' : 'year'}
+                    </span>
+                  )}
+                  {tier.original_price_inr && tier.discount_percentage && (
+                    <div className="flex items-center justify-center mt-1">
+                      <span className="text-sm text-stone-500 line-through">
+                        ₹{tier.original_price_inr.toLocaleString()}
+                      </span>
+                      <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                        {tier.discount_percentage}% OFF
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <p className="text-stone-600 text-sm">{tier.description}</p>
+                <div className="mt-2 text-xs text-stone-500">
+                  {tier.credits} credits ({Math.floor(tier.credits / (billingCycle === 'monthly' ? 1 : 12))}/month avg)
+                </div>
               </div>
 
               <div className="space-y-4 mb-6">
@@ -327,9 +429,9 @@ export default function PricingPage() {
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Processing...
                   </div>
-                ) : userCredits?.tier_name === tier.name ? (
+                ) : userCredits?.tier_name === tier.name && userCredits?.billing_cycle === tier.billing_cycle ? (
                   'Current Plan'
-                ) : tier.price === 0 ? (
+                ) : tier.price_inr === 0 ? (
                   'Get Started Free'
                 ) : (
                   `Upgrade to ${tier.name}`
