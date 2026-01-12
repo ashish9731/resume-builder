@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
@@ -22,7 +22,7 @@ export default function HomePage() {
             </div>
             
             {/* Main Heading */}
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-stone-800 mb-6 leading-tight">
               AI-Powered
               <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Resume Builder
@@ -30,7 +30,7 @@ export default function HomePage() {
             </h1>
             
             {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-stone-600 mb-12 max-w-3xl mx-auto leading-relaxed">
               Transform your resume with AI analysis, ATS optimization, and professional enhancement. 
               Practice your communication skills and prepare for interviews with our AI-powered tools.
               Get hired faster with a complete job search solution.
@@ -52,16 +52,16 @@ export default function HomePage() {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">10K+</div>
-                <div className="text-gray-400">Resumes Enhanced</div>
+                <div className="text-3xl font-bold text-stone-800 mb-2">10K+</div>
+                <div className="text-stone-500">Resumes Enhanced</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">95%</div>
-                <div className="text-gray-400">ATS Pass Rate</div>
+                <div className="text-3xl font-bold text-stone-800 mb-2">95%</div>
+                <div className="text-stone-500">ATS Pass Rate</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">5min</div>
-                <div className="text-gray-400">Average Time</div>
+                <div className="text-3xl font-bold text-stone-800 mb-2">5min</div>
+                <div className="text-stone-500">Average Time</div>
               </div>
             </div>
           </div>
@@ -72,10 +72,10 @@ export default function HomePage() {
       <div className="py-20 bg-white/5 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-stone-800 mb-6">
               Why Choose Our AI Resume Builder?
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-stone-600 max-w-2xl mx-auto">
               Advanced AI technology meets professional design to create resumes that get you noticed and prepare you for interviews.
             </p>
           </div>
@@ -124,8 +124,8 @@ export default function HomePage() {
                   <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${feature.color} rounded-xl mb-6 shadow-lg`}>
                     <feature.icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
-                  <p className="text-gray-300 leading-relaxed">{feature.desc}</p>
+                  <h3 className="text-xl font-bold text-stone-800 mb-4">{feature.title}</h3>
+                  <p className="text-stone-600 leading-relaxed">{feature.desc}</p>
                 </div>
               </div>
             ))}
@@ -137,10 +137,10 @@ export default function HomePage() {
       <div className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-stone-800 mb-6">
               How It Works
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-stone-600 max-w-2xl mx-auto">
               Create your perfect resume and prepare for interviews with our comprehensive tools
             </p>
           </div>
@@ -177,8 +177,8 @@ export default function HomePage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-bold text-xl mb-6">
                   {step.step}
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{step.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{step.desc}</p>
+                <h3 className="text-2xl font-bold text-stone-800 mb-4">{step.title}</h3>
+                <p className="text-stone-600 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -189,7 +189,7 @@ export default function HomePage() {
       <div className="py-20 bg-white/5 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-stone-800 mb-6">
               What Our Users Say
             </h2>
           </div>
@@ -233,10 +233,10 @@ export default function HomePage() {
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                   ))}
                 </div>
-                <p className="text-gray-300 mb-6 leading-relaxed">"{testimonial.content}"</p>
+                <p className="text-stone-600 mb-6 leading-relaxed">"{testimonial.content}"</p>
                 <div>
-                  <div className="font-semibold text-white">{testimonial.name}</div>
-                  <div className="text-gray-400 text-sm">{testimonial.role}</div>
+                  <div className="font-semibold text-stone-800">{testimonial.name}</div>
+                  <div className="text-stone-500 text-sm">{testimonial.role}</div>
                 </div>
               </div>
             ))}
@@ -248,10 +248,10 @@ export default function HomePage() {
       <div className="py-20">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-stone-800 mb-6">
               Ready to Land Your Dream Job?
             </h2>
-            <p className="text-xl text-gray-300 mb-8">
+            <p className="text-xl text-stone-600 mb-8">
               Join thousands of professionals who have enhanced their resumes and prepared for interviews with our comprehensive AI-powered platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
@@ -262,7 +262,7 @@ export default function HomePage() {
                 </Button>
               </Link>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400">
+            <div className="flex flex-wrap justify-center items-center gap-8 text-stone-500">
               <div className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
                 No credit card required

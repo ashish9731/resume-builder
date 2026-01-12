@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 flex items-center justify-center p-4">
       <div className="text-center">
-        <h1 className="text-6xl font-bold text-white mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-white/80 mb-6">Page Not Found</h2>
-        <p className="text-white/60 mb-8 max-w-md">
+        <h1 className="text-6xl font-bold text-stone-800 mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-stone-600 mb-6">Page Not Found</h2>
+        <p className="text-stone-500 mb-8 max-w-md">
           The page you're looking for doesn't exist or has been moved.
         </p>
         <Link href="/">
