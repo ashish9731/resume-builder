@@ -216,10 +216,7 @@ export default function AuthPage() {
           {/* Features */}
           <div className="mt-8 pt-6 border-t border-stone-200">
             <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="text-stone-600">
-                <div className="text-sm font-medium">Free to Use</div>
 
-              </div>
               <div className="text-stone-600">
                 <div className="text-sm font-medium">AI Powered</div>
                 <div className="text-xs">Smart resume optimization</div>
