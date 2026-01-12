@@ -40,7 +40,7 @@ export default function PricingPage() {
   const [user, setUser] = useState<any>(null)
   const [userCredits, setUserCredits] = useState<UserCredits | null>(null)
   const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Load immediately
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
@@ -58,63 +58,131 @@ export default function PricingPage() {
         if (user) {
           setUser(user)
           // Fetch user's current credits
-          await fetchUserCredits(user.id)
+          fetchUserCredits(user.id)
         }
         
-        // Fetch pricing tiers
-        await fetchPricingTiers()
+        // Fetch pricing tiers immediately
+        fetchPricingTiers()
       } catch (error) {
         console.error('Error initializing pricing page:', error)
-      } finally {
-        setLoading(false)
+        // Still show fallback data even on error
+        fetchPricingTiers()
       }
+      // Don't set loading to false here - we want immediate display
     }
 
     initialize()
   }, [supabase, billingCycle])
 
-  const fetchPricingTiers = async () => {
-    try {
-      // Try to call the new function first
-      const { data: groupedData, error: groupedError } = await supabase.rpc('get_pricing_tiers_grouped')
-      
-      if (!groupedError && groupedData) {
-        // Transform grouped data to flat array
-        const flattenedTiers: PricingTier[] = []
-        groupedData.forEach((group: any) => {
-          if (group.billing_cycle === billingCycle) {
-            group.tiers.forEach((tier: any) => {
-              flattenedTiers.push({
-                id: tier.id,
-                name: tier.name,
-                credits: tier.credits,
-                price_inr: tier.price_inr,
-                original_price_inr: tier.original_price_inr,
-                discount_percentage: tier.discount_percentage,
-                billing_cycle: group.billing_cycle,
-                description: tier.description,
-                features: tier.features
-              })
+  const fetchPricingTiers = () => {
+    // Immediate fallback data to ensure page loads instantly
+    const fallbackTiers: PricingTier[] = [
+      {
+        id: 'free-monthly',
+        name: 'Free',
+        credits: 4,
+        price_inr: 0,
+        billing_cycle: 'monthly',
+        description: 'Perfect for getting started',
+        features: {
+          resume_builder: { credits: 1, features: ['Download option'] },
+          resume_optimizer: { credits: 1, features: ['Generation only', 'No download', 'No copy'] },
+          communication_coach: { credits: 1, features: ['Record and analyze', 'Speaking/grammar analysis only'] },
+          interview_prep: { credits: 1, features: ['Limited to 3-5 questions'] }
+        }
+      },
+      {
+        id: 'basic-monthly',
+        name: 'Basic',
+        credits: 24,
+        price_inr: 175,
+        billing_cycle: 'monthly',
+        description: 'Great for regular job seekers',
+        features: {
+          resume_builder: { credits: 10, features: ['Full download option'] },
+          resume_optimizer: { credits: 6, features: ['Full features with download'] },
+          communication_coach: { credits: 3, features: ['Full analysis', '3 credits per recording'] },
+          interview_prep: { credits: 3, features: ['Full interview prep'] }
+        }
+      },
+      {
+        id: 'pro-monthly',
+        name: 'Pro',
+        credits: 40,
+        price_inr: 299,
+        billing_cycle: 'monthly',
+        description: 'Best for serious job seekers',
+        features: {
+          resume_builder: { credits: 15, features: ['Unlimited usage'] },
+          resume_optimizer: { credits: 10, features: ['Unlimited usage'] },
+          communication_coach: { credits: 10, features: ['Unlimited usage'] },
+          interview_prep: { credits: 10, features: ['Unlimited usage'] }
+        }
+      }
+    ]
+    
+    if (billingCycle === 'yearly') {
+      setPricingTiers(fallbackTiers.map(tier => ({
+        ...tier,
+        id: tier.id.replace('-monthly', '-yearly'),
+        credits: tier.name === 'Free' ? 4 : tier.name === 'Basic' ? 288 : 480,
+        price_inr: tier.name === 'Basic' ? 1799 : tier.name === 'Pro' ? 2999 : 0,
+        billing_cycle: 'yearly',
+        description: tier.description.includes('Annual') ? tier.description : tier.description + ' (Annual)',
+        features: {
+          resume_builder: { 
+            credits: tier.name === 'Free' ? 1 : tier.name === 'Basic' ? 120 : 180, 
+            features: tier.features.resume_builder.features 
+          },
+          resume_optimizer: { 
+            credits: tier.name === 'Free' ? 1 : tier.name === 'Basic' ? 72 : 120, 
+            features: tier.features.resume_optimizer.features 
+          },
+          communication_coach: { 
+            credits: tier.name === 'Free' ? 1 : tier.name === 'Basic' ? 36 : 120, 
+            features: tier.features.communication_coach.features 
+          },
+          interview_prep: { 
+            credits: tier.name === 'Free' ? 1 : tier.name === 'Basic' ? 36 : 120, 
+            features: tier.features.interview_prep.features 
+          }
+        }
+      })).filter(tier => tier.name !== 'Free'))
+    } else {
+      setPricingTiers(fallbackTiers)
+    }
+    
+    // Try to fetch real data in background
+    if (supabase) {
+      supabase.rpc('get_pricing_tiers_grouped')
+        .then(({ data: groupedData, error: groupedError }) => {
+          if (!groupedError && groupedData) {
+            const flattenedTiers: PricingTier[] = []
+            groupedData.forEach((group: any) => {
+              if (group.billing_cycle === billingCycle) {
+                group.tiers.forEach((tier: any) => {
+                  flattenedTiers.push({
+                    id: tier.id,
+                    name: tier.name,
+                    credits: tier.credits,
+                    price_inr: tier.price_inr,
+                    original_price_inr: tier.original_price_inr,
+                    discount_percentage: tier.discount_percentage,
+                    billing_cycle: group.billing_cycle,
+                    description: tier.description,
+                    features: tier.features
+                  })
+                })
+              }
             })
+            if (flattenedTiers.length > 0) {
+              setPricingTiers(flattenedTiers)
+            }
           }
         })
-        setPricingTiers(flattenedTiers)
-        return
-      }
-      
-      // Fallback to direct table query
-      const { data, error } = await supabase
-        .from('pricing_tiers')
-        .select('*')
-        .eq('is_active', true)
-        .eq('billing_cycle', billingCycle)
-        .order('credits')
-
-      if (error) throw error
-      setPricingTiers(data || [])
-      
-    } catch (error) {
-      console.error('Error fetching pricing tiers:', error)
+        .catch(error => console.log('Background data fetch failed:', error))
+    }
+  }
       // Fallback to hardcoded data with correct INR pricing
       const fallbackTiers: PricingTier[] = [
         {
@@ -176,21 +244,16 @@ export default function PricingPage() {
     }
   }
 
-  const fetchUserCredits = async (userId: string) => {
-    try {
-      // Try to call the function if available
-      const { data, error } = await supabase.rpc('get_user_credits', { user_uuid: userId })
-      
-      if (error) {
-        console.error('Error fetching user credits:', error)
-        return
-      }
-      
-      if (data && data.length > 0) {
-        setUserCredits(data[0])
-      }
-    } catch (error) {
-      console.error('Error in fetchUserCredits:', error)
+  const fetchUserCredits = (userId: string) => {
+    // Show immediate default credits while loading
+    if (supabase) {
+      supabase.rpc('get_user_credits', { user_uuid: userId })
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            setUserCredits(data[0])
+          }
+        })
+        .catch(error => console.log('User credits fetch failed:', error))
     }
   }
 
@@ -285,32 +348,39 @@ export default function PricingPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Billing Cycle Toggle */}
         <div className="flex justify-center mb-12">
-          <div className="bg-white rounded-xl p-2 border border-stone-200 shadow-sm">
+          <div className="bg-white rounded-xl p-2 border border-stone-200 shadow-lg max-w-md w-full">
             <div className="flex rounded-lg overflow-hidden">
               <button
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 ${
                   billingCycle === 'monthly'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-stone-600 hover:text-stone-800'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-stone-600 hover:text-stone-800 hover:bg-stone-50'
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingCycle('yearly')}
-                className={`px-6 py-3 text-sm font-medium transition-colors relative ${
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 relative ${
                   billingCycle === 'yearly'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-stone-600 hover:text-stone-800'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg'
+                    : 'text-stone-600 hover:text-stone-800 hover:bg-stone-50'
                 }`}
               >
                 Yearly
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  Save 20%
-                </span>
+                <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+                  SAVE 20%
+                </div>
               </button>
             </div>
+            {billingCycle === 'yearly' && (
+              <div className="mt-3 text-center">
+                <p className="text-sm text-green-600 font-medium bg-green-50 py-2 px-4 rounded-lg">
+                  🎉 Get 2 months FREE with yearly subscription!
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -360,35 +430,58 @@ export default function PricingPage() {
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold text-stone-800 mb-2">{tier.name}</h3>
                 <div className="mb-3">
-                  <span className="text-3xl font-bold text-stone-900">₹{tier.price_inr.toLocaleString()}</span>
-                  {tier.price_inr > 0 && (
-                    <span className="text-stone-600 text-sm">
-                      /{billingCycle === 'monthly' ? 'month' : 'year'}
-                    </span>
-                  )}
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-4xl font-bold text-stone-900">₹{tier.price_inr.toLocaleString()}</span>
+                    {tier.price_inr > 0 && (
+                      <span className="text-stone-600 text-base">
+                        /{billingCycle === 'monthly' ? 'month' : 'year'}
+                      </span>
+                    )}
+                  </div>
                   {tier.original_price_inr && tier.discount_percentage && (
-                    <div className="flex items-center justify-center mt-1">
-                      <span className="text-sm text-stone-500 line-through">
-                        ₹{tier.original_price_inr.toLocaleString()}
-                      </span>
-                      <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                        {tier.discount_percentage}% OFF
-                      </span>
+                    <div className="flex flex-col items-center mt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg text-stone-500 line-through font-medium">
+                          ₹{tier.original_price_inr.toLocaleString()}
+                        </span>
+                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
+                          {tier.discount_percentage}% OFF
+                        </span>
+                      </div>
+                      <div className="text-xs text-green-600 font-semibold mt-1">
+                        You save ₹{(tier.original_price_inr - tier.price_inr).toLocaleString()}!
+                      </div>
+                    </div>
+                  )}
+                  {billingCycle === 'yearly' && tier.price_inr > 0 && (
+                    <div className="mt-2 text-center">
+                      <div className="text-sm text-blue-600 font-semibold bg-blue-50 py-1 px-3 rounded-full inline-block">
+                        Just ₹{Math.round(tier.price_inr / 12).toLocaleString()}/month
+                      </div>
                     </div>
                   )}
                 </div>
                 <p className="text-stone-600 text-sm">{tier.description}</p>
-                <div className="mt-2 text-xs text-stone-500">
-                  {tier.credits} credits ({Math.floor(tier.credits / (billingCycle === 'monthly' ? 1 : 12))}/month avg)
+                <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-amber-800">{tier.credits} Credits</div>
+                    <div className="text-xs text-amber-600 font-medium">
+                      {billingCycle === 'monthly' 
+                        ? `${tier.credits} credits for the month` 
+                        : `${Math.floor(tier.credits / 12)} credits/month for 12 months`
+                      }
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="text-center py-2">
-                  <h4 className="font-semibold text-stone-800 text-sm flex items-center justify-center">
-                    <CreditCard className="w-4 h-4 mr-1 text-blue-500" />
-                    {tier.credits} Total Credits
+              <div className="space-y-4 mb-6 bg-stone-50 p-4 rounded-xl">
+                <div className="text-center py-2 border-b border-stone-200 pb-3">
+                  <h4 className="font-bold text-stone-800 text-base flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 mr-2 text-amber-600" />
+                    Credit Distribution
                   </h4>
+                  <p className="text-xs text-stone-600 mt-1">Total: {tier.credits} credits</p>
                 </div>
 
                 <div className="space-y-4">
@@ -486,17 +579,20 @@ function FeatureItem({ title, credits, features }: {
   features: string[] 
 }) {
   return (
-    <div className="border border-stone-200 rounded-lg p-4">
+    <div className="border-2 border-amber-200 bg-white rounded-xl p-4 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-center mb-3">
-        <h5 className="font-semibold text-stone-800">{title}</h5>
-        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
-          {credits} credit{credits !== 1 ? 's' : ''}
-        </span>
+        <h5 className="font-bold text-stone-800 flex items-center">
+          <div className="w-2 h-2 bg-amber-500 rounded-full mr-2"></div>
+          {title}
+        </h5>
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-sm">
+          {credits} {credits !== 1 ? 'Credits' : 'Credit'}
+        </div>
       </div>
-      <ul className="space-y-1">
+      <ul className="space-y-2">
         {features.map((feature, idx) => (
-          <li key={idx} className="flex items-start text-sm text-stone-600">
-            <Check className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+          <li key={idx} className="flex items-start text-sm text-stone-700">
+            <Check className="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
             <span>{feature}</span>
           </li>
         ))}
