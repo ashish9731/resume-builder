@@ -218,7 +218,7 @@ export default function AuthPage() {
             <div className="grid grid-cols-2 gap-4 text-center">
               <div className="text-stone-600">
                 <div className="text-sm font-medium">Free to Use</div>
-                <div className="text-xs">No credit card required</div>
+
               </div>
               <div className="text-stone-600">
                 <div className="text-sm font-medium">AI Powered</div>

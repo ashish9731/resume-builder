@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { AuthChangeEvent, Session, SupabaseClient } from '@supabase/supabase-js'
-import CreditDisplay from '@/components/CreditDisplay'
+
 
 export default function ApplicationPage() {
   const router = useRouter()
@@ -93,11 +93,7 @@ export default function ApplicationPage() {
               <h1 className="text-xl font-semibold text-white">Resume Builder</h1>
             </div>
             <div className="flex items-center space-x-4">
-              {user && (
-                <div className="hidden sm:block">
-                  <CreditDisplay userId={user.id} />
-                </div>
-              )}
+
               <span className="text-white/70 text-sm hidden md:inline">
                 Welcome, {user?.email || 'User'}
               </span>

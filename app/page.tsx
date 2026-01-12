@@ -22,7 +22,7 @@ export default function HomePage() {
               <a href="#home" className="text-stone-700 hover:text-blue-600 font-medium transition-colors">Home</a>
               <a href="#how-it-works" className="text-stone-700 hover:text-blue-600 font-medium transition-colors">How It Works</a>
               <a href="#testimonials" className="text-stone-700 hover:text-blue-600 font-medium transition-colors">Testimonials</a>
-              <Link href="/pricing" className="text-stone-700 hover:text-blue-600 font-medium transition-colors">Pricing</Link>
+
               <Link href="/auth">
                 <Button variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-100">
                   <LogIn className="w-4 h-4 mr-2" />
@@ -71,11 +71,7 @@ export default function HomePage() {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/pricing">
-                  <Button variant="outline" size="lg" className="border-2 border-stone-300 text-stone-700 hover:bg-stone-100 hover:border-stone-400 px-8 py-4 text-lg font-semibold rounded-xl">
-                    View Pricing
-                  </Button>
-                </Link>
+
               </div>
               
               {/* Stats */}
