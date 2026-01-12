@@ -75,22 +75,22 @@ export default function ApplicationPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 flex items-center justify-center">
-        <div className="text-stone-800 text-xl">Loading...</div>
+        <div className="text-white text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
-      <div className="bg-white backdrop-blur-md border-b border-stone-200">
+      <div className="bg-white/10/10 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Link href="/" className="text-stone-600 hover:text-stone-800 transition-colors">
+              <Link href="/" className="text-white/70 hover:text-white transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
-              <h1 className="text-xl font-semibold text-stone-800">Resume Builder</h1>
+              <h1 className="text-xl font-semibold text-white">Resume Builder</h1>
             </div>
             <div className="flex items-center space-x-4">
               {user && (
@@ -98,13 +98,13 @@ export default function ApplicationPage() {
                   <CreditDisplay userId={user.id} />
                 </div>
               )}
-              <span className="text-stone-600 text-sm hidden md:inline">
+              <span className="text-white/70 text-sm hidden md:inline">
                 Welcome, {user?.email || 'User'}
               </span>
               <Button
                 onClick={handleSignOut}
                 variant="outline"
-                className="border-stone-300 text-stone-700 hover:bg-stone-100"
+                className="border-white/20 text-white hover:bg-white/10/10 backdrop-blur-sm"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
@@ -117,10 +117,10 @@ export default function ApplicationPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-stone-800 mb-4">
+          <h2 className="text-4xl font-bold text-white mb-4">
             Choose Your Resume Building Method
           </h2>
-          <p className="text-xl text-stone-600 max-w-2xl mx-auto">
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
             Upload an existing resume for AI-powered analysis and enhancement, or create a new one from scratch with built-in AI assistance.
           </p>
         </div>
@@ -128,16 +128,16 @@ export default function ApplicationPage() {
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Upload Resume Card */}
           <Link href="/app/upload" className="group">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/10/15 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-500/30 transition-colors">
                   <FileUp className="h-8 w-8 text-blue-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-stone-800 mb-4">Upload Resume</h3>
-                <p className="text-stone-700 mb-6 leading-relaxed">
+                <h3 className="text-2xl font-bold text-white mb-4">Upload Resume</h3>
+                <p className="text-white/80 mb-6 leading-relaxed">
                   Upload your existing resume (PDF, DOCX, or TXT) and get AI-powered analysis and enhancement recommendations.
                 </p>
-                <div className="space-y-2 text-sm text-stone-600">
+                <div className="space-y-2 text-sm text-white/70">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>AI Analysis & Recommendations</span>
@@ -157,16 +157,16 @@ export default function ApplicationPage() {
 
           {/* Create New Resume Card */}
           <Link href="/app/create" className="group">
-            <div className="bg-white backdrop-blur-md rounded-2xl p-8 border border-stone-200 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-500/30 transition-colors">
                   <FilePlus2 className="h-8 w-8 text-purple-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-stone-800 mb-4">Create New Resume</h3>
-                <p className="text-stone-700 mb-6 leading-relaxed">
+                <h3 className="text-2xl font-bold text-white mb-4">Create New Resume</h3>
+                <p className="text-white/80 mb-6 leading-relaxed">
                   Build a professional resume from scratch with AI assistance for each section and real-time optimization.
                 </p>
-                <div className="space-y-2 text-sm text-stone-600">
+                <div className="space-y-2 text-sm text-white/70">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>AI-Powered Form Assistance</span>
@@ -186,16 +186,16 @@ export default function ApplicationPage() {
           
           {/* Communication Coach Card */}
           <Link href="/app/communication-coach" className="group">
-            <div className="bg-white backdrop-blur-md rounded-2xl p-8 border border-stone-200 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-500/30 transition-colors">
                   <Mic className="h-8 w-8 text-green-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-stone-800 mb-4">Communication Coach</h3>
-                <p className="text-stone-700 mb-6 leading-relaxed">
+                <h3 className="text-2xl font-bold text-white mb-4">Communication Coach</h3>
+                <p className="text-white/80 mb-6 leading-relaxed">
                   Analyze your speech clarity, pacing, and confidence with AI. Record yourself introducing your resume for professional feedback.
                 </p>
-                <div className="space-y-2 text-sm text-stone-600">
+                <div className="space-y-2 text-sm text-white/70">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>Speech Clarity Analysis</span>
@@ -215,16 +215,16 @@ export default function ApplicationPage() {
 
           {/* Interview Prep Card */}
           <Link href="/app/interview-prep" className="group">
-            <div className="bg-white backdrop-blur-md rounded-2xl p-8 border border-stone-200 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-500/30 transition-colors">
                   <Play className="h-8 w-8 text-yellow-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-stone-800 mb-4">Interview Prep</h3>
-                <p className="text-stone-700 mb-6 leading-relaxed">
+                <h3 className="text-2xl font-bold text-white mb-4">Interview Prep</h3>
+                <p className="text-white/80 mb-6 leading-relaxed">
                   Simulate real interviews with AI-generated questions based on job descriptions and your resume.
                 </p>
-                <div className="space-y-2 text-sm text-stone-600">
+                <div className="space-y-2 text-sm text-white/70">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span>Job-Specific Questions</span>
@@ -245,28 +245,28 @@ export default function ApplicationPage() {
 
         {/* Features Section */}
         <div className="mt-16 text-center">
-          <h3 className="text-2xl font-bold text-stone-800 mb-8">Why Choose Our Resume Builder?</h3>
+          <h3 className="text-2xl font-bold text-white mb-8">Why Choose Our Resume Builder?</h3>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="bg-white/10/5 rounded-xl p-6 border border-white/10">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <FileUp className="h-6 w-6 text-white" />
               </div>
-              <h4 className="text-lg font-semibold text-stone-800 mb-2">AI-Powered Analysis</h4>
-              <p className="text-stone-600 text-sm">Get detailed insights and recommendations to improve your resume's impact.</p>
+              <h4 className="text-lg font-semibold text-white mb-2">AI-Powered Analysis</h4>
+              <p className="text-white/70 text-sm">Get detailed insights and recommendations to improve your resume's impact.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="bg-white/10/5 rounded-xl p-6 border border-white/10">
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <FilePlus2 className="h-6 w-6 text-white" />
               </div>
-              <h4 className="text-lg font-semibold text-stone-800 mb-2">ATS Optimization</h4>
-              <p className="text-stone-600 text-sm">Ensure your resume passes through Applicant Tracking Systems.</p>
+              <h4 className="text-lg font-semibold text-white mb-2">ATS Optimization</h4>
+              <p className="text-white/70 text-sm">Ensure your resume passes through Applicant Tracking Systems.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+            <div className="bg-white/10/5 rounded-xl p-6 border border-white/10">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <FileUp className="h-6 w-6 text-white" />
               </div>
-              <h4 className="text-lg font-semibold text-stone-800 mb-2">Professional Export</h4>
-              <p className="text-stone-600 text-sm">Download your resume as a beautifully formatted PDF.</p>
+              <h4 className="text-lg font-semibold text-white mb-2">Professional Export</h4>
+              <p className="text-white/70 text-sm">Download your resume as a beautifully formatted PDF.</p>
             </div>
           </div>
         </div>
