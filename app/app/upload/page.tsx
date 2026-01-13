@@ -6,6 +6,10 @@ import { ArrowLeft, Upload, FileText, Download, Sparkles, CheckCircle, AlertCirc
 import { Button } from '@/components/ui/button'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { parseResume } from '@/lib/resumeParser'
+import { generateResumePDF } from '@/lib/pdfGenerator'
+import { formatResumeForDisplay } from '@/lib/resumeFormatter'
+import { saveResumeToSupabase } from '@/lib/resumeStorage'
 
 export default function UploadPage() {
   const router = useRouter()
@@ -20,6 +24,7 @@ export default function UploadPage() {
   const [analysis, setAnalysis] = useState('')
   const [enhancedResume, setEnhancedResume] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('professional')
+  const [parsedResume, setParsedResume] = useState<any>(null)
   const [currentStep, setCurrentStep] = useState(1) // 1: Upload, 2: Analyze, 3: Enhance, 4: Download
   const [showOriginal, setShowOriginal] = useState(true)
   const [showEnhanced, setShowEnhanced] = useState(true)
@@ -91,6 +96,7 @@ export default function UploadPage() {
     setUploading(true)
 
     try {
+      // Step 1: Extract text from file
       const formData = new FormData()
       formData.append('file', selectedFile)
 
@@ -105,6 +111,11 @@ export default function UploadPage() {
 
       const data = await response.json()
       setResumeText(data.text)
+      
+      // Step 2: Parse into structured sections
+      const parsedData = parseResume(data.text)
+      setParsedResume(parsedData)
+      
       setCurrentStep(2)
     } catch (error) {
       console.error('Upload error:', error)
@@ -153,7 +164,22 @@ export default function UploadPage() {
       if (!response.ok) {
         throw new Error(data?.error || 'Failed to analyze resume')
       }
+      
       setAnalysis(data.analysis)
+      
+      // Save to Supabase
+      if (supabase && parsedResume) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await saveResumeToSupabase({
+            originalText: resumeText,
+            parsedData: parsedResume,
+            aiAnalysis: data.analysis,
+            templateUsed: selectedTemplate
+          }, user.id);
+        }
+      }
+      
       setCurrentStep(3)
     } catch (error) {
       console.error('Analysis error:', error)
@@ -169,11 +195,16 @@ export default function UploadPage() {
 
     setEnhancing(true)
     try {
+      // Use parsed structured data if available, otherwise fall back to raw text
+      const textToSend = parsedResume ? 
+        formatResumeForDisplay(parsedResume) : 
+        resumeText;
+      
       const response = await fetch('/api/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          text: resumeText,
+          text: textToSend,
           analysis: analysis,
           jobDescription: jobDescription.trim()
         }),
@@ -185,6 +216,22 @@ export default function UploadPage() {
 
       const data = await response.json()
       setEnhancedResume(data.enhanced)
+      
+      // Save enhanced version to Supabase
+      if (supabase && parsedResume) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const enhancedParsed = parseResume(data.enhanced);
+          await saveResumeToSupabase({
+            originalText: resumeText,
+            parsedData: enhancedParsed,
+            aiAnalysis: analysis,
+            enhancedText: data.enhanced,
+            templateUsed: selectedTemplate
+          }, user.id);
+        }
+      }
+      
       setCurrentStep(4)
     } catch (error) {
       console.error('Enhancement error:', error)
@@ -198,32 +245,49 @@ export default function UploadPage() {
     if (!enhancedResume) return
 
     try {
-      const response = await fetch('/api/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          text: enhancedResume,
-          template: selectedTemplate
-        }),
-      })
+      // Option 1: Use new structured PDF generator
+      if (parsedResume) {
+        const enhancedParsed = parseResume(enhancedResume);
+        const pdfBytes = await generateResumePDF(enhancedParsed, selectedTemplate);
+        
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `enhanced-resume-${selectedTemplate}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        // Option 2: Fall back to existing PDF API
+        const response = await fetch('/api/pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: enhancedResume,
+            template: selectedTemplate
+          }),
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`PDF generation failed: ${errorText}`)
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`PDF generation failed: ${errorText}`);
+        }
+
+        const pdfBlob = await response.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `enhanced-resume-${selectedTemplate}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
       }
-
-      const pdfBlob = await response.blob()
-      const url = window.URL.createObjectURL(pdfBlob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `enhanced-resume-${selectedTemplate}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
     } catch (error) {
-      console.error('Download error:', error)
-      alert('Failed to download PDF. Please try again.')
+      console.error('Download error:', error);
+      alert('Failed to download PDF. Please try again.');
     }
   }
 
