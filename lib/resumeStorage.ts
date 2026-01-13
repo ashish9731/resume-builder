@@ -27,6 +27,13 @@ export async function saveResumeToSupabase(
   try {
     const supabase = getSupabaseBrowser();
     
+    // Check if user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.warn('User not authenticated, skipping Supabase save');
+      return null;
+    }
+    
     const record: ResumeRecord = {
       user_id: userId,
       original_text: resumeData.originalText,
@@ -44,12 +51,14 @@ export async function saveResumeToSupabase(
 
     if (error) {
       console.error('Error saving resume to Supabase:', error);
+      // Don't fail the main flow if Supabase save fails
       return null;
     }
 
     return data.id;
   } catch (error) {
     console.error('Error saving resume:', error);
+    // Don't fail the main flow if Supabase save fails
     return null;
   }
 }

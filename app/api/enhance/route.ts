@@ -33,9 +33,12 @@ export async function POST(req: Request) {
       )
     }
 
-    if (!jobDescription || typeof jobDescription !== 'string') {
+    // Make job description optional but provide default
+    const jobDesc = jobDescription || 'General professional position requiring relevant skills and experience';
+    
+    if (typeof jobDesc !== 'string') {
       return NextResponse.json(
-        { error: 'Job description is required for resume enhancement' },
+        { error: 'Job description must be a string' },
         { status: 400 }
       )
     }
@@ -114,7 +117,7 @@ ANALYSIS FEEDBACK:
 ${analysis}
 
 TARGET JOB DESCRIPTION:
-${jobDescription}
+${jobDesc}
 
 IMPORTANT: Your primary task is to enhance the resume content to better align with the job description while preserving all factual information from the original resume. Focus on:
 1. Incorporating relevant keywords and phrases from the job description
