@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Play, Square, RotateCcw, Download, Sparkles, AlertCircle, Upload, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
