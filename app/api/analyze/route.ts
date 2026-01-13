@@ -7,12 +7,11 @@ export const maxDuration = 30
 export async function POST(req: Request) {
   try {
     // Validate request
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('OpenAI API key not configured')
-      return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
-        { status: 500 }
-      )
+    const apiKey = process.env.OPENAI_API_KEY || (process.env as any).OpenAPIKey
+    const isOpenAIConfigured = !!apiKey
+    
+    if (!isOpenAIConfigured) {
+      console.log('OpenAI not configured, using fallback analysis')
     }
 
     const contentType = req.headers.get('content-type')
@@ -107,28 +106,35 @@ ${jobDescription.substring(0, 2000)}
 
 IMPORTANT: Your analysis must directly reference the job description requirements and provide specific guidance on how to align the resume with those requirements.`
 
-    const openai = getOpenAI()
-    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
-    const completion = await openai.chat.completions.create({
-      model,
-      messages: [
-        { role: 'system', content: systemGuardrails },
-        { role: 'user', content: prompt + '\n\nCONTENT:\n' + text.substring(0, 8000) } // Limit input length
-      ],
-      temperature: 0.1, // Lower temperature for more consistent analysis
-      max_tokens: 2000, // Allow much more detailed analysis
-    })
+    if (isOpenAIConfigured) {
+      // Use OpenAI for analysis
+      const openai = getOpenAI()
+      const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+      const completion = await openai.chat.completions.create({
+        model,
+        messages: [
+          { role: 'system', content: systemGuardrails },
+          { role: 'user', content: prompt + '\n\nCONTENT:\n' + text.substring(0, 8000) } // Limit input length
+        ],
+        temperature: 0.1, // Lower temperature for more consistent analysis
+        max_tokens: 2000, // Allow much more detailed analysis
+      })
 
-    const analysis = completion.choices[0]?.message?.content ?? ''
-    
-    if (!analysis) {
-      return NextResponse.json(
-        { error: 'No analysis generated' },
-        { status: 500 }
-      )
+      const analysis = completion.choices[0]?.message?.content ?? ''
+      
+      if (!analysis) {
+        return NextResponse.json(
+          { error: 'No analysis generated' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({ analysis })
+    } else {
+      // Fallback analysis when OpenAI is not configured
+      const fallbackAnalysis = generateFallbackAnalysis(text, jobDescription);
+      return NextResponse.json({ analysis: fallbackAnalysis })
     }
-
-    return NextResponse.json({ analysis })
 
   } catch (error: any) {
     console.error('OpenAI API error:', error)
@@ -153,4 +159,74 @@ IMPORTANT: Your analysis must directly reference the job description requirement
       { status: 500 }
     )
   }
+}
+
+// Fallback analysis function when OpenAI is not available
+function generateFallbackAnalysis(text: string, jobDescription: string): string {
+  const timestamp = new Date().toLocaleString();
+  
+  // Simple analysis based on text content
+  const wordCount = text.split(' ').length;
+  const lineCount = text.split('\n').length;
+  const hasContactInfo = /(@gmail\.com|@yahoo\.com|\(\d{3}\)|[0-9]{3}-[0-9]{3}-[0-9]{4})/i.test(text);
+  const hasExperience = /(experience|work|position|role|company)/i.test(text);
+  const hasSkills = /(skills|technologies|programming|software)/i.test(text);
+  
+  return `📋 AUTOMATED RESUME ANALYSIS (Fallback Mode)
+Generated: ${timestamp}
+
+📊 BASIC METRICS:
+• Word Count: ${wordCount}
+• Line Count: ${lineCount}
+• Has Contact Info: ${hasContactInfo ? '✅ Yes' : '❌ No'}
+• Has Experience Section: ${hasExperience ? '✅ Yes' : '❌ No'}
+• Has Skills Section: ${hasSkills ? '✅ Yes' : '❌ No'}
+
+🎯 JOB ALIGNMENT CHECK:
+• Target Role Keywords Found: ${countKeywordMatches(text, jobDescription)}
+• Industry Terms Matched: ${getIndustryMatches(text, jobDescription)}
+
+⚠️ ACTION ITEMS:
+1. ${hasContactInfo ? '✓' : '✗'} Add complete contact information (email, phone, LinkedIn)
+2. ${hasExperience ? '✓' : '✗'} Include detailed work experience with achievements
+3. ${hasSkills ? '✓' : '✗'} List relevant technical and soft skills
+4. ✗ Quantify achievements with specific metrics and numbers
+5. ✗ Use industry-standard keywords from job description
+6. ✗ Optimize for ATS parsing with proper section headers
+
+📝 RECOMMENDATIONS:
+• Structure resume with clear sections: Contact, Summary, Experience, Skills, Education
+• Use bullet points for experience entries
+• Include specific metrics (increased by X%, managed Y people, etc.)
+• Match keywords from job description throughout resume
+• Keep formatting clean and professional
+
+💡 PRO TIP: Add your OpenAI API key to enable advanced AI-powered analysis with detailed insights and personalized recommendations.`;
+}
+
+function countKeywordMatches(text: string, jobDescription: string): number {
+  const keywords = jobDescription.match(/\b(\w{4,})\b/g) || [];
+  const uniqueKeywords = [...new Set(keywords)];
+  let matches = 0;
+  
+  for (const keyword of uniqueKeywords) {
+    if (text.toLowerCase().includes(keyword.toLowerCase())) {
+      matches++;
+    }
+  }
+  
+  return matches;
+}
+
+function getIndustryMatches(text: string, jobDescription: string): string {
+  const techTerms = ['javascript', 'python', 'react', 'node', 'sql', 'api', 'cloud', 'aws', 'docker'];
+  const businessTerms = ['management', 'strategy', 'marketing', 'sales', 'finance', 'analytics'];
+  
+  const textLower = text.toLowerCase();
+  const foundTech = techTerms.filter(term => textLower.includes(term));
+  const foundBusiness = businessTerms.filter(term => textLower.includes(term));
+  
+  if (foundTech.length > 0) return `Technical (${foundTech.slice(0, 3).join(', ')})`;
+  if (foundBusiness.length > 0) return `Business (${foundBusiness.slice(0, 3).join(', ')})`;
+  return 'General';
 }
