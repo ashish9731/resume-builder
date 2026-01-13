@@ -1,6 +1,38 @@
 // Supabase storage disabled - All resume data must be downloaded by user
 // Authentication only mode enabled
 
+interface ParsedResume {
+  personalInfo: {
+    fullName: string;
+    email: string;
+    phone: string;
+    linkedin?: string;
+    location?: string;
+  };
+  summary: string;
+  experience: Array<{
+    company: string;
+    position: string;
+    duration: string;
+    description: string;
+  }>;
+  skills: string;
+  education: Array<{
+    institution: string;
+    degree: string;
+    year: string;
+  }>;
+  certifications: Array<{
+    name: string;
+    issuer: string;
+    date: string;
+  }>;
+  projects: Array<{
+    name: string;
+    description: string;
+  }>;
+}
+
 export async function saveResumeToSupabase(
   resumeData: {
     originalText: string;
