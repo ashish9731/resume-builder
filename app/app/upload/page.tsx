@@ -10,6 +10,7 @@ import { parseResume } from '@/lib/resumeParser'
 import { generateResumePDF } from '@/lib/pdfGenerator'
 import { formatResumeForDisplay } from '@/lib/resumeFormatter'
 import { saveResumeToSupabase } from '@/lib/resumeStorage'
+import ResumePreviewModal from '@/components/ResumePreviewModal'
 
 export default function UploadPage() {
   const router = useRouter()
