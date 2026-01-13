@@ -211,24 +211,36 @@ export async function getUserAnalyses(userId: string): Promise<any[]> {
   try {
     const supabase = getSupabaseBrowser();
     
-    const { data, error } = await supabase
+    // Fetch interview analyses
+    const { data: interviewData, error: interviewError } = await supabase
       .from('interview_analyses')
       .select('*')
       .eq('user_id', userId)
-      .union(
-        await supabase
-          .from('communication_analyses')
-          .select('*')
-          .eq('user_id', userId)
-      )
       .order('created_at', { ascending: false });
+    
+    // Fetch communication analyses
+    const { data: communicationData, error: communicationError } = await supabase
+      .from('communication_analyses')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    // Combine and sort results
+    const allData = [
+      ...(interviewData || []),
+      ...(communicationData || [])
+    ].sort((a, b) => 
+      new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+    );
+    
+    const error = interviewError || communicationError;
 
     if (error) {
       console.error('Error fetching user analyses:', error);
       return [];
     }
 
-    return data || [];
+    return allData;
   } catch (error) {
     console.error('Error fetching analyses:', error);
     return [];
