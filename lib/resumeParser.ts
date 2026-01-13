@@ -159,6 +159,8 @@ function parseExperienceSection(section: string, resume: ParsedResume) {
     
     // Extract role and company
     const roleCompanyLine = lines[0];
+    if (!roleCompanyLine) return;
+    
     const roleCompanyMatch = roleCompanyLine.match(/^([^(]+?)\s*(?:at|@)\s*([^(]+?)(?:\s*[\[(])?/i) ||
                            roleCompanyLine.match(/^([^(]+?)\s*\(([^)]+)\)/);
     
