@@ -36,7 +36,7 @@ export async function saveResumeToSupabase(
     };
 
     const { data, error } = await supabase
-      .from('resumes')
+      .from('saved_resumes')
       .insert(record)
       .select()
       .single();

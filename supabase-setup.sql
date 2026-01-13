@@ -1,8 +1,8 @@
 -- Supabase Table Creation Script
 -- Run this in your Supabase SQL editor
 
--- Create resumes table
-CREATE TABLE IF NOT EXISTS resumes (
+-- Create saved_resumes table
+CREATE TABLE IF NOT EXISTS saved_resumes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   original_text TEXT,
@@ -39,24 +39,24 @@ CREATE TABLE IF NOT EXISTS communication_analyses (
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_resumes_user_id ON resumes(user_id);
-CREATE INDEX IF NOT EXISTS idx_resumes_created_at ON resumes(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_saved_resumes_user_id ON saved_resumes(user_id);
+CREATE INDEX IF NOT EXISTS idx_saved_resumes_created_at ON saved_resumes(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_interview_analyses_user_id ON interview_analyses(user_id);
 CREATE INDEX IF NOT EXISTS idx_communication_analyses_user_id ON communication_analyses(user_id);
 
 -- Enable Row Level Security
-ALTER TABLE resumes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE saved_resumes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE interview_analyses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE communication_analyses ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for resumes table
-CREATE POLICY "Users can view their own resumes" ON resumes
+CREATE POLICY "Users can view their own saved resumes" ON saved_resumes
   FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own resumes" ON resumes
+CREATE POLICY "Users can insert their own saved resumes" ON saved_resumes
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update their own resumes" ON resumes
+CREATE POLICY "Users can update their own saved resumes" ON saved_resumes
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- Create policies for interview_analyses table
