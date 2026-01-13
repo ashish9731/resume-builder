@@ -8,6 +8,7 @@ import PersonalInfoStep from '@/components/PersonalInfoStep'
 import SummaryStep from '@/components/SummaryStep'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { formatResumeForDisplay } from '@/lib/resumeFormatter'
 
 const CreatePage = () => {
   const router = useRouter()
@@ -139,74 +140,37 @@ const CreatePage = () => {
   }, [])
 
   const generateResume = useMemo(() => {
-    let resumeText = `RESUME\n\n`
-    
-    // Personal Info
-    resumeText += `${resumeData.personalInfo.fullName}\n`
-    resumeText += `${resumeData.personalInfo.email} | ${resumeData.personalInfo.phone}\n`
-    resumeText += `${resumeData.personalInfo.location}\n`
-    if (resumeData.personalInfo.linkedin) resumeText += `LinkedIn: ${resumeData.personalInfo.linkedin}\n`
-    if (resumeData.personalInfo.website) resumeText += `Website: ${resumeData.personalInfo.website}\n`
-    resumeText += `\n`
-
-    // Summary
-    if (resumeData.summary) {
-      resumeText += `PROFESSIONAL SUMMARY\n${resumeData.summary}\n\n`
+    // Convert existing resumeData structure to new format
+    const formattedData = {
+      personalInfo: {
+        fullName: resumeData.personalInfo.fullName,
+        email: resumeData.personalInfo.email,
+        phone: resumeData.personalInfo.phone,
+        linkedin: resumeData.personalInfo.linkedin,
+        location: resumeData.personalInfo.location,
+        website: resumeData.personalInfo.website
+      },
+      summary: resumeData.summary,
+      experience: resumeData.experience.filter(exp => exp.company).map(exp => ({
+        company: exp.company,
+        position: exp.position,
+        duration: exp.duration,
+        description: exp.description
+      })),
+      skills: resumeData.skills,
+      projects: resumeData.projects.filter(proj => proj.name).map(proj => ({
+        name: proj.name,
+        description: proj.description,
+        technologies: proj.technologies
+      })),
+      certifications: resumeData.certifications.filter(cert => cert.name).map(cert => ({
+        name: cert.name,
+        issuer: cert.issuer,
+        date: cert.date
+      }))
     }
 
-    // Experience
-    if (resumeData.experience.some(exp => exp.company)) {
-      resumeText += `PROFESSIONAL EXPERIENCE\n`
-      resumeData.experience.forEach(exp => {
-        if (exp.company) {
-          resumeText += `${exp.position} at ${exp.company}\n`
-          if (exp.duration) resumeText += `${exp.duration}\n`
-          if (exp.description) resumeText += `${exp.description}\n\n`
-        }
-      })
-    }
-
-    // Education
-    if (resumeData.education.some(edu => edu.institution)) {
-      resumeText += `EDUCATION\n`
-      resumeData.education.forEach(edu => {
-        if (edu.institution) {
-          resumeText += `${edu.degree} - ${edu.institution}\n`
-          if (edu.year) resumeText += `${edu.year}\n`
-          if (edu.gpa) resumeText += `GPA: ${edu.gpa}\n\n`
-        }
-      })
-    }
-
-    // Skills
-    if (resumeData.skills) {
-      resumeText += `SKILLS\n${resumeData.skills}\n\n`
-    }
-
-    // Projects
-    if (resumeData.projects.some(proj => proj.name)) {
-      resumeText += `PROJECTS\n`
-      resumeData.projects.forEach(proj => {
-        if (proj.name) {
-          resumeText += `${proj.name}\n`
-          if (proj.description) resumeText += `${proj.description}\n`
-          if (proj.technologies) resumeText += `Technologies: ${proj.technologies}\n\n`
-        }
-      })
-    }
-
-    // Certifications
-    if (resumeData.certifications.some(cert => cert.name)) {
-      resumeText += `CERTIFICATIONS\n`
-      resumeData.certifications.forEach(cert => {
-        if (cert.name) {
-          resumeText += `${cert.name} - ${cert.issuer}\n`
-          if (cert.date) resumeText += `${cert.date}\n\n`
-        }
-      })
-    }
-
-    return resumeText
+    return formatResumeForDisplay(formattedData)
   }, [resumeData])
 
   const handleAIAssist = useCallback(async (section: string, context?: string) => {

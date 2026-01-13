@@ -44,6 +44,12 @@ function createResumePDF(text: string, template: string = 'professional'): Buffe
       bulletFontSize = 11;
   }
   
+  // Define section headers for styling
+  const sectionHeaders = [
+    'NAME', 'CONTACT', 'SUMMARY', 'WORK EXPERIENCE', 'EXPERIENCE', 
+    'SKILLS', 'CERTIFICATIONS', 'ACHIEVEMENTS', 'PROJECTS', 'EDUCATION'
+  ];
+  
   // Build content stream properly
   contentStream += `BT\n`
   
@@ -72,20 +78,35 @@ function createResumePDF(text: string, template: string = 'professional'): Buffe
     let fontSize = bodyFontSize;
     let lineHeight = fontSize + 3;
     
-    // Check if this is a header (all caps, short, or specific patterns)
-    if (cleanLine.toUpperCase() === cleanLine && cleanLine.length < 50 && cleanLine.includes(' ')) {
-      font = '/F1'; // Bold font
+    // Check if this is a section header
+    const upperLine = cleanLine.trim().toUpperCase();
+    const isSectionHeader = sectionHeaders.some(header => 
+      upperLine === header || upperLine.includes(header)
+    );
+    
+    if (isSectionHeader) {
+      font = '/F1'; // Bold font for section headers
       fontSize = headerFontSize;
-      lineHeight = fontSize + 4;
+      lineHeight = fontSize + 6; // Extra spacing after headers
     } else if (cleanLine.startsWith('•') || cleanLine.startsWith('-')) {
       // Bullet points
       font = '/F2';
       fontSize = bulletFontSize;
       lineHeight = fontSize + 3;
-    } else if (cleanLine.match(/^([A-Z][a-z]+\s*)+\|/)) {
-      // Contact info line
+    } else if (cleanLine.includes(' - ') && cleanLine.split(' - ').length >= 2) {
+      // Experience/company lines
+      font = '/F1'; // Semi-bold for company/role lines
+      fontSize = bodyFontSize + 1;
+      lineHeight = fontSize + 4;
+    } else if (cleanLine.match(/^[^@]+@[\w.-]+\.[\w.-]+/) || cleanLine.match(/^\(\d{3}\)\s*\d{3}-\d{4}/)) {
+      // Contact info (email or phone)
       font = '/F2';
       fontSize = bulletFontSize;
+      lineHeight = fontSize + 3;
+    } else {
+      // Regular body text
+      font = '/F2';
+      fontSize = bodyFontSize;
       lineHeight = fontSize + 3;
     }
     
