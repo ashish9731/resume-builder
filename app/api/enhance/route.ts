@@ -57,76 +57,26 @@ export async function POST(req: Request) {
       )
     }
 
-    const prompt = `You are an expert professional resume writer specializing in ATS optimization. Create a clean, professionally formatted resume that strategically aligns with the target job description while preserving all factual information from the original resume.
-
-CRITICAL INSTRUCTIONS:
-1. MAINTAIN ALL FACTUAL INFORMATION from the original resume
-2. STRATEGICALLY ENHANCE the content to match the job description
-3. PRESERVE the candidate's actual experience and achievements
-4. OPTIMIZE for ATS systems by including relevant keywords
-5. QUANTIFY achievements with specific metrics where possible
-6. USE powerful action verbs to describe responsibilities
-7. ALIGN skills and experiences with job requirements
-
-RESUME FORMAT:
-
-[Full Name]
-[Phone Number] | [Email] | [LinkedIn Profile]
-[City, State]
-
-PROFESSIONAL SUMMARY
-[Write 3-4 compelling sentences about years of experience, core expertise, and key achievements with specific metrics. Tailor this section to highlight experience most relevant to the job description.]
-
-CORE COMPETENCIES
-[Technical Skills: List relevant technical skills separated by commas - prioritize skills mentioned in the job description]
-[Leadership Skills: List management and leadership skills separated by commas]
-[Industry Knowledge: List domain expertise separated by commas - align with industry terms in job description]
-
-PROFESSIONAL EXPERIENCE
-
-[Job Title]
-[Company Name] | [Location] | [Month Year - Month Year]
-• [Action verb] [achievement/task] resulting in [specific metric/result] - Align with job responsibilities
-• [Action verb] [achievement/task] leading to [specific metric/result] - Highlight transferable skills
-• [Action verb] [achievement/task] improving [specific metric/result] - Emphasize measurable outcomes
-
-[Next Job Title]
-[Next Company Name] | [Location] | [Month Year - Month Year]
-• [Action verb] [achievement/task] resulting in [specific metric/result] - Connect to job requirements
-• [Action verb] [achievement/task] leading to [specific metric/result] - Showcase relevant experience
-• [Action verb] [achievement/task] improving [specific metric/result] - Demonstrate value
-
-EDUCATION
-[Degree] in [Major]
-[University Name] | [Graduation Year]
-
-CERTIFICATIONS
-• [Certification Name] - [Issuing Organization] - [Year] - Prioritize industry-recognized certifications
-
-PROJECTS
-[Project Name] - [Technologies Used]
-• [Brief description with quantified impact] - Emphasize relevance to job
-
-[Next Project Name] - [Technologies Used]
-• [Brief description with quantified impact] - Highlight transferable skills
+    const prompt = `Enhance this resume to better match the job description while preserving all original information.
 
 ORIGINAL RESUME:
 ${text}
 
+JOB DESCRIPTION:
+${jobDesc}
+
 ANALYSIS FEEDBACK:
 ${analysis}
 
-TARGET JOB DESCRIPTION:
-${jobDesc}
+Instructions:
+1. Keep the exact same structure and section headers as the original
+2. Improve content to better align with the job description
+3. Use stronger action verbs and quantify achievements where possible
+4. Add relevant keywords from the job description
+5. Maintain all factual information - do not invent anything
+6. Keep professional, concise language
 
-IMPORTANT: Your primary task is to enhance the resume content to better align with the job description while preserving all factual information from the original resume. Focus on:
-1. Incorporating relevant keywords and phrases from the job description
-2. Restructuring content to emphasize skills and experiences that match job requirements
-3. Quantifying achievements with specific metrics
-4. Using action verbs that resonate with the target role
-5. Maintaining honesty and accuracy - do not fabricate any information
-
-Return only the enhanced resume content with no explanations, formatting markers, or section labels.`
+Return only the enhanced resume text in the same format as the original.`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
@@ -162,7 +112,11 @@ Return only the enhanced resume content with no explanations, formatting markers
     return NextResponse.json({ enhanced })
 
   } catch (error: any) {
-    console.error('OpenAI API error:', error)
+    console.error('Resume enhancement error:', {
+      message: error?.message,
+      status: error?.status,
+      name: error?.name
+    })
     
     // Handle specific OpenAI errors
     if (error.status === 429) {
@@ -180,7 +134,10 @@ Return only the enhanced resume content with no explanations, formatting markers
     }
 
     return NextResponse.json(
-      { error: error?.message || 'Internal server error' },
+      { 
+        error: error?.message || 'Failed to enhance resume. Please try again.',
+        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      },
       { status: 500 }
     )
   }
