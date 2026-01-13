@@ -13,6 +13,27 @@ export async function POST(req: Request) {
     const apiKey = process.env.OPENAI_API_KEY || (process.env as any).OpenAPIKey
     const isOpenAIConfigured = !!apiKey
     console.log('API Key present:', isOpenAIConfigured)
+    console.log('API Key length:', apiKey?.length || 0)
+    
+    // Quick OpenAI test
+    if (isOpenAIConfigured) {
+      try {
+        console.log('Testing OpenAI connection...')
+        const openai = getOpenAI()
+        const testCompletion = await openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: 'test' }],
+          max_tokens: 5
+        })
+        console.log('OpenAI test successful:', testCompletion.choices[0]?.message?.content)
+      } catch (testError) {
+        console.error('OpenAI test failed:', testError)
+        return NextResponse.json(
+          { error: 'OpenAI API test failed: ' + (testError as Error).message },
+          { status: 500 }
+        )
+      }
+    }
     
     if (!isOpenAIConfigured) {
       console.log('OpenAI not configured, using fallback enhancement')
