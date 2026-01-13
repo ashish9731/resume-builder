@@ -76,3 +76,4 @@ Optimize, analyze, and enhance resumes with AI. Upload PDF/DOCX/TXT or create a 
 - **File parsing:** PDF parsing requires Node.js runtime (configured)
 - **OpenAI errors:** Verify API key is valid and has sufficient credits
 
+// Trigger Vercel deployment Tue Jan 13 09:45:41 IST 2026
