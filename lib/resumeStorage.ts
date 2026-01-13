@@ -26,14 +26,16 @@ export async function saveResumeToSupabase(
       return null;
     }
     
-    const record = {
+    const record: any = {
       user_id: userId,
       original_text: resumeData.originalText,
       parsed_data: resumeData.parsedData,
-      ai_analysis: resumeData.aiAnalysis,
-      enhanced_text: resumeData.enhancedText,
-      template_used: resumeData.templateUsed,
     };
+    
+    // Only add optional fields if they exist in the table
+    if (resumeData.aiAnalysis !== undefined) record.ai_analysis = resumeData.aiAnalysis;
+    if (resumeData.enhancedText !== undefined) record.enhanced_text = resumeData.enhancedText;
+    if (resumeData.templateUsed !== undefined) record.template_used = resumeData.templateUsed;
 
     const { data, error } = await supabase
       .from('saved_resumes')
@@ -43,6 +45,29 @@ export async function saveResumeToSupabase(
 
     if (error) {
       console.error('Error saving resume:', error);
+      // Handle column not found errors gracefully
+      if (error.code === 'PGRST204') {
+        console.warn('Column not found in database, saving with minimal data');
+        // Try saving with only required fields
+        const minimalRecord = {
+          user_id: userId,
+          original_text: resumeData.originalText,
+          parsed_data: resumeData.parsedData,
+        };
+        
+        const { data: minimalData, error: minimalError } = await supabase
+          .from('saved_resumes')
+          .insert(minimalRecord)
+          .select()
+          .single();
+          
+        if (minimalError) {
+          console.error('Minimal save also failed:', minimalError);
+          return null;
+        }
+        
+        return minimalData.id;
+      }
       return null;
     }
 
