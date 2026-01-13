@@ -250,7 +250,9 @@ export default function UploadPage() {
         const enhancedParsed = parseResume(enhancedResume);
         const pdfBytes = await generateResumePDF(enhancedParsed, selectedTemplate);
         
-        const blob = new Blob([pdfBytes.buffer], { type: 'application/pdf' });
+        // Convert to proper ArrayBuffer for Blob
+        const uint8Array = new Uint8Array(pdfBytes);
+        const blob = new Blob([uint8Array], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
