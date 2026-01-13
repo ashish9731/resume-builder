@@ -5,9 +5,15 @@ export const runtime = 'nodejs'
 export const maxDuration = 30
 
 export async function POST(req: Request) {
+  console.log('=== ENHANCE API DEBUG START ===')
+  
   try {
     // Validate request
-    if (!process.env.OPENAI_API_KEY) {
+    console.log('Checking OpenAI API key...')
+    const apiKey = process.env.OPENAI_API_KEY || (process.env as any).OpenAPIKey
+    console.log('API Key present:', !!apiKey)
+    
+    if (!apiKey) {
       console.error('OpenAI API key not configured')
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
@@ -16,14 +22,24 @@ export async function POST(req: Request) {
     }
 
     const contentType = req.headers.get('content-type')
+    console.log('Content-Type:', contentType)
+    
     if (!contentType || !contentType.includes('application/json')) {
+      console.error('Invalid content type:', contentType)
       return NextResponse.json(
         { error: 'Request must be JSON' },
         { status: 400 }
       )
     }
 
-    const { text, analysis, jobDescription } = await req.json()
+    console.log('Parsing request body...')
+    const requestBody = await req.json()
+    console.log('Request body keys:', Object.keys(requestBody))
+    
+    const { text, analysis, jobDescription } = requestBody
+    console.log('Text length:', text?.length || 0)
+    console.log('Analysis present:', !!analysis)
+    console.log('Job description present:', !!jobDescription)
     
     // Validate input
     if (!text || typeof text !== 'string') {
@@ -78,8 +94,14 @@ Instructions:
 
 Return only the enhanced resume text in the same format as the original.`
 
+    console.log('Creating OpenAI instance...')
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+    console.log('Using model:', model)
+    
+    console.log('Making OpenAI API call...')
+    console.log('Prompt length:', prompt.length)
+    
     const completion = await openai.chat.completions.create({
       model,
       messages: [
@@ -89,15 +111,23 @@ Return only the enhanced resume text in the same format as the original.`
       temperature: 0.1,
       max_tokens: 4000,
     })
+    
+    console.log('OpenAI response received')
+    console.log('Choices count:', completion.choices?.length || 0)
+    console.log('First choice content length:', completion.choices?.[0]?.message?.content?.length || 0)
 
     let enhanced = completion.choices[0]?.message?.content ?? ''
+    console.log('Enhanced content length:', enhanced.length)
     
     if (!enhanced) {
+      console.error('No enhanced content generated')
       return NextResponse.json(
         { error: 'No enhanced content generated' },
         { status: 500 }
       )
     }
+    
+    console.log('Enhancement successful, returning response')
 
     // Clean up any remaining formatting artifacts while preserving structure
     enhanced = enhanced
@@ -112,11 +142,15 @@ Return only the enhanced resume text in the same format as the original.`
     return NextResponse.json({ enhanced })
 
   } catch (error: any) {
-    console.error('Resume enhancement error:', {
+    console.error('=== ENHANCE API ERROR ===')
+    console.error('Error details:', {
       message: error?.message,
       status: error?.status,
-      name: error?.name
+      name: error?.name,
+      stack: error?.stack
     })
+    console.error('Full error object:', error)
+    console.error('=== END ERROR DETAILS ===')
     
     // Handle specific OpenAI errors
     if (error.status === 429) {

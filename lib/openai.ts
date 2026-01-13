@@ -4,13 +4,33 @@ import OpenAI from 'openai'
 let openaiInstance: OpenAI | null = null
 
 export const getOpenAI = () => {
+  console.log('=== OPENAI INIT DEBUG ===')
+  console.log('Existing instance:', !!openaiInstance)
+  
   if (!openaiInstance) {
+    console.log('Creating new OpenAI instance')
     const apiKey = process.env.OPENAI_API_KEY || (process.env as any).OpenAPIKey
+    console.log('API Key present in env:', !!apiKey)
+    console.log('API Key length:', apiKey?.length || 0)
+    
     if (!apiKey) {
-      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
+      const error = new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
+      console.error('OpenAI init error:', error.message)
+      throw error
     }
-    openaiInstance = new OpenAI({ apiKey })
+    
+    try {
+      console.log('Initializing OpenAI client...')
+      openaiInstance = new OpenAI({ apiKey })
+      console.log('OpenAI client initialized successfully')
+    } catch (initError) {
+      console.error('OpenAI client initialization failed:', initError)
+      throw initError
+    }
   }
+  
+  console.log('Returning OpenAI instance')
+  console.log('=== END OPENAI INIT DEBUG ===')
   return openaiInstance
 }
 
