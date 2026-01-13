@@ -1,5 +1,5 @@
-import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
-import { ParsedResume } from '@/types/resume'
+// Supabase storage disabled - All resume data must be downloaded by user
+// Authentication only mode enabled
 
 export async function saveResumeToSupabase(
   resumeData: {
@@ -12,72 +12,13 @@ export async function saveResumeToSupabase(
   },
   userId: string
 ): Promise<string | null> {
-  try {
-    const supabase = getSupabaseBrowser();
-    
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError) {
-      console.warn('Auth error, skipping Supabase save:', authError.message);
-      return null;
-    }
-    
-    if (!user) {
-      console.warn('User not authenticated, skipping Supabase save');
-      return null;
-    }
-    
-    const record: any = {
-      user_id: userId,
-      title: resumeData.title || 'Untitled Resume',
-      original_text: resumeData.originalText,
-      parsed_data: resumeData.parsedData,
-    };
-    
-    // Only add optional fields if they exist in the table
-    if (resumeData.aiAnalysis !== undefined) record.ai_analysis = resumeData.aiAnalysis;
-    if (resumeData.enhancedText !== undefined) record.enhanced_text = resumeData.enhancedText;
-    if (resumeData.templateUsed !== undefined) record.template_used = resumeData.templateUsed;
-
-    const { data, error } = await supabase
-      .from('saved_resumes')
-      .insert(record)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error saving resume:', error);
-      // Handle column not found errors gracefully
-      if (error.code === 'PGRST204') {
-        console.warn('Column not found in database, saving with minimal data');
-        // Try saving with only required fields
-        const minimalRecord = {
-          user_id: userId,
-          original_text: resumeData.originalText,
-          parsed_data: resumeData.parsedData,
-        };
-        
-        const { data: minimalData, error: minimalError } = await supabase
-          .from('saved_resumes')
-          .insert(minimalRecord)
-          .select()
-          .single();
-          
-        if (minimalError) {
-          console.error('Minimal save also failed:', minimalError);
-          return null;
-        }
-        
-        return minimalData.id;
-      }
-      return null;
-    }
-
-    return data.id;
-  } catch (error) {
-    console.error('Error saving resume:', error);
-    return null;
-  }
+  // DISABLED: Supabase storage removed per user request
+  console.log('Supabase storage disabled - Please download your resume manually');
+  console.log('Resume title:', resumeData.title || 'Untitled Resume');
+  console.log('Original text length:', resumeData.originalText.length);
+  
+  // Return null to indicate no storage occurred
+  return null;
 }
 
 export async function saveInterviewAnalysis(
@@ -92,35 +33,11 @@ export async function saveInterviewAnalysis(
     score?: number;
   }
 ): Promise<string | null> {
-  try {
-    const supabase = getSupabaseBrowser();
-    
-    // Check authentication first
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      console.warn('User not authenticated, skipping interview analysis save');
-      return null;
-    }
-    
-    const { data, error } = await supabase
-      .from('interview_reports')
-      .insert({
-        user_id: userId,
-        ...interviewData
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error saving interview analysis:', error);
-      return null;
-    }
-
-    return data.id;
-  } catch (error) {
-    console.error('Error saving interview analysis:', error);
-    return null;
-  }
+  // DISABLED: Supabase storage removed per user request
+  console.log('Interview analysis storage disabled - Please download report manually');
+  console.log('Job title:', interviewData.job_title);
+  console.log('Questions count:', interviewData.questions.length);
+  return null;
 }
 
 export async function saveCommunicationAnalysis(
@@ -131,75 +48,14 @@ export async function saveCommunicationAnalysis(
     recording_url?: string;
   }
 ): Promise<string | null> {
-  try {
-    const supabase = getSupabaseBrowser();
-    
-    // Check authentication first
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      console.warn('User not authenticated, skipping communication analysis save');
-      return null;
-    }
-    
-    const { data, error } = await supabase
-      .from('communication_reports')
-      .insert({
-        user_id: userId,
-        ...analysisData
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error saving communication analysis:', error);
-      return null;
-    }
-
-    return data.id;
-  } catch (error) {
-    console.error('Error saving communication analysis:', error);
-    return null;
-  }
+  // DISABLED: Supabase storage removed per user request
+  console.log('Communication analysis storage disabled - Please download report manually');
+  console.log('Transcript length:', analysisData.transcript.length);
+  return null;
 }
 
 export async function getUserAnalyses(userId: string): Promise<any[]> {
-  try {
-    const supabase = getSupabaseBrowser();
-    
-    // Fetch interview reports
-    const { data: interviewData, error: interviewError } = await supabase
-      .from('interview_reports')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-    
-    // Fetch communication reports
-    const { data: communicationData, error: communicationError } = await supabase
-      .from('communication_reports')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-    
-    // Combine and sort results
-    const allData = [
-      ...(interviewData || []),
-      ...(communicationData || [])
-    ].sort((a, b) => {
-      const dateA = new Date(a.created_at || 0).getTime();
-      const dateB = new Date(b.created_at || 0).getTime();
-      return dateB - dateA;
-    });
-    
-    const error = interviewError || communicationError;
-
-    if (error) {
-      console.error('Error fetching user analyses:', error);
-      return [];
-    }
-
-    return allData;
-  } catch (error) {
-    console.error('Error fetching analyses:', error);
-    return [];
-  }
+  // DISABLED: Supabase storage removed per user request
+  console.log('User analyses fetching disabled - All reports must be downloaded manually');
+  return [];
 }

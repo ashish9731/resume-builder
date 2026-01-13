@@ -11,6 +11,7 @@ import { generateResumePDF } from '@/lib/pdfGenerator'
 import { formatResumeForDisplay } from '@/lib/resumeFormatter'
 import { saveResumeToSupabase } from '@/lib/resumeStorage'
 import ResumePreviewModal from '@/components/ResumePreviewModal'
+import DownloadNotification from '@/components/DownloadNotification'
 
 export default function UploadPage() {
   const router = useRouter()
@@ -218,20 +219,8 @@ export default function UploadPage() {
       const data = await response.json()
       setEnhancedResume(data.enhanced)
       
-      // Save enhanced version to Supabase
-      if (supabase && parsedResume) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const enhancedParsed = parseResume(data.enhanced);
-          await saveResumeToSupabase({
-            originalText: resumeText,
-            parsedData: enhancedParsed,
-            aiAnalysis: analysis,
-            enhancedText: data.enhanced,
-            templateUsed: selectedTemplate
-          }, user.id);
-        }
-      }
+      // Log that storage is disabled and notify user
+      console.log('Cloud storage disabled - Please download your resume manually');
       
       setCurrentStep(4)
     } catch (error) {
