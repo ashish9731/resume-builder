@@ -6,7 +6,7 @@ import { TextDecoder } from 'util'
 // Set the worker path for pdfjs
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
-export const runtime = 'nodejs'
+// Running in Node.js environment for file processing
 export const maxDuration = 60
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024

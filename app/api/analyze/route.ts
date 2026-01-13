@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getOpenAI, systemGuardrails } from '@/lib/openai'
 
-export const runtime = 'nodejs'
-export const maxDuration = 30
+// Using default runtime for AI analysis
 
 export async function POST(req: Request) {
   try {
