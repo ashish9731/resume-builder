@@ -115,6 +115,7 @@ export async function getResumeById(id: string, userId: string): Promise<ResumeR
     console.error('Error fetching resume:', error);
     return null;
   }
+  */
 }
 
 export async function saveInterviewAnalysis(
@@ -132,7 +133,7 @@ export async function saveInterviewAnalysis(
   // DISABLED: Temporarily disable Supabase saving for debugging
   console.log('Interview analysis saving temporarily disabled for debugging');
   return null;
-  /*
+  /* Commented out for debugging - uncomment when needed
   try {
     const supabase = getSupabaseBrowser();
     
@@ -162,6 +163,7 @@ export async function saveInterviewAnalysis(
     console.error('Error saving interview analysis:', error);
     return null;
   }
+  */
 }
 
 export async function saveCommunicationAnalysis(
@@ -175,7 +177,7 @@ export async function saveCommunicationAnalysis(
   // DISABLED: Temporarily disable Supabase saving for debugging
   console.log('Communication analysis saving temporarily disabled for debugging');
   return null;
-  /*
+  /* Commented out for debugging - uncomment when needed
   try {
     const supabase = getSupabaseBrowser();
     
@@ -205,6 +207,7 @@ export async function saveCommunicationAnalysis(
     console.error('Error saving communication analysis:', error);
     return null;
   }
+  */
 }
 
 export async function getUserAnalyses(userId: string): Promise<any[]> {
@@ -229,9 +232,11 @@ export async function getUserAnalyses(userId: string): Promise<any[]> {
     const allData = [
       ...(interviewData || []),
       ...(communicationData || [])
-    ].sort((a, b) => 
-      new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
-    );
+    ].sort((a, b) => {
+      const dateA = new Date(a.created_at || 0).getTime();
+      const dateB = new Date(b.created_at || 0).getTime();
+      return dateB - dateA;
+    });
     
     const error = interviewError || communicationError;
 
