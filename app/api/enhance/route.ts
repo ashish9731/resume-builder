@@ -170,12 +170,6 @@ Return only the enhanced resume text in the same format as the original.`
       type: error?.type
     })
     console.error('Full error object:', JSON.stringify(error, null, 2))
-    console.error('Request body that caused error:', {
-      hasText: !!text,
-      textLength: text?.length || 0,
-      hasAnalysis: !!analysis,
-      hasJobDescription: !!jobDescription
-    })
     console.error('=== END ERROR DETAILS ===')
     
     // Handle specific OpenAI errors

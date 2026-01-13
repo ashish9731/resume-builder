@@ -236,12 +236,6 @@ export default function UploadPage() {
       setCurrentStep(4)
     } catch (error) {
       console.error('Enhancement error:', error)
-      console.error('Request data sent:', {
-        textLength: textToSend?.length || 0,
-        hasAnalysis: !!analysis,
-        jobDescriptionLength: jobDescription?.trim()?.length || 0,
-        hasParsedResume: !!parsedResume
-      })
       alert('Failed to enhance resume. Please try again.')
     } finally {
       setEnhancing(false)
