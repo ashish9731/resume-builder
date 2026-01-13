@@ -29,7 +29,12 @@ export async function saveResumeToSupabase(
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (authError) {
+      console.warn('Auth error, skipping Supabase save:', authError.message);
+      return null;
+    }
+    
+    if (!user) {
       console.warn('User not authenticated, skipping Supabase save');
       return null;
     }
@@ -123,6 +128,13 @@ export async function saveInterviewAnalysis(
   try {
     const supabase = getSupabaseBrowser();
     
+    // Check authentication first
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.warn('User not authenticated, skipping interview analysis save');
+      return null;
+    }
+    
     const { data, error } = await supabase
       .from('interview_analyses')
       .insert({
@@ -154,6 +166,13 @@ export async function saveCommunicationAnalysis(
 ): Promise<string | null> {
   try {
     const supabase = getSupabaseBrowser();
+    
+    // Check authentication first
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.warn('User not authenticated, skipping communication analysis save');
+      return null;
+    }
     
     const { data, error } = await supabase
       .from('communication_analyses')
