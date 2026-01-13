@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS saved_resumes (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create interview_analyses table
-CREATE TABLE IF NOT EXISTS interview_analyses (
+-- Create interview_reports table
+CREATE TABLE IF NOT EXISTS interview_reports (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   job_title TEXT,
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS interview_analyses (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create communication_analyses table
-CREATE TABLE IF NOT EXISTS communication_analyses (
+-- Create communication_reports table
+CREATE TABLE IF NOT EXISTS communication_reports (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   transcript TEXT,
@@ -41,13 +41,13 @@ CREATE TABLE IF NOT EXISTS communication_analyses (
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_saved_resumes_user_id ON saved_resumes(user_id);
 CREATE INDEX IF NOT EXISTS idx_saved_resumes_created_at ON saved_resumes(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_interview_analyses_user_id ON interview_analyses(user_id);
-CREATE INDEX IF NOT EXISTS idx_communication_analyses_user_id ON communication_analyses(user_id);
+CREATE INDEX IF NOT EXISTS idx_interview_reports_user_id ON interview_reports(user_id);
+CREATE INDEX IF NOT EXISTS idx_communication_reports_user_id ON communication_reports(user_id);
 
 -- Enable Row Level Security
 ALTER TABLE saved_resumes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE interview_analyses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE communication_analyses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE interview_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE communication_reports ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for resumes table
 CREATE POLICY "Users can view their own saved resumes" ON saved_resumes
@@ -60,15 +60,15 @@ CREATE POLICY "Users can update their own saved resumes" ON saved_resumes
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- Create policies for interview_analyses table
-CREATE POLICY "Users can view their own interview analyses" ON interview_analyses
+CREATE POLICY "Users can view their own interview reports" ON interview_reports
   FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own interview analyses" ON interview_analyses
+CREATE POLICY "Users can insert their own interview reports" ON interview_reports
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Create policies for communication_analyses table
-CREATE POLICY "Users can view their own communication analyses" ON communication_analyses
+CREATE POLICY "Users can view their own communication reports" ON communication_reports
   FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own communication analyses" ON communication_analyses
+CREATE POLICY "Users can insert their own communication reports" ON communication_reports
   FOR INSERT WITH CHECK (auth.uid() = user_id);

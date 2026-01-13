@@ -76,7 +76,7 @@ export async function saveInterviewAnalysis(
     }
     
     const { data, error } = await supabase
-      .from('interview_analyses')
+      .from('interview_reports')
       .insert({
         user_id: userId,
         ...interviewData
@@ -115,7 +115,7 @@ export async function saveCommunicationAnalysis(
     }
     
     const { data, error } = await supabase
-      .from('communication_analyses')
+      .from('communication_reports')
       .insert({
         user_id: userId,
         ...analysisData
@@ -139,16 +139,16 @@ export async function getUserAnalyses(userId: string): Promise<any[]> {
   try {
     const supabase = getSupabaseBrowser();
     
-    // Fetch interview analyses
+    // Fetch interview reports
     const { data: interviewData, error: interviewError } = await supabase
-      .from('interview_analyses')
+      .from('interview_reports')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     
-    // Fetch communication analyses
+    // Fetch communication reports
     const { data: communicationData, error: communicationError } = await supabase
-      .from('communication_analyses')
+      .from('communication_reports')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
