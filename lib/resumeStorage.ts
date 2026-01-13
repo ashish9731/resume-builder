@@ -24,6 +24,10 @@ export async function saveResumeToSupabase(
   },
   userId: string
 ): Promise<string | null> {
+  // DISABLED: Temporarily disable Supabase saving for debugging
+  console.log('Supabase saving temporarily disabled for debugging');
+  return null;
+  /*
   try {
     const supabase = getSupabaseBrowser();
     
@@ -125,6 +129,10 @@ export async function saveInterviewAnalysis(
     score?: number;
   }
 ): Promise<string | null> {
+  // DISABLED: Temporarily disable Supabase saving for debugging
+  console.log('Interview analysis saving temporarily disabled for debugging');
+  return null;
+  /*
   try {
     const supabase = getSupabaseBrowser();
     
@@ -164,6 +172,10 @@ export async function saveCommunicationAnalysis(
     recording_url?: string;
   }
 ): Promise<string | null> {
+  // DISABLED: Temporarily disable Supabase saving for debugging
+  console.log('Communication analysis saving temporarily disabled for debugging');
+  return null;
+  /*
   try {
     const supabase = getSupabaseBrowser();
     
