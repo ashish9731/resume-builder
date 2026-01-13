@@ -1,18 +1,5 @@
-import { getSupabaseBrowser } from './supabaseBrowser';
-import { getSupabaseServer } from './supabaseServer';
-import { ParsedResume } from '../types/resume';
-
-export interface ResumeRecord {
-  id?: string;
-  user_id: string;
-  original_text: string;
-  parsed_data: ParsedResume;
-  ai_analysis?: string;
-  enhanced_text?: string;
-  template_used?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
+import { ParsedResume } from '@/types/resume'
 
 export async function saveResumeToSupabase(
   resumeData: {
@@ -24,10 +11,6 @@ export async function saveResumeToSupabase(
   },
   userId: string
 ): Promise<string | null> {
-  // DISABLED: Temporarily disable Supabase saving for debugging
-  console.log('Supabase saving temporarily disabled for debugging');
-  return null;
-  /*
   try {
     const supabase = getSupabaseBrowser();
     
@@ -43,7 +26,7 @@ export async function saveResumeToSupabase(
       return null;
     }
     
-    const record: ResumeRecord = {
+    const record = {
       user_id: userId,
       original_text: resumeData.originalText,
       parsed_data: resumeData.parsedData,
@@ -59,63 +42,15 @@ export async function saveResumeToSupabase(
       .single();
 
     if (error) {
-      console.error('Error saving resume to Supabase:', error);
-      // Don't fail the main flow if Supabase save fails
+      console.error('Error saving resume:', error);
       return null;
     }
 
     return data.id;
   } catch (error) {
     console.error('Error saving resume:', error);
-    // Don't fail the main flow if Supabase save fails
     return null;
   }
-}
-
-export async function getUserResumes(userId: string): Promise<ResumeRecord[]> {
-  try {
-    const supabase = getSupabaseBrowser();
-    
-    const { data, error } = await supabase
-      .from('resumes')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching user resumes:', error);
-      return [];
-    }
-
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching resumes:', error);
-    return [];
-  }
-}
-
-export async function getResumeById(id: string, userId: string): Promise<ResumeRecord | null> {
-  try {
-    const supabase = getSupabaseBrowser();
-    
-    const { data, error } = await supabase
-      .from('resumes')
-      .select('*')
-      .eq('id', id)
-      .eq('user_id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching resume:', error);
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error fetching resume:', error);
-    return null;
-  }
-  */
 }
 
 export async function saveInterviewAnalysis(
@@ -130,10 +65,6 @@ export async function saveInterviewAnalysis(
     score?: number;
   }
 ): Promise<string | null> {
-  // DISABLED: Temporarily disable Supabase saving for debugging
-  console.log('Interview analysis saving temporarily disabled for debugging');
-  return null;
-  /* Commented out for debugging - uncomment when needed
   try {
     const supabase = getSupabaseBrowser();
     
@@ -163,7 +94,6 @@ export async function saveInterviewAnalysis(
     console.error('Error saving interview analysis:', error);
     return null;
   }
-  */
 }
 
 export async function saveCommunicationAnalysis(
@@ -174,10 +104,6 @@ export async function saveCommunicationAnalysis(
     recording_url?: string;
   }
 ): Promise<string | null> {
-  // DISABLED: Temporarily disable Supabase saving for debugging
-  console.log('Communication analysis saving temporarily disabled for debugging');
-  return null;
-  /* Commented out for debugging - uncomment when needed
   try {
     const supabase = getSupabaseBrowser();
     
@@ -207,7 +133,6 @@ export async function saveCommunicationAnalysis(
     console.error('Error saving communication analysis:', error);
     return null;
   }
-  */
 }
 
 export async function getUserAnalyses(userId: string): Promise<any[]> {
