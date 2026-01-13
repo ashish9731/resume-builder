@@ -8,6 +8,7 @@ export async function saveResumeToSupabase(
     aiAnalysis?: string;
     enhancedText?: string;
     templateUsed?: string;
+    title?: string;
   },
   userId: string
 ): Promise<string | null> {
@@ -28,6 +29,7 @@ export async function saveResumeToSupabase(
     
     const record: any = {
       user_id: userId,
+      title: resumeData.title || 'Untitled Resume',
       original_text: resumeData.originalText,
       parsed_data: resumeData.parsedData,
     };
