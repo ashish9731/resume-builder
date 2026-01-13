@@ -118,6 +118,7 @@ Return only the enhanced resume text in the same format as the original.`
     
     console.log('Making OpenAI API call...')
     console.log('Prompt length:', prompt.length)
+    console.log('ENHANCE INPUT:', text?.slice(0, 200))
     
     const completion = await openai.chat.completions.create({
       model,
@@ -135,6 +136,7 @@ Return only the enhanced resume text in the same format as the original.`
 
     let enhanced = completion.choices[0]?.message?.content ?? ''
     console.log('Enhanced content length:', enhanced.length)
+    console.log('ENHANCE OUTPUT:', enhanced?.slice(0, 200))
     
     if (!enhanced) {
       console.error('No enhanced content generated')
@@ -186,13 +188,13 @@ Return only the enhanced resume text in the same format as the original.`
       )
     }
 
-    return NextResponse.json(
-      { 
-        error: error?.message || 'Failed to enhance resume. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
-      },
-      { status: 500 }
-    )
+    console.error("Enhancement error (REAL):", error)
+
+    if (error instanceof Error) {
+      throw error
+    }
+
+    throw new Error(JSON.stringify(error))
   }
 }
 
