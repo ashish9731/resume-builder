@@ -21,6 +21,9 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
   const [analysis, setAnalysis] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [timeRemaining, setTimeRemaining] = useState(60)
+  const [timerActive, setTimerActive] = useState(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const generateQuestions = async () => {
@@ -55,6 +58,8 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
       setStep('interview')
       setCurrentQuestionIndex(0)
       setCurrentResponse('')
+      setTimeRemaining(60)
+      setTimerActive(false)
     } catch (err) {
       setError('Failed to generate interview questions. Please try again.')
       console.error('Question generation error:', err)
@@ -63,9 +68,40 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
     }
   }
 
+  // Timer effect
+  useEffect(() => {
+    if (timerActive && timeRemaining > 0) {
+      timerRef.current = setTimeout(() => {
+        setTimeRemaining(prev => prev - 1)
+      }, 1000)
+    } else if (timeRemaining === 0 && timerActive) {
+      // Auto-submit when time runs out
+      handleResponseSubmit()
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [timerActive, timeRemaining])
+
+  const startTimer = () => {
+    setTimerActive(true)
+    setTimeRemaining(60)
+  }
+
+  const stopTimer = () => {
+    setTimerActive(false)
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+  }
+
   const finishInterview = async (responses: { question: string; response: string }[]) => {
     setIsLoading(true)
     setError('')
+    stopTimer()
 
     try {
       const response = await fetch('/api/interview-preparation', {
@@ -127,9 +163,15 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Check if file is text-based
-    if (!file.type.includes('text/') && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')) {
-      setError('Please upload a text file (TXT, PDF, DOCX)')
+    // Check if file is supported
+    const supportedTypes = ['text/', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    const isSupported = supportedTypes.some(type => file.type.includes(type)) || 
+                       file.name.endsWith('.pdf') || 
+                       file.name.endsWith('.docx') || 
+                       file.name.endsWith('.txt')
+    
+    if (!isSupported) {
+      setError('Please upload a supported file (TXT, PDF, DOCX)')
       return
     }
 
@@ -137,35 +179,27 @@ export default function InterviewPrep({ onBack }: InterviewPrepProps) {
     setError('')
 
     try {
-      // For this demo, we'll simulate reading the file
-      // In a real implementation, we would parse the file content
-      const simulatedResume = `John Doe
-Software Engineer
-john.doe@example.com | (555) 123-4567 | San Francisco, CA
+      // Create FormData and append the file
+      const formData = new FormData()
+      formData.append('file', file)
 
-PROFESSIONAL SUMMARY
-Experienced Software Engineer with 5+ years of expertise in full-stack development, specializing in React, Node.js, and cloud technologies. Proven track record of delivering scalable applications and leading development teams.
+      // Send file to parse API
+      const response = await fetch('/api/parse', {
+        method: 'POST',
+        body: formData,
+      })
 
-PROFESSIONAL EXPERIENCE
-Senior Software Engineer | TechCorp | Jan 2020 - Present
-• Led a team of 5 developers to deliver 3 major product releases, resulting in 40% increase in user engagement
-• Architected microservices infrastructure reducing system downtime by 99.9%
-• Implemented CI/CD pipelines that decreased deployment time by 70%
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to process file')
+      }
 
-Software Engineer | InnovateX | Jun 2017 - Dec 2019
-• Developed responsive web applications using React and Redux, improving page load speed by 50%
-• Integrated RESTful APIs with Node.js and Express, serving 1M+ daily active users
-• Collaborated with UX designers to implement pixel-perfect interfaces meeting WCAG 2.1 standards
-
-TECHNICAL SKILLS
-Languages: JavaScript, TypeScript, Python, SQL
-Frameworks: React, Node.js, Express, Next.js
-Tools: Docker, Kubernetes, AWS, Git, Jenkins
-Databases: PostgreSQL, MongoDB, Redis
-
-EDUCATION
-B.S. Computer Science | Stanford University | 2017`
-      setResume(simulatedResume)
+      const data = await response.json()
+      if (!data.text) {
+        throw new Error('No text content extracted from file')
+      }
+      
+      setResume(data.text)
     } catch (err) {
       setError('Failed to process file. Please try again.')
       console.error('File processing error:', err)
@@ -315,8 +349,17 @@ B.S. Computer Science | Stanford University | 2017`
               <Sparkles className="w-5 h-5 text-purple-400 mr-2" />
               <h3 className="text-lg font-semibold text-stone-800">Interview Session</h3>
             </div>
-            <div className="text-stone-700">
-              Question {currentQuestionIndex + 1} of {questions.length}
+            <div className="flex items-center space-x-4">
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                timeRemaining > 30 ? 'bg-green-100 text-green-800' : 
+                timeRemaining > 10 ? 'bg-yellow-100 text-yellow-800' : 
+                'bg-red-100 text-red-800'
+              }`}>
+                ⏱️ {timeRemaining}s
+              </div>
+              <div className="text-stone-700">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </div>
             </div>
           </div>
           
@@ -334,9 +377,19 @@ B.S. Computer Science | Stanford University | 2017`
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-stone-700 mb-2">
-              Your Response
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-stone-700">
+                Your Response
+              </label>
+              {!timerActive && (
+                <Button
+                  onClick={startTimer}
+                  className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white text-sm px-3 py-1"
+                >
+                  Start Timer (60s)
+                </Button>
+              )}
+            </div>
             <textarea
               value={currentResponse}
               onChange={(e) => setCurrentResponse(e.target.value)}
@@ -362,9 +415,15 @@ B.S. Computer Science | Stanford University | 2017`
             
             <Button
               onClick={handleResponseSubmit}
+              disabled={isLoading}
               className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
             >
-              {currentQuestionIndex === questions.length - 1 ? 'Finish Interview' : 'Next Question'}
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Analysing Answers...
+                </>
+              ) : currentQuestionIndex === questions.length - 1 ? 'Finish Interview' : 'Next Question'}
             </Button>
           </div>
         </div>

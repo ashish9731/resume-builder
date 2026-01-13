@@ -22,38 +22,45 @@ export async function POST(req: Request) {
 
     let prompt = ''
     
+    // Add randomness factor to make responses more varied
+    const randomSeed = Math.random().toString(36).substring(7)
+    
     switch (section) {
       case 'summary':
-        prompt = `Create a powerful professional summary for ${context || 'a professional'}. Write 3-4 compelling sentences that:
-        - Lead with years of experience and core expertise
-        - Include 2-3 key achievements or impact statements
-        - Use industry-specific keywords and power phrases
-        - Make the candidate irresistible to employers
-        - Focus on value delivery and professional excellence`
+        prompt = `Create a unique professional summary for ${context || 'a professional'}. Write 3-4 compelling sentences that:
+        - Lead with distinctive expertise and unique value proposition
+        - Include specific achievements or impact stories
+        - Use fresh, industry-appropriate language
+        - Stand out from generic templates
+        - Reflect authentic professional voice
+        Random seed: ${randomSeed}`
         break
       case 'experience':
-        prompt = `Write 4-5 achievement-focused bullet points for ${context || 'a professional position'}. Each bullet should:
-        - Start with powerful action verbs (Spearheaded, Orchestrated, Pioneered, Transformed, Accelerated)
-        - Include quantifiable impact where logical (increased efficiency by X%, reduced costs by $Y, managed team of Z)
-        - Highlight specific technologies, tools, and methodologies used
-        - Show leadership, innovation, and problem-solving examples
-        - Demonstrate progression and growth in responsibilities`
+        prompt = `Write 4-5 distinctive achievement-focused bullet points for ${context || 'a professional position'}. Each bullet should:
+        - Use varied action verbs (Led, Engineered, Optimized, Spearheaded, Delivered)
+        - Include concrete metrics and outcomes
+        - Showcase unique challenges solved
+        - Highlight specialized skills and tools
+        - Demonstrate clear career progression
+        Random seed: ${randomSeed}`
         break
       case 'skills':
-        prompt = `Generate a comprehensive, strategically organized skills list for ${context || 'a professional'}. Organize into categories:
-        - Technical Expertise: Include trending technologies and in-demand skills
-        - Leadership & Management: Soft skills and leadership capabilities
-        - Industry Knowledge: Domain-specific expertise
-        Format as comma-separated values within each category.`
+        prompt = `Generate a tailored skills list for ${context || 'a professional'}. Organize naturally:
+        - Core competencies and technical strengths
+        - Leadership and collaborative abilities
+        - Industry-specific knowledge
+        - Emerging skills and continuous learning
+        Use varied formatting and avoid repetition
+        Random seed: ${randomSeed}`
         break
       case 'project':
-        prompt = `Write a detailed, compelling project description for "${context || 'a project'}". Include:
-        - Clear project objectives and scope
-        - Technologies, tools, and methodologies used
-        - Challenges overcome and innovative solutions implemented
-        - Quantifiable results and impact achieved
-        - Leadership and collaboration aspects
-        Make it achievement-focused and ATS-optimized.`
+        prompt = `Write a unique project description for "${context || 'a project'}". Include:
+        - Specific goals and innovative approaches
+        - Cutting-edge technologies and methodologies
+        - Real challenges addressed and creative solutions
+        - Measurable outcomes and business impact
+        - Team collaboration and leadership roles
+        Random seed: ${randomSeed}`
         break
       default:
         return NextResponse.json({ error: 'Invalid section' }, { status: 400 })

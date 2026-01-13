@@ -153,7 +153,7 @@ export default function ApplicationPage() {
 
           {/* Create New Resume Card */}
           <Link href="/app/create" className="group">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-500/30 transition-colors">
                   <FilePlus2 className="h-8 w-8 text-purple-400" />
@@ -182,7 +182,7 @@ export default function ApplicationPage() {
           
           {/* Communication Coach Card */}
           <Link href="/app/communication-coach" className="group">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-500/30 transition-colors">
                   <Mic className="h-8 w-8 text-green-400" />
@@ -211,7 +211,7 @@ export default function ApplicationPage() {
 
           {/* Interview Prep Card */}
           <Link href="/app/interview-prep" className="group">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-stone-50 transition-all duration-300 hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-500/30 transition-colors">
                   <Play className="h-8 w-8 text-yellow-400" />

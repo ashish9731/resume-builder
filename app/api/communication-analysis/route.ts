@@ -40,51 +40,37 @@ export async function POST(req: Request) {
       )
     }
 
-    const prompt = `You are an expert communication coach and professional speech analyst with decades of experience helping candidates excel in interviews and presentations. Your analysis has helped thousands of professionals land their dream jobs. Conduct a comprehensive analysis of this spoken content.
+    const prompt = `You are an expert communication coach specializing in helping professionals improve their speaking skills for interviews and presentations. Analyze this spoken content and provide a friendly, encouraging assessment.
 
-ANALYSIS FRAMEWORK:
+Focus on these key areas:
 
-**1. CLARITY ASSESSMENT**
-- Articulation and pronunciation evaluation
-- Sentence structure and grammatical accuracy
-- Word choice appropriateness and professionalism
-- Elimination of filler words (um, uh, like, you know)
-- Overall message coherence and understandability
+🗣️ GRAMMAR & LANGUAGE
+Check sentence structure, word choices, and professional language use
 
-**2. PACING ANALYSIS**
-- Speaking rate (too fast/slow/just right)
-- Pause usage and strategic silence placement
-- Rhythm and flow of delivery
-- Breath control and natural inflection points
-- Timing effectiveness for emphasis and comprehension
+🎯 PRONUNCIATION
+Evaluate clarity of speech and how easy it is to understand
 
-**3. CONFIDENCE INDICATORS**
-- Tone strength and vocal projection assessment
-- Authority and conviction in delivery
-- Self-assurance indicators vs. uncertainty signals
-- Body language implications from vocal cues
-- Professional presence demonstration
+💭 FILLER WORDS
+Notice any "um", "uh", "like", "you know" that interrupt the flow
 
-**4. CONTENT QUALITY**
-- Relevance to stated purpose/objective
-- Logical flow and organizational structure
-- Key point emphasis and supporting details
-- Achievement and skill highlighting effectiveness
-- Storytelling capability and engagement level
+⏸️ PAUSES & TIMING
+Analyze speaking pace, pause placement, and rhythm
 
-**5. IMPROVEMENT ROADMAP**
-- Specific techniques for immediate improvement
-- Long-term development strategies
-- Practice exercises and drills
-- Professional resources and tools
-- Measurable goals and progress tracking
+✨ SPEAKING QUALITY
+Assess confidence, tone, and overall delivery effectiveness
 
-DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the transcript. Focus on concrete improvements that will elevate this speaker's communication from competent to exceptional. Include specific recommendations for each area that will make this candidate irresistible to interviewers and hiring managers.
+Provide a warm, supportive analysis with:
+- Specific examples from the transcript
+- Clear improvement suggestions
+- Encouraging feedback
+- Practical tips for better speaking
+
+Keep the tone conversational and helpful, like a friendly coach giving constructive feedback.
 
 CONTENT TO ANALYZE:
 ${transcript.substring(0, 4000)}
 
-Return a comprehensive analysis focusing on the areas above, with specific examples and actionable recommendations.`
+Return a detailed analysis with emojis and clear, actionable advice.`
 
     const openai = getOpenAI()
     const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'

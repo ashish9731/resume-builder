@@ -137,52 +137,37 @@ Return ONLY a JSON array of exactly ${count} questions as strings, with no addit
         )
       }
 
-      const prompt = `You are an expert interview coach and HR professional with decades of experience evaluating candidate performance. Provide a comprehensive analysis of this interview session.
+      const prompt = `You are an expert interview evaluator who provides honest, constructive feedback to help candidates improve. Analyze this interview session and give specific, actionable feedback.
 
-INTERVIEW SESSION DATA:
+INTERVIEW DATA:
 ${JSON.stringify(interviewHistory.slice(0, 10), null, 2)}
 
-ANALYSIS FRAMEWORK:
+Provide analysis in these areas:
 
-**1. OVERALL PERFORMANCE ASSESSMENT**
-- Overall interview strength and areas for improvement
-- Consistency across responses
-- Professionalism and communication effectiveness
-- Alignment with job requirements
+📊 OVERALL SCORE (out of 10)
+Give a final score based on the quality of responses
 
-**2. RESPONSE QUALITY EVALUATION**
-- Depth and relevance of answers
-- Use of STAR method (Situation, Task, Action, Result)
-- Specific examples and quantifiable achievements
-- Problem-solving approach and critical thinking
+💬 RESPONSE QUALITY
+- How well did they answer each question?
+- Did they provide specific examples?
+- Was their experience relevant to the questions?
 
-**3. COMMUNICATION ANALYSIS**
-- Clarity and articulation
-- Confidence and tone
-- Active listening and question understanding
-- Engagement and enthusiasm
+🗣️ COMMUNICATION SKILLS
+- How clear and articulate were their answers?
+- Did they speak confidently?
+- Was their tone professional?
 
-**4. TECHNICAL COMPETENCY ASSESSMENT**
-- Technical knowledge demonstration
-- Problem-solving methodology
-- Innovation and creativity
-- Learning agility and adaptability
+🧠 PROBLEM-SOLVING
+- How well did they think through challenges?
+- Did they show logical reasoning?
+- Were their solutions practical?
 
-**5. BEHAVIORAL COMPETENCIES**
-- Leadership and teamwork examples
-- Conflict resolution skills
-- Adaptability and resilience
-- Cultural fit indicators
+🎯 JOB ALIGNMENT
+- How well do their skills match the role?
+- Did they highlight relevant experience?
+- Were they enthusiastic about the position?
 
-**6. IMPROVEMENT ROADMAP**
-- Specific recommendations for each area
-- Practice exercises and preparation strategies
-- Resources for skill development
-- Mock interview scenarios for improvement
-
-DELIVERABLE: Provide a detailed, actionable analysis with specific examples from the interview session. Focus on concrete improvements that will elevate this candidate's interview performance. Include both strengths to leverage and areas for development with specific action items.
-
-Return a comprehensive analysis focusing on the areas above, with specific examples and actionable recommendations.`
+Provide specific examples from their actual answers and give clear suggestions for improvement. Be encouraging but honest about areas that need work.`
 
       const completion = await openai.chat.completions.create({
         model,

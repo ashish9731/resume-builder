@@ -326,21 +326,52 @@ const CreatePage = () => {
   const handlePreviewResume = useCallback(async () => {
     setLoading(true)
     try {
+      // Generate a sample job description for enhancement
+      const sampleJobDescription = "Software Developer position requiring strong technical skills and experience"
+      
       const response = await fetch('/api/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: generateResume }),
+        body: JSON.stringify({ 
+          text: generateResume,
+          jobDescription: sampleJobDescription 
+        }),
       })
 
-      if (!response.ok) throw new Error('Failed to enhance resume')
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Failed to enhance resume: ${errorText}`)
+      }
 
       const data = await response.json()
+      if (!data.enhanced) {
+        throw new Error('No enhanced content received')
+      }
+      
       setEnhancedResume(data.enhanced)
       setShowPreview(true)
       setCurrentStep(6) // Go to preview step
     } catch (error) {
       console.error('Preview error:', error)
-      alert('Failed to generate preview. Please try again.')
+      
+      // Save current resume as draft on failure
+      try {
+        const draftContent = generateResume || 'Draft resume content'
+        const blob = new Blob([draftContent], { type: 'text/plain' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `resume-draft-${new Date().toISOString().split('T')[0]}.txt`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        
+        alert('Preview generation failed. Your current resume has been saved as a draft file. You can download it directly.')
+      } catch (saveError) {
+        console.error('Failed to save draft:', saveError)
+        alert('Preview generation failed. Please check your resume content and try again.')
+      }
     } finally {
       setLoading(false)
     }
