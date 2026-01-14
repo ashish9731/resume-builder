@@ -6,7 +6,7 @@ export async function generateResumePDF(
   template: string = 'professional'
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595, 842]); // A4 size
+  let currentPage = pdfDoc.addPage([595, 842]); // A4 size
   
   // Embed fonts
   const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -15,7 +15,18 @@ export async function generateResumePDF(
   let yPosition = 800;
   const leftMargin = 50;
   const rightMargin = 545;
+  const bottomMargin = 50;
   const lineHeight = 14;
+  
+  // Function to add new page when needed
+  const addNewPageIfNeeded = (requiredSpace: number = 50) => {
+    if (yPosition - requiredSpace < bottomMargin) {
+      currentPage = pdfDoc.addPage([595, 842]);
+      yPosition = 800;
+      return true;
+    }
+    return false;
+  };
   
   // Template-specific styling
   let headerFontSize = 18;
@@ -60,7 +71,7 @@ export async function generateResumePDF(
       const textWidth = font.widthOfTextAtSize(testLine, fontSize);
       
       if (textWidth > maxWidth && line !== '') {
-        page.drawText(line.trim(), {
+        currentPage.drawText(line.trim(), {
           x: leftMargin,
           y: yPosition,
           size: fontSize,
@@ -75,7 +86,7 @@ export async function generateResumePDF(
     }
     
     if (line.trim()) {
-      page.drawText(line.trim(), {
+      currentPage.drawText(line.trim(), {
         x: leftMargin,
         y: yPosition,
         size: fontSize,
@@ -88,6 +99,7 @@ export async function generateResumePDF(
   
   // Draw header section
   if (resume.personalInfo.fullName) {
+    addNewPageIfNeeded(100); // Reserve space for header
     drawText(resume.personalInfo.fullName, headerFontSize, helveticaBold, rgb(0.1, 0.1, 0.1));
     
     // Contact information
@@ -104,6 +116,7 @@ export async function generateResumePDF(
   
   // Summary section
   if (resume.summary) {
+    addNewPageIfNeeded(150); // Reserve space for summary
     drawText('SUMMARY', sectionFontSize, helveticaBold, rgb(0.1, 0.3, 0.6));
     yPosition -= 5;
     drawText(resume.summary, bodyFontSize);
@@ -112,11 +125,15 @@ export async function generateResumePDF(
   
   // Experience section
   if (resume.experience && resume.experience.length > 0) {
+    addNewPageIfNeeded(200); // Reserve space for experience section
     drawText('WORK EXPERIENCE', sectionFontSize, helveticaBold, rgb(0.1, 0.3, 0.6));
     yPosition -= 8;
     
     resume.experience.forEach((exp, index) => {
       if (exp.company && exp.position) {
+        // Check if we need a new page for this experience entry
+        addNewPageIfNeeded(100);
+        
         // Company and position
         drawText(`${exp.company} - ${exp.position}`, bodyFontSize + 1, helveticaBold);
         
@@ -130,6 +147,7 @@ export async function generateResumePDF(
           const descriptionLines = exp.description.split('\n');
           descriptionLines.forEach(line => {
             if (line.trim()) {
+              addNewPageIfNeeded(20); // Space for each bullet point
               drawText(`• ${line.trim()}`, bulletFontSize);
             }
           });
@@ -143,6 +161,7 @@ export async function generateResumePDF(
   
   // Skills section
   if (resume.skills) {
+    addNewPageIfNeeded(100);
     drawText('SKILLS', sectionFontSize, helveticaBold, rgb(0.1, 0.3, 0.6));
     yPosition -= 8;
     drawText(resume.skills, bodyFontSize);
@@ -151,11 +170,13 @@ export async function generateResumePDF(
   
   // Education section
   if (resume.education && resume.education.length > 0) {
+    addNewPageIfNeeded(100);
     drawText('EDUCATION', sectionFontSize, helveticaBold, rgb(0.1, 0.3, 0.6));
     yPosition -= 8;
     
     resume.education.forEach(edu => {
       if (edu.institution) {
+        addNewPageIfNeeded(50);
         drawText(edu.institution, bodyFontSize);
         if (edu.degree) drawText(edu.degree, bulletFontSize, helvetica, rgb(0.4, 0.4, 0.4));
         if (edu.year) drawText(edu.year, bulletFontSize, helvetica, rgb(0.4, 0.4, 0.4));
@@ -167,11 +188,13 @@ export async function generateResumePDF(
   
   // Certifications section
   if (resume.certifications && resume.certifications.length > 0) {
+    addNewPageIfNeeded(100);
     drawText('CERTIFICATIONS', sectionFontSize, helveticaBold, rgb(0.1, 0.3, 0.6));
     yPosition -= 8;
     
     resume.certifications.forEach(cert => {
       if (cert.name) {
+        addNewPageIfNeeded(30);
         drawText(`${cert.name}${cert.issuer ? ` - ${cert.issuer}` : ''}`, bodyFontSize);
         if (cert.date) drawText(cert.date, bulletFontSize, helvetica, rgb(0.4, 0.4, 0.4));
         yPosition -= 6;
@@ -182,11 +205,13 @@ export async function generateResumePDF(
   
   // Projects section
   if (resume.projects && resume.projects.length > 0) {
+    addNewPageIfNeeded(100);
     drawText('PROJECTS', sectionFontSize, helveticaBold, rgb(0.1, 0.3, 0.6));
     yPosition -= 8;
     
     resume.projects.forEach(proj => {
       if (proj.name) {
+        addNewPageIfNeeded(50);
         drawText(proj.name, bodyFontSize);
         if (proj.description) drawText(proj.description, bulletFontSize, helvetica, rgb(0.4, 0.4, 0.4));
         yPosition -= 6;
