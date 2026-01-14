@@ -34,8 +34,16 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('PDF generation error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      name: error instanceof Error ? error.name : 'Unknown type'
+    })
     return NextResponse.json(
-      { error: 'Failed to generate PDF' },
+      { 
+        error: 'Failed to generate PDF',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

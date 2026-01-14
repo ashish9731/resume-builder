@@ -265,10 +265,12 @@ const CreatePage = () => {
       
       const structuredResume = {
         basics: {
-          name: personalInfo?.fullName || '',
+          name: personalInfo?.fullName || 'Candidate Name',
           email: personalInfo?.email || '',
           phone: personalInfo?.phone || '',
-          location: personalInfo?.location || ''
+          location: personalInfo?.location || '',
+          linkedin: personalInfo?.linkedin || '',
+          website: personalInfo?.website || ''
         },
         summary: resumeData?.summary || '',
         experience: experience.map(exp => ({
@@ -283,7 +285,8 @@ const CreatePage = () => {
           year: edu?.year || ''
         })) || [],
         skills: resumeData?.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
-        certifications: []
+        certifications: resumeData?.certifications?.filter((cert: any) => cert.name) || [],
+        projects: resumeData?.projects?.filter((proj: any) => proj.name) || []
       };
 
       const response = await fetch('/api/export-pdf', {
@@ -311,6 +314,10 @@ const CreatePage = () => {
       document.body.removeChild(a)
     } catch (error) {
       console.error('Download error:', error)
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
       const errorMessage = error instanceof Error ? error.message : String(error);
       alert(`Download failed: ${errorMessage}`)
     } finally {
@@ -441,10 +448,12 @@ const CreatePage = () => {
       
       const structuredResume = {
         basics: {
-          name: personalInfo?.fullName || '',
+          name: personalInfo?.fullName || 'Candidate Name',
           email: personalInfo?.email || '',
           phone: personalInfo?.phone || '',
-          location: personalInfo?.location || ''
+          location: personalInfo?.location || '',
+          linkedin: personalInfo?.linkedin || '',
+          website: personalInfo?.website || ''
         },
         summary: resumeData?.summary || '',
         experience: experience.map(exp => ({
@@ -459,7 +468,8 @@ const CreatePage = () => {
           year: edu?.year || ''
         })) || [],
         skills: resumeData?.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
-        certifications: []
+        certifications: resumeData?.certifications?.filter((cert: any) => cert.name) || [],
+        projects: resumeData?.projects?.filter((proj: any) => proj.name) || []
       };
 
       const response = await fetch('/api/export-pdf', {
@@ -487,6 +497,10 @@ const CreatePage = () => {
       document.body.removeChild(a)
     } catch (error) {
       console.error('Download error:', error)
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
       const errorMessage = error instanceof Error ? error.message : String(error);
       alert(`Download failed: ${errorMessage}`)
     } finally {
