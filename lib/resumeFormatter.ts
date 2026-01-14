@@ -45,17 +45,26 @@ export function formatResumeForDisplay(resumeData: ResumeData): string {
     resumeText += `${resumeData.personalInfo.fullName}\n`
   }
 
-  // 2. Contact Information - Custom format: 1-PHONE - EMAIL
+  // 2. Contact Information - Format: Full Name, Country Code - Phone, Email
   const contactParts = []
-  if (resumeData.personalInfo.phone) {
-    // Format phone number
-    const cleanPhone = resumeData.personalInfo.phone.replace(/[^0-9]/g, '');
-    if (cleanPhone) contactParts.push(`1-${cleanPhone}`);
+  
+  // Add full name first
+  if (resumeData.personalInfo.fullName) {
+    contactParts.push(resumeData.personalInfo.fullName);
   }
+  
+  // Add country code and phone
+  if (resumeData.personalInfo.phone) {
+    const cleanPhone = resumeData.personalInfo.phone.replace(/[^0-9]/g, '');
+    if (cleanPhone) {
+      // Default to +91 for India, can be customized
+      contactParts.push(`+91-${cleanPhone}`);
+    }
+  }
+  
+  // Add email
   if (resumeData.personalInfo.email) {
-    // Clean email format
-    const cleanEmail = resumeData.personalInfo.email.replace(/[@.]/g, (match) => match === '@' ? 'AT' : '-');
-    contactParts.push(cleanEmail);
+    contactParts.push(resumeData.personalInfo.email);
   }
   
   if (contactParts.length > 0) {

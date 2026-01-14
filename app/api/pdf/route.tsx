@@ -140,13 +140,14 @@ function createResumePDF(text: string, template: string = 'professional'): Buffe
 }
 
 function escapePDFText(text: string): string {
+  // First, remove or replace problematic characters that cause WinAnsi encoding errors
   return text
-    .replace(/\\/g, '\\\\')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)')
-    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\uFFFF]/g, ' ') // Replace all non-ASCII chars with space
-    .replace(/\n/g, ' ') // Replace newlines with spaces
-    .replace(/\r/g, ' ') // Replace carriage returns with spaces
+    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\uFFFF]/g, ' ') // Remove all non-ASCII and control characters
+    .replace(/[\n\r]/g, ' ') // Replace newlines and carriage returns with spaces
+    .replace(/\\/g, '\\\\') // Escape backslashes
+    .replace(/\(/g, '\\(') // Escape opening parentheses
+    .replace(/\)/g, '\\)') // Escape closing parentheses
+    .replace(/[^\x20-\x7E]/g, ' ') // Final cleanup: only ASCII printable characters
     .trim()
 }
 
@@ -249,7 +250,13 @@ export async function POST(req: Request) {
       )
     }
 
-    const cleanText = text.trim()
+    // Pre-clean the text to prevent encoding issues
+    const cleanText = text
+      .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\uFFFF]/g, ' ') // Remove problematic characters
+      .replace(/[\n\r]+/g, '\n') // Normalize line endings
+      .replace(/[ \t]+/g, ' ') // Normalize whitespace
+      .trim()
+    
     if (!cleanText) {
       return NextResponse.json(
         { error: 'No content to generate PDF' },

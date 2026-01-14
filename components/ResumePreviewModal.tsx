@@ -87,10 +87,22 @@ export default function ResumePreviewModal({
               placeholder="Edit your resume content here..."
             />
           ) : (
-            <div className="bg-gray-50 rounded-lg p-6 min-h-[500px]">
-              <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800">
-                {editedText}
-              </pre>
+            <div className="bg-white rounded-lg p-6 min-h-[500px] text-gray-800">
+              <div className="whitespace-pre-wrap font-sans text-base leading-relaxed">
+                {editedText.split('\n').map((line, index) => (
+                  <div 
+                    key={index} 
+                    className={
+                      line.trim() === '' ? 'my-2' :
+                      line === line.toUpperCase() && line.length > 10 ? 'font-bold text-lg my-4 border-b pb-2' :
+                      line.startsWith('-') ? 'ml-4 my-1' :
+                      'my-1'
+                    }
+                  >
+                    {line}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
