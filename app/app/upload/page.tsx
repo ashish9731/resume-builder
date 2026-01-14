@@ -238,13 +238,11 @@ export default function UploadPage() {
       console.error('Enhancement error:', error)
       console.error('Error type:', error?.constructor?.name)
       console.error('Error message:', error?.message)
+      console.error('Full error object:', error);
       
-      // Check if it's an authentication error
-      if (error?.message?.includes('Auth') || error?.message?.includes('session')) {
-        alert('Authentication issue detected. Please refresh the page and try again.');
-      } else {
-        alert('Failed to enhance resume. Please try again.');
-      }
+      // Display the actual error message
+      const errorMessage = error?.message || 'Unknown error occurred';
+      alert(`Enhancement failed: ${errorMessage}`);
     } finally {
       setEnhancing(false)
     }
