@@ -58,13 +58,12 @@ export function formatResumeForDisplay(resumeData: ResumeData): string {
   if (resumeData.personalInfo.linkedin) contactParts.push(resumeData.personalInfo.linkedin)
   
   if (contactParts.length > 0) {
-    resumeText += `${contactParts.join(' | ')}\n\n`
+    resumeText += `${contactParts.join(' - ')}\n\n`
   }
 
   // 4. Professional Summary
   if (resumeData.summary) {
     resumeText += `PROFESSIONAL SUMMARY
-====================
 ${resumeData.summary}
 
 
@@ -73,20 +72,20 @@ ${resumeData.summary}
 
   // 5. Core Skills / Technical Skills
   if (resumeData.skills) {
-    resumeText += `CORE SKILLS\n===========\n`
+    resumeText += `CORE SKILLS\n`
     // Convert comma-separated skills to bullet points
     const skillsList = resumeData.skills
       .split(/[•,]/)
       .map(skill => skill.trim())
       .filter(skill => skill.length > 0)
-      .map(skill => `• ${skill}`)
+      .map(skill => `- ${skill}`)
       .join('\n');
     resumeText += `${skillsList}\n\n\n`
   }
 
   // 6. Experience - Professional format
   if (resumeData.experience && resumeData.experience.some(exp => exp.company)) {
-    resumeText += `PROFESSIONAL EXPERIENCE\n=======================\n\n`
+    resumeText += `PROFESSIONAL EXPERIENCE\n\n`
     resumeData.experience.forEach((exp, index) => {
       if (exp.company) {
         // Job Title
@@ -94,7 +93,7 @@ ${resumeData.summary}
         // Company and Location
         resumeText += `${exp.company}`
         if (resumeData.personalInfo.location) {
-          resumeText += `, ${resumeData.personalInfo.location}`
+          resumeText += ` - ${resumeData.personalInfo.location}`
         }
         resumeText += `\n`
         // Duration
@@ -108,7 +107,7 @@ ${resumeData.summary}
             .map(line => {
               // Ensure bullet point formatting
               if (!line.startsWith('•') && !line.startsWith('-')) {
-                return `• ${line.trim()}`;
+                return `- ${line.trim()}`;
               }
               return line.trim();
             })
@@ -121,7 +120,7 @@ ${resumeData.summary}
 
   // 7. Projects (if available)
   if (resumeData.projects && resumeData.projects.some(proj => proj.name)) {
-    resumeText += `PROJECTS\n========\n\n`
+    resumeText += `PROJECTS\n\n`
     resumeData.projects.forEach(proj => {
       if (proj.name) {
         resumeText += `${proj.name}\n`
@@ -138,33 +137,42 @@ ${resumeData.summary}
 
   // 8. Education Section
   if (resumeData.education && resumeData.education.length > 0) {
-    resumeText += `EDUCATION\n=========\n\n`
+    resumeText += `EDUCATION\n\n`
     resumeData.education.forEach(edu => {
       if (edu.institution) {
         resumeText += `${edu.degree}\n`
-        resumeText += `${edu.institution}${edu.year ? ` | ${edu.year}` : ''}\n\n`
+        resumeText += `${edu.institution}${edu.year ? ` - ${edu.year}` : ''}\n\n`
       }
     })
   }
 
   // 9. Certifications - Professional format
   if (resumeData.certifications && resumeData.certifications.some(cert => cert.name)) {
-    resumeText += `CERTIFICATIONS\n==============\n\n`
+    resumeText += `CERTIFICATIONS\n\n`
     resumeData.certifications.forEach(cert => {
       if (cert.name) {
         resumeText += `${cert.name}\n`
-        resumeText += `${cert.issuer}${cert.date ? ` | ${cert.date}` : ''}\n\n`
+        resumeText += `${cert.issuer}${cert.date ? ` - ${cert.date}` : ''}\n\n`
       }
     })
   }
 
   // 10. Languages (placeholder - can be added to data structure)
   // This would be implemented when language data is available in ResumeData
-  resumeText += `LANGUAGES\n========\n\n`
+  resumeText += `LANGUAGES\n\n`
   resumeText += `English - Native\n`
   resumeText += `\n`
 
-  return resumeText.trim()
+  // Final cleanup to ensure PDF compatibility and formatting requirements
+  const cleanText = resumeText
+    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\uFFFF]/g, ' ') // Remove non-printable characters
+    .replace(/\n+/g, '\n') // Normalize multiple newlines
+    .replace(/[ \t]+/g, ' ') // Normalize whitespace
+    .replace(/\|/g, '-') // Replace pipe symbols with hyphens
+    .replace(/\./g, '-') // Replace periods with hyphens
+    .trim();
+  
+  return cleanText;
 }
 
 export function formatResumeForPDF(resumeData: ResumeData, template: string = 'professional'): string {

@@ -144,7 +144,9 @@ function escapePDFText(text: string): string {
     .replace(/\\/g, '\\\\')
     .replace(/\(/g, '\\(')
     .replace(/\)/g, '\\)')
-    .replace(/[^\x20-\x7E]/g, ' ') // Replace non-printable chars with space
+    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\uFFFF]/g, ' ') // Replace all non-ASCII chars with space
+    .replace(/\n/g, ' ') // Replace newlines with spaces
+    .replace(/\r/g, ' ') // Replace carriage returns with spaces
     .trim()
 }
 
