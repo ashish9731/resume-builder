@@ -247,26 +247,32 @@ const CreatePage = () => {
 
     try {
       // Convert current resume data to structured format for PDF export
+      
+      // Safely access resumeData properties
+      const personalInfo = resumeData?.personalInfo || {};
+      const experience = Array.isArray(resumeData?.experience) ? resumeData.experience : [];
+      const education = Array.isArray(resumeData?.education) ? resumeData.education : [];
+      
       const structuredResume = {
         basics: {
-          name: resumeData.personalInfo.fullName || '',
-          email: resumeData.personalInfo.email || '',
-          phone: resumeData.personalInfo.phone || '',
-          location: resumeData.personalInfo.location || ''
+          name: personalInfo?.fullName || '',
+          email: personalInfo?.email || '',
+          phone: personalInfo?.phone || '',
+          location: personalInfo?.location || ''
         },
-        summary: resumeData.summary || '',
-        experience: resumeData.experience.map(exp => ({
-          title: exp.position || '',
-          company: exp.company || '',
-          duration: exp.duration || '',
-          bullets: exp.description ? exp.description.split('\n').filter(line => line.trim()) : []
+        summary: resumeData?.summary || '',
+        experience: experience.map(exp => ({
+          title: exp?.position || '',
+          company: exp?.company || '',
+          duration: exp?.duration || '',
+          bullets: exp?.description ? exp.description.split('\n').filter(line => line.trim()) : []
         })) || [],
-        education: resumeData.education.map(edu => ({
-          degree: edu.degree || '',
-          institution: edu.institution || '',
-          year: edu.year || ''
+        education: education.map(edu => ({
+          degree: edu?.degree || '',
+          institution: edu?.institution || '',
+          year: edu?.year || ''
         })) || [],
-        skills: resumeData.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+        skills: resumeData?.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
         certifications: []
       };
 
@@ -417,26 +423,32 @@ const CreatePage = () => {
     try {
       // For preview, we'll need to convert the enhanced text back to structured data
       // This is a simplified approach - in practice, you'd want to preserve the structured data
+      
+      // Safely access resumeData properties
+      const personalInfo = resumeData?.personalInfo || {};
+      const experience = Array.isArray(resumeData?.experience) ? resumeData.experience : [];
+      const education = Array.isArray(resumeData?.education) ? resumeData.education : [];
+      
       const structuredResume = {
         basics: {
-          name: resumeData.personalInfo.fullName || '',
-          email: resumeData.personalInfo.email || '',
-          phone: resumeData.personalInfo.phone || '',
-          location: resumeData.personalInfo.location || ''
+          name: personalInfo?.fullName || '',
+          email: personalInfo?.email || '',
+          phone: personalInfo?.phone || '',
+          location: personalInfo?.location || ''
         },
-        summary: resumeData.summary || '',
-        experience: resumeData.experience.map(exp => ({
-          title: exp.position || '',
-          company: exp.company || '',
-          duration: exp.duration || '',
-          bullets: exp.description ? exp.description.split('\n').filter(line => line.trim()) : []
+        summary: resumeData?.summary || '',
+        experience: experience.map(exp => ({
+          title: exp?.position || '',
+          company: exp?.company || '',
+          duration: exp?.duration || '',
+          bullets: exp?.description ? exp.description.split('\n').filter(line => line.trim()) : []
         })) || [],
-        education: resumeData.education.map(edu => ({
-          degree: edu.degree || '',
-          institution: edu.institution || '',
-          year: edu.year || ''
+        education: education.map(edu => ({
+          degree: edu?.degree || '',
+          institution: edu?.institution || '',
+          year: edu?.year || ''
         })) || [],
-        skills: resumeData.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+        skills: resumeData?.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
         certifications: []
       };
 
