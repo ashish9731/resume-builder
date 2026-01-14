@@ -1,6 +1,7 @@
 export interface ResumeData {
   personalInfo: {
     fullName: string
+    title?: string
     email: string
     phone: string
     linkedin?: string
@@ -39,55 +40,65 @@ export interface ResumeData {
 export function formatResumeForDisplay(resumeData: ResumeData): string {
   let resumeText = ''
 
-  // Name - Bold/Heading format
+  // 1. Full Name
   if (resumeData.personalInfo.fullName) {
-    resumeText += `**${resumeData.personalInfo.fullName.toUpperCase()}**\n\n`
+    resumeText += `${resumeData.personalInfo.fullName}\n`
   }
 
-  // Contact Information - Clean format
-  const contactInfo = []
-  if (resumeData.personalInfo.email) contactInfo.push(resumeData.personalInfo.email)
-  if (resumeData.personalInfo.phone) contactInfo.push(resumeData.personalInfo.phone)
-  if (resumeData.personalInfo.linkedin) contactInfo.push(resumeData.personalInfo.linkedin)
-  if (resumeData.personalInfo.location) contactInfo.push(resumeData.personalInfo.location)
+  // 2. Job Title (if available)
+  if (resumeData.personalInfo.title) {
+    resumeText += `${resumeData.personalInfo.title}\n`
+  }
+
+  // 3. Contact Information - Universal format
+  const contactParts = []
+  if (resumeData.personalInfo.location) contactParts.push(resumeData.personalInfo.location)
+  if (resumeData.personalInfo.phone) contactParts.push(resumeData.personalInfo.phone)
+  if (resumeData.personalInfo.email) contactParts.push(resumeData.personalInfo.email)
+  if (resumeData.personalInfo.linkedin) contactParts.push(resumeData.personalInfo.linkedin)
   
-  if (contactInfo.length > 0) {
-    resumeText += `${contactInfo.join(' • ')}\n\n`
+  if (contactParts.length > 0) {
+    resumeText += `${contactParts.join(' | ')}\n\n`
   }
 
-  // Summary Section
+  // 4. Professional Summary
   if (resumeData.summary) {
-    resumeText += `**SUMMARY**
-
+    resumeText += `PROFESSIONAL SUMMARY
+====================
 ${resumeData.summary}
 
 
 `
   }
 
-  // Core Areas of Expertise (if exists in summary)
-  if (resumeData.summary && resumeData.summary.includes('CORE AREAS OF EXPERTISE')) {
-    // Extract and format core competencies
-    const coreAreasMatch = resumeData.summary.match(/CORE AREAS OF EXPERTISE[\s\S]*?(?=\n\n|$)/i);
-    if (coreAreasMatch) {
-      const coreAreas = coreAreasMatch[0];
-      resumeText += `**CORE COMPETENCIES**
-
-${coreAreas.replace('CORE AREAS OF EXPERTISE', '').trim()}
-
-
-`;
-    }
+  // 5. Core Skills / Technical Skills
+  if (resumeData.skills) {
+    resumeText += `CORE SKILLS\n===========\n`
+    // Convert comma-separated skills to bullet points
+    const skillsList = resumeData.skills
+      .split(/[•,]/)
+      .map(skill => skill.trim())
+      .filter(skill => skill.length > 0)
+      .map(skill => `• ${skill}`)
+      .join('\n');
+    resumeText += `${skillsList}\n\n\n`
   }
 
-  // Work Experience - Professional format
+  // 6. Experience - Professional format
   if (resumeData.experience && resumeData.experience.some(exp => exp.company)) {
-    resumeText += `**PROFESSIONAL EXPERIENCE**\n\n`
+    resumeText += `PROFESSIONAL EXPERIENCE\n=======================\n\n`
     resumeData.experience.forEach((exp, index) => {
       if (exp.company) {
-        // Company header
-        resumeText += `**${exp.company}**\n`
-        resumeText += `${exp.position} | ${exp.duration}\n\n`
+        // Job Title
+        resumeText += `${exp.position}\n`
+        // Company and Location
+        resumeText += `${exp.company}`
+        if (resumeData.personalInfo.location) {
+          resumeText += `, ${resumeData.personalInfo.location}`
+        }
+        resumeText += `\n`
+        // Duration
+        resumeText += `${exp.duration}\n\n`
         
         // Description with bullet points
         if (exp.description) {
@@ -108,70 +119,50 @@ ${coreAreas.replace('CORE AREAS OF EXPERTISE', '').trim()}
     })
   }
 
-  // Education Section
-  if (resumeData.education && resumeData.education.length > 0) {
-    resumeText += `**EDUCATION**\n\n`
-    resumeData.education.forEach(edu => {
-      if (edu.institution) {
-        resumeText += `**${edu.degree}**\n`
-        resumeText += `${edu.institution}${edu.year ? ` | ${edu.year}` : ''}\n\n`
-      }
-    })
-  }
-
-  // Skills - Enhanced formatting
-  if (resumeData.skills) {
-    resumeText += `**TECHNICAL SKILLS**\n\n`
-    // Convert comma-separated skills to bullet points
-    const skillsList = resumeData.skills
-      .split(/[•,]/)
-      .map(skill => skill.trim())
-      .filter(skill => skill.length > 0)
-      .map(skill => `• ${skill}`)
-      .join('\n');
-    resumeText += `${skillsList}\n\n\n`
-  }
-
-  // Certifications - Professional format
-  if (resumeData.certifications && resumeData.certifications.some(cert => cert.name)) {
-    resumeText += `**CERTIFICATIONS**\n\n`
-    resumeData.certifications.forEach(cert => {
-      if (cert.name) {
-        resumeText += `• **${cert.name}**\n`
-        resumeText += `  ${cert.issuer}${cert.date ? ` | ${cert.date}` : ''}\n\n`
-      }
-    })
-  }
-
-  // Projects (if available)
+  // 7. Projects (if available)
   if (resumeData.projects && resumeData.projects.some(proj => proj.name)) {
-    resumeText += `**PROJECTS**\n\n`
+    resumeText += `PROJECTS\n========\n\n`
     resumeData.projects.forEach(proj => {
       if (proj.name) {
-        resumeText += `• **${proj.name}**\n`
+        resumeText += `${proj.name}\n`
         if (proj.description) {
-          resumeText += `  ${proj.description}\n`
+          resumeText += `${proj.description}\n`
         }
         if (proj.technologies) {
-          resumeText += `  Technologies: ${proj.technologies}\n`
+          resumeText += `Technologies: ${proj.technologies}\n`
         }
         resumeText += `\n`
       }
     })
   }
 
-  // Achievements - Formatted
-  if (resumeData.achievements && resumeData.achievements.some(ach => ach.title)) {
-    resumeText += `**PROFESSIONAL ACHIEVEMENTS**\n\n`
-    resumeData.achievements.forEach(ach => {
-      if (ach.title) {
-        resumeText += `• ${ach.title}\n`
-        if (ach.description) {
-          resumeText += `  ${ach.description}\n\n`
-        }
+  // 8. Education Section
+  if (resumeData.education && resumeData.education.length > 0) {
+    resumeText += `EDUCATION\n=========\n\n`
+    resumeData.education.forEach(edu => {
+      if (edu.institution) {
+        resumeText += `${edu.degree}\n`
+        resumeText += `${edu.institution}${edu.year ? ` | ${edu.year}` : ''}\n\n`
       }
     })
   }
+
+  // 9. Certifications - Professional format
+  if (resumeData.certifications && resumeData.certifications.some(cert => cert.name)) {
+    resumeText += `CERTIFICATIONS\n==============\n\n`
+    resumeData.certifications.forEach(cert => {
+      if (cert.name) {
+        resumeText += `${cert.name}\n`
+        resumeText += `${cert.issuer}${cert.date ? ` | ${cert.date}` : ''}\n\n`
+      }
+    })
+  }
+
+  // 10. Languages (placeholder - can be added to data structure)
+  // This would be implemented when language data is available in ResumeData
+  resumeText += `LANGUAGES\n========\n\n`
+  resumeText += `English - Native\n`
+  resumeText += `\n`
 
   return resumeText.trim()
 }

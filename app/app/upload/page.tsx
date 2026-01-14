@@ -515,27 +515,11 @@ export default function UploadPage() {
                 </h2>
                 <p className="text-white/80 mb-4">Your enhanced resume is ready for download!</p>
                 
-                {/* Template Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Select Resume Template
-                  </label>
-                  <select
-                    value={selectedTemplate}
-                    onChange={(e) => setSelectedTemplate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="professional">Professional (Default)</option>
-                    <option value="executive">Executive</option>
-                    <option value="modern">Modern</option>
-                    <option value="creative">Creative</option>
-                    <option value="minimal">Minimal</option>
-                    <option value="template1">Template 1 - Two Column Executive</option>
-                    <option value="template2">Template 2 - Modern Corporate</option>
-                    <option value="template3">Template 3 - Minimal Serif</option>
-                  </select>
-                  <p className="text-white/50 text-xs mt-2">
-                    Choose a template that best fits your industry and personal style.
+                {/* Standardized Resume Format - No Templates */}
+                <div className="mb-6 p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                  <h3 className="text-white font-semibold mb-2">📄 Universal Resume Format</h3>
+                  <p className="text-white/80 text-sm">
+                    Your AI-enhanced resume will be generated in our standardized professional format with proper section hierarchy and ATS optimization.
                   </p>
                 </div>
                 
