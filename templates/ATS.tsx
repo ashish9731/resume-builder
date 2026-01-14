@@ -12,18 +12,18 @@ export default function ATSResume({ data }: ATSResumeProps) {
         <h1 className="text-2xl font-bold text-gray-900 uppercase tracking-wide">
           {data.basics.name}
         </h1>
-        <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-700">
+        <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-700">
           {data.basics.email && (
-            <span>📧 {data.basics.email}</span>
+            <span>Email: {data.basics.email}</span>
           )}
           {data.basics.phone && (
-            <span>📞 {data.basics.phone}</span>
+            <span>Phone: {data.basics.phone}</span>
           )}
           {data.basics.location && (
-            <span>📍 {data.basics.location}</span>
+            <span>Location: {data.basics.location}</span>
           )}
           {data.basics.linkedin && (
-            <span>🔗 {data.basics.linkedin}</span>
+            <span>LinkedIn: {data.basics.linkedin}</span>
           )}
         </div>
       </div>
@@ -42,35 +42,28 @@ export default function ATSResume({ data }: ATSResumeProps) {
 
       {/* Skills */}
       {data.skills && data.skills.length > 0 && (
-        <section className="mb-6">
-          <h2 className="font-bold text-lg uppercase border-b border-gray-300 pb-1 mb-3">
+        <section className="mb-6 break-inside-avoid">
+          <h2 className="font-bold text-lg uppercase pb-1 mb-3">
             Core Skills
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {data.skills.map((skill, index) => (
-              <span 
-                key={index} 
-                className="bg-gray-100 px-3 py-1 rounded text-sm font-medium text-gray-700"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
+          <p className="text-gray-800">
+            {data.skills.join(', ')}
+          </p>
         </section>
       )}
 
       {/* Experience */}
       {data.experience && data.experience.length > 0 && (
-        <section className="mb-6">
-          <h2 className="font-bold text-lg uppercase border-b border-gray-300 pb-1 mb-3">
+        <section className="mb-6 break-inside-avoid">
+          <h2 className="font-bold text-lg uppercase pb-1 mb-3">
             Professional Experience
           </h2>
           <div className="space-y-4">
             {data.experience.map((exp, index) => (
-              <div key={index} className="border-l-2 border-gray-300 pl-4">
+              <div key={index} className="pl-0">
                 <div className="flex flex-wrap justify-between items-start mb-2">
                   <h3 className="font-bold text-gray-900">{exp.title}</h3>
-                  <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-sm text-gray-600">
                     {exp.duration}
                   </span>
                 </div>
@@ -78,7 +71,7 @@ export default function ATSResume({ data }: ATSResumeProps) {
                 <ul className="space-y-1">
                   {exp.bullets.map((bullet, bulletIndex) => (
                     <li key={bulletIndex} className="flex items-start">
-                      <span className="text-gray-600 mr-2">•</span>
+                      <span className="text-gray-600 mr-2">-</span>
                       <span className="text-gray-700">{bullet}</span>
                     </li>
                   ))}
@@ -91,8 +84,8 @@ export default function ATSResume({ data }: ATSResumeProps) {
 
       {/* Education */}
       {data.education && data.education.length > 0 && (
-        <section className="mb-6">
-          <h2 className="font-bold text-lg uppercase border-b border-gray-300 pb-1 mb-3">
+        <section className="mb-6 break-inside-avoid">
+          <h2 className="font-bold text-lg uppercase pb-1 mb-3">
             Education
           </h2>
           <div className="space-y-3">
@@ -103,7 +96,7 @@ export default function ATSResume({ data }: ATSResumeProps) {
                   <p className="text-gray-700">{edu.institution}</p>
                 </div>
                 {edu.year && (
-                  <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-sm text-gray-600">
                     {edu.year}
                   </span>
                 )}
@@ -115,8 +108,8 @@ export default function ATSResume({ data }: ATSResumeProps) {
 
       {/* Certifications */}
       {data.certifications && data.certifications.length > 0 && (
-        <section className="mb-6">
-          <h2 className="font-bold text-lg uppercase border-b border-gray-300 pb-1 mb-3">
+        <section className="mb-6 break-inside-avoid">
+          <h2 className="font-bold text-lg uppercase pb-1 mb-3">
             Certifications
           </h2>
           <div className="space-y-2">
@@ -134,8 +127,8 @@ export default function ATSResume({ data }: ATSResumeProps) {
 
       {/* Projects */}
       {data.projects && data.projects.length > 0 && (
-        <section className="mb-6">
-          <h2 className="font-bold text-lg uppercase border-b border-gray-300 pb-1 mb-3">
+        <section className="mb-6 break-inside-avoid">
+          <h2 className="font-bold text-lg uppercase pb-1 mb-3">
             Projects
           </h2>
           <div className="space-y-3">
@@ -144,16 +137,9 @@ export default function ATSResume({ data }: ATSResumeProps) {
                 <h3 className="font-semibold text-gray-900">{project.name}</h3>
                 <p className="text-gray-700 mb-2">{project.description}</p>
                 {project.technologies && project.technologies.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech, techIndex) => (
-                      <span 
-                        key={techIndex} 
-                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-sm text-gray-600">
+                    Technologies: {project.technologies.join(', ')}
+                  </p>
                 )}
               </div>
             ))}
