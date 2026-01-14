@@ -45,20 +45,26 @@ export function formatResumeForDisplay(resumeData: ResumeData): string {
     resumeText += `${resumeData.personalInfo.fullName}\n`
   }
 
-  // 2. Job Title (if available)
-  if (resumeData.personalInfo.title) {
-    resumeText += `${resumeData.personalInfo.title}\n`
-  }
-
-  // 3. Contact Information - Universal format
+  // 2. Contact Information - Custom format: 1-PHONE - EMAIL
   const contactParts = []
-  if (resumeData.personalInfo.location) contactParts.push(resumeData.personalInfo.location)
-  if (resumeData.personalInfo.phone) contactParts.push(resumeData.personalInfo.phone)
-  if (resumeData.personalInfo.email) contactParts.push(resumeData.personalInfo.email)
-  if (resumeData.personalInfo.linkedin) contactParts.push(resumeData.personalInfo.linkedin)
+  if (resumeData.personalInfo.phone) {
+    // Format phone number
+    const cleanPhone = resumeData.personalInfo.phone.replace(/[^0-9]/g, '');
+    if (cleanPhone) contactParts.push(`1-${cleanPhone}`);
+  }
+  if (resumeData.personalInfo.email) {
+    // Clean email format
+    const cleanEmail = resumeData.personalInfo.email.replace(/[@.]/g, (match) => match === '@' ? 'AT' : '-');
+    contactParts.push(cleanEmail);
+  }
   
   if (contactParts.length > 0) {
-    resumeText += `${contactParts.join(' - ')}\n\n`
+    resumeText += `${contactParts.join(' - ')}\n`
+  }
+
+  // 3. Job Title (if available)
+  if (resumeData.personalInfo.title) {
+    resumeText += `${resumeData.personalInfo.title}\n\n`
   }
 
   // 4. Professional Summary
@@ -70,9 +76,18 @@ ${resumeData.summary}
 `
   }
 
-  // 5. Core Skills / Technical Skills
+  // 5. Professional Summary (moved from section 4)
+  if (resumeData.summary) {
+    resumeText += `PROFESSIONAL SUMMARY
+${resumeData.summary}
+
+
+`
+  }
+
+  // 6. Core Areas of Expertise
   if (resumeData.skills) {
-    resumeText += `CORE SKILLS\n`
+    resumeText += `CORE AREAS OF EXPERTISE\n`
     // Convert comma-separated skills to bullet points
     const skillsList = resumeData.skills
       .split(/[•,]/)
@@ -83,21 +98,17 @@ ${resumeData.summary}
     resumeText += `${skillsList}\n\n\n`
   }
 
-  // 6. Experience - Professional format
+  // 7. Experience
   if (resumeData.experience && resumeData.experience.some(exp => exp.company)) {
-    resumeText += `PROFESSIONAL EXPERIENCE\n\n`
+    resumeText += `EXPERIENCE\n\n`
     resumeData.experience.forEach((exp, index) => {
       if (exp.company) {
-        // Job Title
-        resumeText += `${exp.position}\n`
-        // Company and Location
-        resumeText += `${exp.company}`
+        // Job Title - Company, Location
+        resumeText += `${exp.position} - ${exp.company}`
         if (resumeData.personalInfo.location) {
-          resumeText += ` - ${resumeData.personalInfo.location}`
+          resumeText += `, ${resumeData.personalInfo.location}`
         }
-        resumeText += `\n`
-        // Duration
-        resumeText += `${exp.duration}\n\n`
+        resumeText += `\n${exp.duration}\n`
         
         // Description with bullet points
         if (exp.description) {
@@ -118,32 +129,38 @@ ${resumeData.summary}
     })
   }
 
-  // 7. Projects (if available)
-  if (resumeData.projects && resumeData.projects.some(proj => proj.name)) {
-    resumeText += `PROJECTS\n\n`
-    resumeData.projects.forEach(proj => {
-      if (proj.name) {
-        resumeText += `${proj.name}\n`
-        if (proj.description) {
-          resumeText += `${proj.description}\n`
-        }
-        if (proj.technologies) {
-          resumeText += `Technologies: ${proj.technologies}\n`
-        }
-        resumeText += `\n`
-      }
-    })
-  }
-
-  // 8. Education Section
+  // 8. Education
   if (resumeData.education && resumeData.education.length > 0) {
     resumeText += `EDUCATION\n\n`
     resumeData.education.forEach(edu => {
       if (edu.institution) {
-        resumeText += `${edu.degree}\n`
-        resumeText += `${edu.institution}${edu.year ? ` - ${edu.year}` : ''}\n\n`
+        resumeText += `${edu.degree}\n${edu.institution}\n\n`
       }
     })
+  }
+
+  // 9. Key Skills
+  if (resumeData.skills) {
+    resumeText += `KEY SKILLS\n`
+    // Convert comma-separated skills to bullet points
+    const skillsList = resumeData.skills
+      .split(/[•,]/)
+      .map(skill => skill.trim())
+      .filter(skill => skill.length > 0)
+      .map(skill => `- ${skill}`)
+      .join('\n');
+    resumeText += `${skillsList}\n\n\n`
+  }
+
+  // 10. Certifications
+  if (resumeData.certifications && resumeData.certifications.some(cert => cert.name)) {
+    resumeText += `CERTIFICATIONS\n\n`
+    resumeData.certifications.forEach(cert => {
+      if (cert.name) {
+        resumeText += `- ${cert.name} (${cert.issuer}${cert.date ? ` - ${cert.date}` : ''})\n`
+      }
+    })
+    resumeText += `\n`
   }
 
   // 9. Certifications - Professional format
@@ -157,11 +174,7 @@ ${resumeData.summary}
     })
   }
 
-  // 10. Languages (placeholder - can be added to data structure)
-  // This would be implemented when language data is available in ResumeData
-  resumeText += `LANGUAGES\n\n`
-  resumeText += `English - Native\n`
-  resumeText += `\n`
+
 
   // Final cleanup to ensure PDF compatibility and formatting requirements
   const cleanText = resumeText
