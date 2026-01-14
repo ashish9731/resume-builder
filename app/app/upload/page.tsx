@@ -202,6 +202,10 @@ export default function UploadPage() {
         formatResumeForDisplay(parsedResume) : 
         resumeText;
       
+      console.log('Sending enhancement request...');
+      console.log('Text to send length:', textToSend?.length);
+      console.log('Job description length:', jobDescription?.trim()?.length);
+      
       const response = await fetch('/api/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -212,11 +216,18 @@ export default function UploadPage() {
         }),
       })
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
       if (!response.ok) {
-        throw new Error('Failed to enhance resume')
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`API Error ${response.status}: ${errorText || 'Unknown error'}`)
       }
 
       const data = await response.json()
+      console.log('API Response data keys:', Object.keys(data));
+      console.log('Enhanced content length:', data.enhanced?.length);
       setEnhancedResume(data.enhanced)
       
       // Log that storage is disabled and notify user
