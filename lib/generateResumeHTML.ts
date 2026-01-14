@@ -1,42 +1,62 @@
 import { ParsedResumeData } from './resumeParser'
 
-export function generateResumeHTML(resumeData: ParsedResumeData, template: string = 'ATS'): string {
+export function generateResumeHTML(resumeData: any, template: string = 'ATS'): string {
   const isATS = template === 'ATS'
+  
+  // Handle both data structures
+  const isParsedFormat = resumeData.basics !== undefined;
   
   // Generate contact section
   const contactItems = []
-  if (resumeData.basics.email) contactItems.push(`${isATS ? 'Email:' : ''} ${resumeData.basics.email}`)
-  if (resumeData.basics.phone) contactItems.push(`${isATS ? 'Phone:' : ''} ${resumeData.basics.phone}`)
-  if (resumeData.basics.location) contactItems.push(`${isATS ? 'Location:' : ''} ${resumeData.basics.location}`)
-  if (resumeData.basics.linkedin) contactItems.push(`${isATS ? 'LinkedIn:' : ''} ${resumeData.basics.linkedin}`)
+  if (isParsedFormat) {
+    if (resumeData.basics.email) contactItems.push(`${isATS ? 'Email:' : ''} ${resumeData.basics.email}`)
+    if (resumeData.basics.phone) contactItems.push(`${isATS ? 'Phone:' : ''} ${resumeData.basics.phone}`)
+    if (resumeData.basics.location) contactItems.push(`${isATS ? 'Location:' : ''} ${resumeData.basics.location}`)
+    if (resumeData.basics.linkedin) contactItems.push(`${isATS ? 'LinkedIn:' : ''} ${resumeData.basics.linkedin}`)
+  } else {
+    // Handle original ResumeData format
+    if (resumeData.personalInfo?.email) contactItems.push(`${isATS ? 'Email:' : ''} ${resumeData.personalInfo.email}`)
+    if (resumeData.personalInfo?.phone) contactItems.push(`${isATS ? 'Phone:' : ''} ${resumeData.personalInfo.phone}`)
+    if (resumeData.personalInfo?.location) contactItems.push(`${isATS ? 'Location:' : ''} ${resumeData.personalInfo.location}`)
+    if (resumeData.personalInfo?.linkedin) contactItems.push(`${isATS ? 'LinkedIn:' : ''} ${resumeData.personalInfo.linkedin}`)
+  }
   
   const contactSection = contactItems.length > 0 
     ? `<div style="margin-bottom: 24px;">${contactItems.join(isATS ? '<br>' : ' • ')}</div>`
     : ''
 
   // Generate skills section
-  const skillsSection = resumeData.skills && resumeData.skills.length > 0
+  const skillsData = isParsedFormat ? resumeData.skills : (resumeData.skills ? resumeData.skills.split(',').map((s: string) => s.trim()) : []);
+  const skillsSection = skillsData && skillsData.length > 0
     ? `<section style="margin-bottom: 24px;" class="break-inside-avoid">
         <h2 style="font-weight: bold; font-size: 18px; text-transform: uppercase; margin-bottom: 12px;">
           ${isATS ? 'Core Skills' : 'Skills'}
         </h2>
-        <p style="color: #374151;">${resumeData.skills.join(', ')}</p>
+        <p style="color: #374151;">${skillsData.join(', ')}</p>
       </section>`
     : ''
 
   // Generate experience section
-  const experienceItems = resumeData.experience?.map(exp => `
+  const experienceData = resumeData.experience || [];
+  const experienceItems = experienceData.map((exp: any) => {
+    const title = isParsedFormat ? exp.title : exp.position;
+    const company = exp.company;
+    const duration = exp.duration;
+    const bullets = isParsedFormat ? exp.bullets : (exp.description ? exp.description.split('\n').filter((line: string) => line.trim()) : []);
+    
+    return `
     <div style="margin-bottom: 16px; ${isATS ? '' : 'padding-left: 0;'}">
       <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-        <h3 style="font-weight: bold; color: #111827;">${exp.title}</h3>
-        <span style="font-size: 14px; color: #4b5563;">${exp.duration}</span>
+        <h3 style="font-weight: bold; color: #111827;">${title}</h3>
+        <span style="font-size: 14px; color: #4b5563;">${duration}</span>
       </div>
-      <p style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">${exp.company}</p>
+      <p style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">${company}</p>
       <ul style="margin: 0; padding-left: 20px;">
-        ${exp.bullets.map(bullet => `<li style="margin-bottom: 4px;"><span style="color: #4b5563; margin-right: 8px;">${isATS ? '-' : '•'}</span>${bullet}</li>`).join('')}
+        ${bullets.map((bullet: string) => `<li style="margin-bottom: 4px;"><span style="color: #4b5563; margin-right: 8px;">${isATS ? '-' : '•'}</span>${bullet}</li>`).join('')}
       </ul>
     </div>
-  `).join('') || ''
+  `;
+  }).join('') || ''
 
   const experienceSection = experienceItems
     ? `<section style="margin-bottom: 24px;" class="break-inside-avoid">
@@ -50,13 +70,14 @@ export function generateResumeHTML(resumeData: ParsedResumeData, template: strin
     : ''
 
   // Generate education section
-  const educationItems = resumeData.education?.map(edu => `
+  const educationData = resumeData.education || [];
+  const educationItems = educationData.map((edu: any) => `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div>
         <h3 style="font-weight: 600; color: #111827;">${edu.degree}</h3>
         <p style="color: #374151;">${edu.institution}</p>
       </div>
-      ${edu.year ? `<span style="font-size: 14px; color: #4b5563;">${edu.year}</span>` : ''}
+      ${edu.year ? `<span style="font-size: 14px; color: #4b5563;">${edu.year}</span>` : '' }
     </div>
   `).join('') || ''
 
@@ -72,11 +93,12 @@ export function generateResumeHTML(resumeData: ParsedResumeData, template: strin
     : ''
 
   // Generate certifications section
-  const certificationItems = resumeData.certifications?.map(cert => `
+  const certificationData = resumeData.certifications || [];
+  const certificationItems = certificationData.map((cert: any) => `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <span style="font-weight: 500; color: #1f2937;">${cert.name}</span>
       <span style="font-size: 14px; color: #4b5563;">
-        ${cert.issuer}${cert.date ? ` (${cert.date})` : ''}
+        ${cert.issuer}${cert.date ? ` (${cert.date})` : '' }
       </span>
     </div>
   `).join('') || ''
@@ -93,13 +115,14 @@ export function generateResumeHTML(resumeData: ParsedResumeData, template: strin
     : ''
 
   // Generate projects section
-  const projectItems = resumeData.projects?.map(project => `
+  const projectData = resumeData.projects || [];
+  const projectItems = projectData.map((project: any) => `
     <div style="margin-bottom: 12px;">
       <h3 style="font-weight: 600; color: #111827;">${project.name}</h3>
       <p style="color: #374151; margin-bottom: 8px;">${project.description}</p>
       ${project.technologies && project.technologies.length > 0 
-        ? `<p style="font-size: 14px; color: #4b5563;">Technologies: ${project.technologies.join(', ')}</p>`
-        : ''}
+        ? `<p style="font-size: 14px; color: #4b5563;">Technologies: ${Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies}</p>`
+        : '' }
     </div>
   `).join('') || ''
 
@@ -163,7 +186,7 @@ export function generateResumeHTML(resumeData: ParsedResumeData, template: strin
         </style>
       </head>
       <body>
-        <h1>${resumeData.basics.name}</h1>
+        <h1>${isParsedFormat ? resumeData.basics.name : (resumeData.personalInfo?.fullName || 'Candidate Name')}</h1>
         ${contactSection}
         
         ${resumeData.summary ? `

@@ -539,6 +539,16 @@ export default function UploadPage() {
 
           {/* Right Column - Resume Content */}
           <div className="space-y-6">
+            {/* Default Name Header when no resume uploaded */}
+            {!resumeText && (
+              <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h3 className="text-xl font-bold text-white mb-4">Name</h3>
+                <div className="bg-white/10/5 rounded-lg p-4">
+                  <p className="text-white/60 italic">Upload a resume to see your content here</p>
+                </div>
+              </div>
+            )}
+            
             {/* Original Resume */}
             {resumeText && (
               <div className="bg-white/10/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
