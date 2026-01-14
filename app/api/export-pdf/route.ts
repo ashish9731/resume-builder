@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generatePDFBuffer } from '@/lib/pdf/exportResumeToPDF'
-import ReactDOMServer from 'react-dom/server'
-import ATSResume from '@/templates/ATS'
-import ModernResume from '@/templates/Modern'
+import { generateResumeHTML } from '@/lib/generateResumeHTML'
 import { ParsedResumeData } from '@/lib/resumeParser'
 
 export async function POST(req: NextRequest) {
@@ -17,49 +15,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Select template component
-    const TemplateComponent = template === 'Modern' ? ModernResume : ATSResume
-
-    // Generate HTML with proper styling
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 0;
-              line-height: 1.6;
-            }
-            section {
-              page-break-inside: avoid;
-            }
-            .break-inside-avoid {
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-            h1, h2, h3 {
-              margin: 0;
-              padding: 0;
-            }
-            ul, ol {
-              margin: 0;
-              padding-left: 20px;
-            }
-            li {
-              margin-bottom: 4px;
-            }
-          </style>
-        </head>
-        <body>
-          ${ReactDOMServer.renderToStaticMarkup(
-            TemplateComponent({ data: resumeData as ParsedResumeData })
-          )}
-        </body>
-      </html>
-    `
+    // Generate HTML using our utility function
+    const html = generateResumeHTML(resumeData as ParsedResumeData, template)
 
     // Generate PDF buffer
     const pdfBuffer = await generatePDFBuffer(html)
