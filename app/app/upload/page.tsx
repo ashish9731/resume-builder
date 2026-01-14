@@ -223,9 +223,17 @@ export default function UploadPage() {
       console.log('Cloud storage disabled - Please download your resume manually');
       
       setCurrentStep(4)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Enhancement error:', error)
-      alert('Failed to enhance resume. Please try again.')
+      console.error('Error type:', error?.constructor?.name)
+      console.error('Error message:', error?.message)
+      
+      // Check if it's an authentication error
+      if (error?.message?.includes('Auth') || error?.message?.includes('session')) {
+        alert('Authentication issue detected. Please refresh the page and try again.');
+      } else {
+        alert('Failed to enhance resume. Please try again.');
+      }
     } finally {
       setEnhancing(false)
     }
