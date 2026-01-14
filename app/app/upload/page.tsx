@@ -530,6 +530,9 @@ export default function UploadPage() {
                     <option value="modern">Modern</option>
                     <option value="creative">Creative</option>
                     <option value="minimal">Minimal</option>
+                    <option value="template1">Template 1 - Two Column Executive</option>
+                    <option value="template2">Template 2 - Modern Corporate</option>
+                    <option value="template3">Template 3 - Minimal Serif</option>
                   </select>
                   <p className="text-white/50 text-xs mt-2">
                     Choose a template that best fits your industry and personal style.
