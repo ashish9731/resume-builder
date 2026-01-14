@@ -1,0 +1,24 @@
+
+> resume-builder@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./app/api/export-pdf/route.ts:25:29
+Type error: Argument of type 'Buffer<ArrayBufferLike>' is not assignable to parameter of type 'BodyInit | null | undefined'.
+  Type 'Buffer<ArrayBufferLike>' is missing the following properties from type 'URLSearchParams': size, append, delete, get, and 2 more.
+
+[0m [90m 23 |[39m[0m
+[0m [90m 24 |[39m     [90m// Return PDF response[39m[0m
+[0m[31m[1m>[22m[39m[90m 25 |[39m     [36mreturn[39m [36mnew[39m [33mNextResponse[39m(pdfBuffer[33m,[39m {[0m
+[0m [90m    |[39m                             [31m[1m^[22m[39m[0m
+[0m [90m 26 |[39m       headers[33m:[39m {[0m
+[0m [90m 27 |[39m         [32m'Content-Type'[39m[33m:[39m [32m'application/pdf'[39m[33m,[39m[0m
+[0m [90m 28 |[39m         [32m'Content-Disposition'[39m[33m:[39m [32m`attachment; filename="${template}_Resume.pdf"`[39m[0m
+Next.js build worker exited with code: 1 and signal: null

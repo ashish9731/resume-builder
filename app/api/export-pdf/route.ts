@@ -20,9 +20,12 @@ export async function POST(req: NextRequest) {
 
     // Generate PDF buffer
     const pdfBuffer = await generatePDFBuffer(html)
+    
+    // Convert Buffer to Uint8Array for NextResponse
+    const uint8Array = new Uint8Array(pdfBuffer);
 
     // Return PDF response
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(uint8Array, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${template}_Resume.pdf"`
