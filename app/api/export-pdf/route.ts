@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePDFBuffer } from '@/lib/pdf/exportResumeToPDF'
+import { generatePDFFromHTMLServerless } from '@/lib/serverlessPdfGenerator'
 import { generateResumeHTML } from '@/lib/generateResumeHTML'
 import { ParsedResumeData } from '@/lib/resumeParser'
 
@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
     // Generate HTML using our utility function
     const html = generateResumeHTML(resumeData as ParsedResumeData, template)
 
-    // Generate PDF buffer
-    const pdfBuffer = await generatePDFBuffer(html)
+    // Generate PDF buffer using serverless-compatible generator
+    const pdfBuffer = await generatePDFFromHTMLServerless(html)
     
     // Convert Buffer to Uint8Array for NextResponse
     const uint8Array = new Uint8Array(pdfBuffer);
