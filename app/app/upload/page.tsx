@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { parseResume } from '@/lib/resumeParser'
-import { generateResumePDF } from '@/lib/pdfGenerator'
 import { formatResumeForDisplay } from '@/lib/resumeFormatter'
 import { saveResumeToSupabase } from '@/lib/resumeStorage'
 import ResumePreviewModal from '@/components/ResumePreviewModal'
@@ -253,48 +252,30 @@ export default function UploadPage() {
     if (!enhancedResume) return
 
     try {
-      // Option 1: Use new structured PDF generator
-      if (parsedResume) {
-        const enhancedParsed = parseResume(enhancedResume);
-        const pdfBytes = await generateResumePDF(enhancedParsed, selectedTemplate);
-        
-        // Convert to proper ArrayBuffer for Blob
-        const uint8Array = new Uint8Array(pdfBytes);
-        const blob = new Blob([uint8Array], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `enhanced-resume-${selectedTemplate}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        // Option 2: Fall back to existing PDF API
-        const response = await fetch('/api/pdf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            text: enhancedResume,
-            template: selectedTemplate
-          }),
-        });
+      // Use new pixel-perfect PDF export API
+      const response = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          resumeData: parsedResume,
+          template: selectedTemplate
+        }),
+      });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`PDF generation failed: ${errorText}`);
-        }
-
-        const pdfBlob = await response.blob();
-        const url = window.URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `enhanced-resume-${selectedTemplate}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`PDF generation failed: ${errorText}`);
       }
+
+      const pdfBlob = await response.blob();
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `enhanced-resume-${selectedTemplate}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       console.error('Download error:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);

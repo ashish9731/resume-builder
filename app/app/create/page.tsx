@@ -246,13 +246,43 @@ const CreatePage = () => {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/pdf', {
+      // Convert current resume data to structured format for PDF export
+      const structuredResume = {
+        basics: {
+          name: resumeData.personalInfo.fullName || '',
+          email: resumeData.personalInfo.email || '',
+          phone: resumeData.personalInfo.phone || '',
+          location: resumeData.personalInfo.location || ''
+        },
+        summary: resumeData.summary || '',
+        experience: resumeData.experience.map(exp => ({
+          title: exp.position || '',
+          company: exp.company || '',
+          duration: exp.duration || '',
+          bullets: exp.description ? exp.description.split('\n').filter(line => line.trim()) : []
+        })) || [],
+        education: resumeData.education.map(edu => ({
+          degree: edu.degree || '',
+          institution: edu.institution || '',
+          year: edu.year || ''
+        })) || [],
+        skills: resumeData.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+        certifications: []
+      };
+
+      const response = await fetch('/api/export-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: generateResume }),
+        body: JSON.stringify({ 
+          resumeData: structuredResume,
+          template: 'ATS' // Default to ATS for new resumes
+        }),
       })
 
-      if (!response.ok) throw new Error('Failed to generate PDF')
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`PDF generation failed: ${errorText}`);
+      }
 
       const pdfBlob = await response.blob()
       const url = window.URL.createObjectURL(pdfBlob)
@@ -270,7 +300,7 @@ const CreatePage = () => {
     } finally {
       setLoading(false)
     }
-  }, [generateResume])
+  }, [resumeData])
 
   const handleSignOut = useCallback(async () => {
     if (!supabase) return
@@ -385,13 +415,44 @@ const CreatePage = () => {
     
     setLoading(true)
     try {
-      const response = await fetch('/api/pdf', {
+      // For preview, we'll need to convert the enhanced text back to structured data
+      // This is a simplified approach - in practice, you'd want to preserve the structured data
+      const structuredResume = {
+        basics: {
+          name: resumeData.personalInfo.fullName || '',
+          email: resumeData.personalInfo.email || '',
+          phone: resumeData.personalInfo.phone || '',
+          location: resumeData.personalInfo.location || ''
+        },
+        summary: resumeData.summary || '',
+        experience: resumeData.experience.map(exp => ({
+          title: exp.position || '',
+          company: exp.company || '',
+          duration: exp.duration || '',
+          bullets: exp.description ? exp.description.split('\n').filter(line => line.trim()) : []
+        })) || [],
+        education: resumeData.education.map(edu => ({
+          degree: edu.degree || '',
+          institution: edu.institution || '',
+          year: edu.year || ''
+        })) || [],
+        skills: resumeData.skills ? resumeData.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+        certifications: []
+      };
+
+      const response = await fetch('/api/export-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: enhancedResume }),
+        body: JSON.stringify({ 
+          resumeData: structuredResume,
+          template: 'ATS'
+        }),
       })
 
-      if (!response.ok) throw new Error('Failed to generate PDF')
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`PDF generation failed: ${errorText}`);
+      }
 
       const pdfBlob = await response.blob()
       const url = window.URL.createObjectURL(pdfBlob)
@@ -409,7 +470,7 @@ const CreatePage = () => {
     } finally {
       setLoading(false)
     }
-  }, [enhancedResume])
+  }, [enhancedResume, resumeData])
 
   const renderStep = useMemo(() => {
     switch (currentStep) {
