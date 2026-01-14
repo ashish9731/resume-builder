@@ -76,19 +76,9 @@ export async function POST(req: Request) {
       )
     }
 
-    if (text.length > 10000) {
-      return NextResponse.json(
-        { error: 'Text too long. Maximum 10,000 characters allowed.' },
-        { status: 400 }
-      )
-    }
+    // Character limit removed - process resumes of any length
 
-    if (jobDescription.length > 5000) {
-      return NextResponse.json(
-        { error: 'Job description too long. Maximum 5000 characters allowed.' },
-        { status: 400 }
-      )
-    }
+    // Job description limit removed - process descriptions of any length
 
     const prompt = `Enhance this resume to better match the job description while preserving all original information.
 
