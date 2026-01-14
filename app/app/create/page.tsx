@@ -140,15 +140,25 @@ const CreatePage = () => {
   }, [])
 
   const generateResume = useMemo(() => {
-    // Convert existing resumeData structure to new format
+    // Convert existing resumeData structure to new format with null safety
+    const personalInfo = resumeData.personalInfo ?? {
+      fullName: 'Candidate Name',
+      email: '',
+      phone: '',
+      linkedin: '',
+      location: '',
+      website: '',
+      title: ''
+    };
+
     const formattedData = {
       personalInfo: {
-        fullName: resumeData.personalInfo.fullName,
-        email: resumeData.personalInfo.email,
-        phone: resumeData.personalInfo.phone,
-        linkedin: resumeData.personalInfo.linkedin,
-        location: resumeData.personalInfo.location,
-        website: resumeData.personalInfo.website
+        fullName: personalInfo.fullName || 'Candidate Name',
+        email: personalInfo.email || '',
+        phone: personalInfo.phone || '',
+        linkedin: personalInfo.linkedin || '',
+        location: personalInfo.location || '',
+        website: personalInfo.website || ''
       },
       summary: resumeData.summary,
       experience: resumeData.experience.filter(exp => exp.company).map(exp => ({

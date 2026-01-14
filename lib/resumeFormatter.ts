@@ -37,68 +37,53 @@ export interface ResumeData {
   }>
 }
 
-export function formatResumeForDisplay(resumeData: ResumeData): string {
+// Helper function for safe property access
+function safe(value?: string): string {
+  return value ?? '';
+}
+
+export function formatResumeForDisplay(resumeData: Partial<ResumeData>): string {
   let resumeText = ''
 
   // 1. Full Name
-  if (resumeData.personalInfo.fullName) {
-    resumeText += `${resumeData.personalInfo.fullName}\n`
-  }
+  const personal = resumeData.personalInfo ?? {
+    fullName: 'Candidate Name',
+    title: '',
+    email: '',
+    phone: '',
+    linkedin: '',
+    location: '',
+    website: ''
+  };
 
-  // 2. Contact Information - Format: Full Name, Country Code - Phone, Email
-  const contactParts = []
-  
-  // Add full name first
-  if (resumeData.personalInfo.fullName) {
-    contactParts.push(resumeData.personalInfo.fullName);
-  }
-  
-  // Add country code and phone
-  if (resumeData.personalInfo.phone) {
-    const cleanPhone = resumeData.personalInfo.phone.replace(/[^0-9]/g, '');
-    if (cleanPhone) {
-      // Default to +91 for India, can be customized
-      contactParts.push(`+91-${cleanPhone}`);
-    }
-  }
-  
-  // Add email
-  if (resumeData.personalInfo.email) {
-    contactParts.push(resumeData.personalInfo.email);
-  }
-  
-  if (contactParts.length > 0) {
-    resumeText += `${contactParts.join(' - ')}\n`
-  }
+  resumeText += `${personal.fullName}\n`;
+  if (personal.title) resumeText += `${personal.title}\n`;
 
-  // 3. Job Title (if available)
-  if (resumeData.personalInfo.title) {
-    resumeText += `${resumeData.personalInfo.title}\n\n`
-  }
+  resumeText += `${[personal.location].filter(Boolean).join(', ')} | `;
+  resumeText += `${personal.phone || ''} | `;
+  resumeText += `${personal.email || ''} | `;
+  resumeText += `${personal.linkedin || ''}\n\n`;
+
+  // Contact information already handled above with safe defaults
+
+  // Job Title already handled above
 
   // 4. Professional Summary
-  if (resumeData.summary) {
+  if (safe(resumeData.summary)) {
     resumeText += `PROFESSIONAL SUMMARY
-${resumeData.summary}
+${safe(resumeData.summary)}
 
 
 `
   }
 
-  // 5. Professional Summary (moved from section 4)
-  if (resumeData.summary) {
-    resumeText += `PROFESSIONAL SUMMARY
-${resumeData.summary}
-
-
-`
-  }
+  // Duplicate summary section removed
 
   // 6. Core Areas of Expertise
-  if (resumeData.skills) {
+  if (safe(resumeData.skills)) {
     resumeText += `CORE AREAS OF EXPERTISE\n`
     // Convert comma-separated skills to bullet points
-    const skillsList = resumeData.skills
+    const skillsList = safe(resumeData.skills)
       .split(/[•,]/)
       .map(skill => skill.trim())
       .filter(skill => skill.length > 0)
@@ -108,20 +93,21 @@ ${resumeData.summary}
   }
 
   // 7. Experience
-  if (resumeData.experience && resumeData.experience.some(exp => exp.company)) {
+  const experience = Array.isArray(resumeData.experience) ? resumeData.experience : [];
+  if (experience.some(exp => safe(exp.company))) {
     resumeText += `EXPERIENCE\n\n`
-    resumeData.experience.forEach((exp, index) => {
-      if (exp.company) {
+    experience.forEach((exp, index) => {
+      if (safe(exp.company)) {
         // Job Title - Company, Location
-        resumeText += `${exp.position} - ${exp.company}`
-        if (resumeData.personalInfo.location) {
-          resumeText += `, ${resumeData.personalInfo.location}`
+        resumeText += `${safe(exp.position)} - ${safe(exp.company)}`
+        if (personal.location) {
+          resumeText += `, ${personal.location}`
         }
-        resumeText += `\n${exp.duration}\n`
+        resumeText += `\n${safe(exp.duration)}\n`
         
         // Description with bullet points
-        if (exp.description) {
-          const bullets = exp.description
+        if (safe(exp.description)) {
+          const bullets = safe(exp.description)
             .split('\n')
             .filter(line => line.trim())
             .map(line => {
@@ -139,20 +125,21 @@ ${resumeData.summary}
   }
 
   // 8. Education
-  if (resumeData.education && resumeData.education.length > 0) {
+  const education = Array.isArray(resumeData.education) ? resumeData.education : [];
+  if (education.length > 0) {
     resumeText += `EDUCATION\n\n`
-    resumeData.education.forEach(edu => {
-      if (edu.institution) {
-        resumeText += `${edu.degree}\n${edu.institution}\n\n`
+    education.forEach(edu => {
+      if (safe(edu.institution)) {
+        resumeText += `${safe(edu.degree)}\n${safe(edu.institution)}\n\n`
       }
     })
   }
 
   // 9. Key Skills
-  if (resumeData.skills) {
+  if (safe(resumeData.skills)) {
     resumeText += `KEY SKILLS\n`
     // Convert comma-separated skills to bullet points
-    const skillsList = resumeData.skills
+    const skillsList = safe(resumeData.skills)
       .split(/[•,]/)
       .map(skill => skill.trim())
       .filter(skill => skill.length > 0)
@@ -162,26 +149,18 @@ ${resumeData.summary}
   }
 
   // 10. Certifications
-  if (resumeData.certifications && resumeData.certifications.some(cert => cert.name)) {
+  const certifications = Array.isArray(resumeData.certifications) ? resumeData.certifications : [];
+  if (certifications.some(cert => safe(cert.name))) {
     resumeText += `CERTIFICATIONS\n\n`
-    resumeData.certifications.forEach(cert => {
-      if (cert.name) {
-        resumeText += `- ${cert.name} (${cert.issuer}${cert.date ? ` - ${cert.date}` : ''})\n`
+    certifications.forEach(cert => {
+      if (safe(cert.name)) {
+        resumeText += `- ${safe(cert.name)} (${safe(cert.issuer)}${safe(cert.date) ? ` - ${safe(cert.date)}` : ''})\n`
       }
     })
     resumeText += `\n`
   }
 
-  // 9. Certifications - Professional format
-  if (resumeData.certifications && resumeData.certifications.some(cert => cert.name)) {
-    resumeText += `CERTIFICATIONS\n\n`
-    resumeData.certifications.forEach(cert => {
-      if (cert.name) {
-        resumeText += `${cert.name}\n`
-        resumeText += `${cert.issuer}${cert.date ? ` - ${cert.date}` : ''}\n\n`
-      }
-    })
-  }
+  // Duplicate certifications section removed
 
 
 
