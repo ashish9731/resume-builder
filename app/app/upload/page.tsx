@@ -121,7 +121,8 @@ export default function UploadPage() {
       setCurrentStep(2)
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Failed to upload file. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Upload failed: ${errorMessage}`);
     } finally {
       setUploading(false)
     }
@@ -296,7 +297,8 @@ export default function UploadPage() {
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download PDF. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Download failed: ${errorMessage}`);
     }
   }
 

@@ -192,7 +192,8 @@ const CreatePage = () => {
       return data.suggestion
     } catch (error) {
       console.error('AI assist error:', error)
-      alert('Failed to get AI assistance. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`AI assistance failed: ${errorMessage}`)
       return ''
     } finally {
       setLoading(false)
@@ -264,7 +265,8 @@ const CreatePage = () => {
       document.body.removeChild(a)
     } catch (error) {
       console.error('Download error:', error)
-      alert('Failed to download resume. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Download failed: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -370,7 +372,8 @@ const CreatePage = () => {
         alert('Preview generation failed. Your current resume has been saved as a draft file. You can download it directly.')
       } catch (saveError) {
         console.error('Failed to save draft:', saveError)
-        alert('Preview generation failed. Please check your resume content and try again.')
+        const saveErrorMessage = saveError instanceof Error ? saveError.message : String(saveError);
+        alert(`Preview generation failed. Save error: ${saveErrorMessage}`)
       }
     } finally {
       setLoading(false)
@@ -401,7 +404,8 @@ const CreatePage = () => {
       document.body.removeChild(a)
     } catch (error) {
       console.error('Download error:', error)
-      alert('Failed to download resume. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Download failed: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
